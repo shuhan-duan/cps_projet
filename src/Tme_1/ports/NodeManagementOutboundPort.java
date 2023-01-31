@@ -9,8 +9,22 @@ import fr.sorbonne_u.components.examples.basic_cs.interfaces.URIConsumerCI;
 import fr.sorbonne_u.components.interfaces.RequiredCI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 
+/**
+ * @author lyna & shuhan 
+ *
+ */
 public class NodeManagementOutboundPort extends AbstractOutboundPort implements NodeManagementCI {
 
+	/**   
+	* @Function: NodeManagementOutboundPort.java
+	* @Description: 
+	*
+	* @param: uri
+	* @param: owner
+	* @version: 
+	* @author: lyna & shuhan
+	* @date: 30 janv. 2023 21:08:00 
+	*/
 	public NodeManagementOutboundPort(String uri, ComponentI owner)
 			throws Exception {
 		super(uri, (Class<? extends RequiredCI>) NodeManagementCI.class, owner);
@@ -22,12 +36,40 @@ public class NodeManagementOutboundPort extends AbstractOutboundPort implements 
 	 */
 	private static final long serialVersionUID = 1L;
 
+	/** 
+	* @see Tme_1.interfaces.NodeManagementCI#Join(Tme_1.interfaces.PeerNodeAddressI)  
+	* @Function: NodeManagementOutboundPort.java
+	* @Function: NodeManagementInBoundPort.java
+	* @Description: 
+	*
+	* @param: PeerNodeAddressI p
+	* @return：Set<PeerNodeAddressI>
+	* @throws：Exception
+	*
+	* @version: v1.0.0
+	* @author: lyna & shuhan
+	* @date: 30 janv. 2023 21:08:57 
+	*/
 	@Override
 	public Set<PeerNodeAddressI> Join(PeerNodeAddressI p) throws Exception {
 
 		return ((NodeManagementCI)this.getConnector()).Join(p); 
 	}
 
+	/** 
+	* @see Tme_1.interfaces.NodeManagementCI#leave(Tme_1.interfaces.PeerNodeAddressI)  
+	* @Function: NodeManagementOutboundPort.java
+	* @Description: 
+	*
+	* @param:PeerNodeAddressI p
+	* @return：void
+	* @throws：Exception
+	*
+	* @version: v1.0.0
+	* @author: lyna & shuhan
+	* @date: 30 janv. 2023 21:06:53 
+	* 
+	*/
 	@Override
 	public void leave(PeerNodeAddressI p) throws Exception {
 		 ((NodeManagementCI)this.getConnector()).leave(p); 	
