@@ -5,12 +5,13 @@ import java.util.Set;
 import Tme_1.interfaces.NodeManagementCI;
 import Tme_1.interfaces.PeerNodeAddressI;
 import fr.sorbonne_u.components.connectors.AbstractConnector;
+import fr.sorbonne_u.components.examples.basic_cs.interfaces.URIProviderCI;
 
 /**
  * @author lyna & shuhan 
  *
  */
-public class NodeManagementConnector  extends  AbstractConnector implements NodeManagementCI{
+public class ManagementConnector  extends  AbstractConnector implements PeerNodeAddressI{
 
 	/** 
 	* @see Tme_1.interfaces.NodeManagementCI#Join(Tme_1.interfaces.PeerNodeAddressI)  
@@ -27,11 +28,7 @@ public class NodeManagementConnector  extends  AbstractConnector implements Node
 	*
 	*
 	*/
-	@Override
-	public Set<PeerNodeAddressI> Join(PeerNodeAddressI p) throws Exception {
-		System.out.print("From connector join ") ;
-		return null;
-	}
+
 
 	/** 
 	* @see Tme_1.interfaces.NodeManagementCI#leave(Tme_1.interfaces.PeerNodeAddressI)  
@@ -47,9 +44,28 @@ public class NodeManagementConnector  extends  AbstractConnector implements Node
 	* @date: 31 janv. 2023 21:55:21 
 	*
 	*/
+
+
 	@Override
-	public void leave(PeerNodeAddressI p) throws Exception {
-		System.out.print("From connector leave") ;
+	public String getNodeidentifier() throws Exception {
+		return ((PeerNodeAddressI)this.offering).getNodeidentifier() ;
+	}
+
+	@Override
+	public Boolean isfacade() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Boolean ispeer() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getNodeUri() throws Exception {
+		return ((PeerNodeAddressI)this.offering).getNodeUri();
 	}
 
 }

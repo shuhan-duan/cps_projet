@@ -13,7 +13,7 @@ import fr.sorbonne_u.components.ports.AbstractOutboundPort;
  * @author lyna & shuhan 
  *
  */
-public class NodeManagementOutboundPort extends AbstractOutboundPort implements NodeManagementCI {
+public class ManagementOutboundPort extends AbstractOutboundPort implements  NodeManagementCI{
 
 	/**   
 	* @Function: NodeManagementOutboundPort.java
@@ -25,7 +25,7 @@ public class NodeManagementOutboundPort extends AbstractOutboundPort implements 
 	* @author: lyna & shuhan
 	* @date: 30 janv. 2023 21:08:00 
 	*/
-	public NodeManagementOutboundPort(String uri, ComponentI owner)
+	public ManagementOutboundPort(String uri, ComponentI owner)
 			throws Exception {
 		super(uri, (Class<? extends RequiredCI>) NodeManagementCI.class, owner);
 		assert	uri != null && owner != null ;
@@ -50,10 +50,10 @@ public class NodeManagementOutboundPort extends AbstractOutboundPort implements 
 	* @author: lyna & shuhan
 	* @date: 30 janv. 2023 21:08:57 
 	*/
-	@Override
+	
 	public Set<PeerNodeAddressI> Join(PeerNodeAddressI p) throws Exception {
 
-		return ((NodeManagementCI)this.getConnector()).Join(p); 
+		return ((NodeManagementCI)this.connector).Join(p); 
 	}
 
 	/** 
@@ -70,10 +70,12 @@ public class NodeManagementOutboundPort extends AbstractOutboundPort implements 
 	* @date: 30 janv. 2023 21:06:53 
 	* 
 	*/
-	@Override
+	
 	public void leave(PeerNodeAddressI p) throws Exception {
 		 ((NodeManagementCI)this.getConnector()).leave(p); 	
    
 	}
+
+	
 
 }

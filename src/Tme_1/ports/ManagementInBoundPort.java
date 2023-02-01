@@ -1,8 +1,10 @@
 package Tme_1.ports;
+import Tme_1.componenet.*;
 
 import java.util.Set;
 
-import Tme_1.classes.Pair;
+import Tme_1.componenet.Pair;
+import Tme_1.interfaces.FacadeNodeAdressI;
 import Tme_1.interfaces.NodeManagementCI;
 import Tme_1.interfaces.PeerNodeAddressI;
 import fr.sorbonne_u.components.AbstractComponent;
@@ -15,7 +17,7 @@ import fr.sorbonne_u.components.ports.AbstractInboundPort;
  * @author lyna & shuhan 
  *
  */
-public class NodeManagementInBoundPort extends AbstractInboundPort implements NodeManagementCI {
+public class ManagementInBoundPort extends AbstractInboundPort  implements NodeManagementCI  {
 
 	/**   
 	* @Function: NodeManagementInBoundPort.java
@@ -27,11 +29,13 @@ public class NodeManagementInBoundPort extends AbstractInboundPort implements No
 	* @author: lyna & shuhan
 	* @date: 30 janv. 2023 21:04:56 
 	*/
-	public NodeManagementInBoundPort(String uri , ComponentI owner)
+	public ManagementInBoundPort(String uri , ComponentI owner)
 			throws Exception {
 		super(uri , (Class<? extends OfferedCI>) NodeManagementCI.class, owner);
 	}
-
+	public ManagementInBoundPort(ComponentI owner) throws Exception{
+		super((Class<? extends OfferedCI>) NodeManagementCI.class, owner); 
+	}
 	/**
 	 * 
 	 */
@@ -51,15 +55,20 @@ public class NodeManagementInBoundPort extends AbstractInboundPort implements No
 	* @date: 30 janv. 2023 21:05:34 
 	*          
 	*/
-	@Override
+	
 	public Set<PeerNodeAddressI> Join(PeerNodeAddressI p) throws Exception {
 	
 		return this.getOwner().handleRequest(new AbstractComponent.AbstractService<Set<PeerNodeAddressI>>() {
 					@Override 
 					public Set<PeerNodeAddressI> call() throws Exception {
-						return ((Pair)this.getServiceOwner()).join(p) ;
+						return ((Pair)this.getServiceOwner()).Join(p) ;
 					}
 				}) ;
+	}
+	@Override
+	public void leave(PeerNodeAddressI p) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 	/** 
@@ -76,10 +85,6 @@ public class NodeManagementInBoundPort extends AbstractInboundPort implements No
 	* @date: 30 janv. 2023 21:06:53 
 	*
 	*/
-	@Override
-	public void leave(PeerNodeAddressI p) throws Exception {
-	         ( (Pair)this.getOwner()).leave(p);
-			
-	}
-
+	
+	
 }

@@ -1,4 +1,4 @@
-package Tme_1.classes;
+package Tme_1.componenet;
 
 import java.util.Set;
 
@@ -43,7 +43,7 @@ public class Pair  extends AbstractComponent{
 	*
 	* 
 	*/
-	public Set<PeerNodeAddressI>  join   (PeerNodeAddressI p) 
+	public Set<PeerNodeAddressI>  Join   (PeerNodeAddressI p) 
 	throws Exception{
 	   System.out.print("c'est ok join ");
 	   return  null; 
@@ -66,6 +66,31 @@ public class Pair  extends AbstractComponent{
 	public void leave (PeerNodeAddressI p)
 	throws Exception{
 	  System.out.print("c'est ok leave  ");
+	}
+	
+	@Override
+	public void			execute() throws Exception
+	{
+		// application execution code (similar to a main method in Java) is
+		// put here.
+
+		this.logMessage("executing consumer component.") ;
+
+		// Run the first service method invocation; the code of the method run
+		// below will be executed asynchronously as a separate task, hence this
+		// method execute will be free to finish its execution and free the
+		// thread that is executing it.
+		this.runTask(
+			new AbstractComponent.AbstractTask() {
+				@Override
+				public void run() {
+					try {
+						((Pair)this.getTaskOwner()).Join(null);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}) ;
 	}
 
 }

@@ -1,9 +1,9 @@
 package Tme_1.tests;
 
 
-import Tme_1.classes.Facade;
-import Tme_1.classes.Pair;
-import Tme_1.connector.NodeManagementConnector;
+import Tme_1.componenet.Facade;
+import Tme_1.componenet.Pair;
+import Tme_1.connector.ManagementConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.components.helpers.CVMDebugModes;
@@ -62,7 +62,7 @@ public class CVM extends AbstractCVM{
 		// create the component pair
 		this.uriPairURI =
 			AbstractComponent.createComponent(
-					Facade.class.getCanonicalName(),
+					Pair.class.getCanonicalName(),
 					new Object[]{PAIR_COMPONENT_URI,
 							NodeManagemenInboundPort});
 		assert	this.isDeployedComponent(this.uriPairURI);
@@ -74,7 +74,7 @@ public class CVM extends AbstractCVM{
 		// create the component facade
 		this.uriFacadeURI =
 			AbstractComponent.createComponent(
-					Pair.class.getCanonicalName(),
+					Facade.class.getCanonicalName(),
 					new Object[]{FACADE_COMPONENT_URI,
 							NodeManagementOutboundPort});
 		assert	this.isDeployedComponent(this.uriFacadeURI);
@@ -92,7 +92,7 @@ public class CVM extends AbstractCVM{
 				this.uriPairURI,
 				NodeManagementOutboundPort,
 				NodeManagemenInboundPort,
-				NodeManagementConnector.class.getCanonicalName()) ;
+				ManagementConnector.class.getCanonicalName()) ;
 
 		// ---------------------------------------------------------------------
 		// Deployment done
@@ -123,6 +123,8 @@ public class CVM extends AbstractCVM{
 			CVM a = new CVM();
 			// Execute the application.
 			a.startStandardLifeCycle(20000L);
+			System.out.println("--------------------------------------------------------------- RESULTATS --------------------------------------------------------------");
+
 			// Give some time to see the traces (convenience).
 			Thread.sleep(5000L);
 			// Simplifies the termination (termination has yet to be treated
