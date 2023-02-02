@@ -65,7 +65,7 @@ public class CVM extends AbstractCVM{
 			AbstractComponent.createComponent(
 					Pair.class.getCanonicalName(),
 					new Object[]{PAIR_COMPONENT_URI,
-							NodeManagemenInboundPort});
+							NodeManagementOutboundPort});
 		assert	this.isDeployedComponent(this.uriPairURI);
 		System.out.println("\n Composant Pair OK \n");
 
@@ -79,7 +79,7 @@ public class CVM extends AbstractCVM{
 			AbstractComponent.createComponent(
 					Facade.class.getCanonicalName(),
 					new Object[]{FACADE_COMPONENT_URI,
-							NodeManagementOutboundPort});
+							NodeManagemenInboundPort});
 		assert	this.isDeployedComponent(this.uriFacadeURI);
 		// make it trace its operations; comment and uncomment the line to see
 		// the difference
@@ -122,6 +122,16 @@ public class CVM extends AbstractCVM{
 	*
 	* 
 	*/
+	@Override
+	public void	finalise() throws Exception
+	{
+		// Port disconnections can be done here for static architectures
+		// otherwise, they can be done in the finalise methods of components.
+		this.doPortDisconnection(this.uriPairURI,
+				NodeManagementOutboundPort);
+
+		super.finalise();
+	}
 	public static void		main(String[] args)
 	{
 		try {
