@@ -1,10 +1,14 @@
 package Tme_1.interfaces;
 
+import java.util.Set;
+
+import fr.sorbonne_u.components.interfaces.RequiredCI;
+
 /**
  * @author lyna & shuhan 
  *
  */
-public interface PeerNodeAddressI extends NodeAdresseI {
+public interface PeerNodeAddressI extends NodeAdresseI , RequiredCI{
 	
 	/**   
 	* @Function: PeerNodeAddressI.java
@@ -21,4 +25,8 @@ public interface PeerNodeAddressI extends NodeAdresseI {
 	* 
 	*/
 	public String getNodeUri() throws Exception;
+
+	public void leave(PeerNodeAddressI p) throws Exception;
+
+	public Set<PeerNodeAddressI> Join(PeerNodeAddressI p) throws Exception;
 }

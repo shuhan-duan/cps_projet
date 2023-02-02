@@ -1,5 +1,6 @@
 package Tme_1.connector;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import Tme_1.interfaces.NodeManagementCI;
@@ -66,6 +67,17 @@ public class ManagementConnector  extends  AbstractConnector implements PeerNode
 	@Override
 	public String getNodeUri() throws Exception {
 		return ((PeerNodeAddressI)this.offering).getNodeUri();
+	}
+
+	@Override
+	public void leave(PeerNodeAddressI p) throws Exception {
+		 ((PeerNodeAddressI)this.offering).leave(p);
+		
+	}
+
+	@Override
+	public Set<PeerNodeAddressI> Join(PeerNodeAddressI p) throws Exception {
+		return ((PeerNodeAddressI)this.offering).Join(p);
 	}
 
 }

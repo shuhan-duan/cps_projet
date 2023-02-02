@@ -2,10 +2,10 @@ package Tme_1.ports;
 
 import java.util.Set;
 
+import Tme_1.componenet.Pair;
 import Tme_1.interfaces.NodeManagementCI;
 import Tme_1.interfaces.PeerNodeAddressI;
 import fr.sorbonne_u.components.ComponentI;
-import fr.sorbonne_u.components.examples.basic_cs.interfaces.URIConsumerCI;
 import fr.sorbonne_u.components.interfaces.RequiredCI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 
@@ -13,7 +13,7 @@ import fr.sorbonne_u.components.ports.AbstractOutboundPort;
  * @author lyna & shuhan 
  *
  */
-public class ManagementOutboundPort extends AbstractOutboundPort implements  NodeManagementCI{
+public class ManagementOutboundPort extends AbstractOutboundPort implements  PeerNodeAddressI{
 
 	/**   
 	* @Function: NodeManagementOutboundPort.java
@@ -27,8 +27,13 @@ public class ManagementOutboundPort extends AbstractOutboundPort implements  Nod
 	*/
 	public ManagementOutboundPort(String uri, ComponentI owner)
 			throws Exception {
-		super(uri, (Class<? extends RequiredCI>) NodeManagementCI.class, owner);
+		super(uri,   PeerNodeAddressI.class, owner);
 		assert	uri != null && owner != null ;
+	}
+	public ManagementOutboundPort(ComponentI owner) throws Exception{
+		super( PeerNodeAddressI.class, owner);
+		assert	owner != null ;
+
 	}
 
 	/**
@@ -53,7 +58,7 @@ public class ManagementOutboundPort extends AbstractOutboundPort implements  Nod
 	
 	public Set<PeerNodeAddressI> Join(PeerNodeAddressI p) throws Exception {
 
-		return ((NodeManagementCI)this.connector).Join(p); 
+		return ((PeerNodeAddressI)this.getConnector()).Join(p); 
 	}
 
 	/** 
@@ -72,8 +77,28 @@ public class ManagementOutboundPort extends AbstractOutboundPort implements  Nod
 	*/
 	
 	public void leave(PeerNodeAddressI p) throws Exception {
-		 ((NodeManagementCI)this.getConnector()).leave(p); 	
+		 ((PeerNodeAddressI)this.getConnector()).leave(p); 	
    
+	}
+	@Override
+	public String getNodeidentifier() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Boolean isfacade() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Boolean ispeer() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public String getNodeUri() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	

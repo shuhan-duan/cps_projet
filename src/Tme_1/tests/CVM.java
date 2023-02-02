@@ -8,6 +8,7 @@ import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.components.helpers.CVMDebugModes;
 
+
 /**
  * @author lyna & shuhan 
  *
@@ -66,6 +67,8 @@ public class CVM extends AbstractCVM{
 					new Object[]{PAIR_COMPONENT_URI,
 							NodeManagemenInboundPort});
 		assert	this.isDeployedComponent(this.uriPairURI);
+		System.out.println("--------------------------------------------------------------- RESULTATS --------------------------------------------------------------");
+
 		// make it trace its operations; comment and uncomment the line to see
 		// the difference
 		this.toggleTracing(this.uriPairURI);
@@ -123,10 +126,10 @@ public class CVM extends AbstractCVM{
 			CVM a = new CVM();
 			// Execute the application.
 			a.startStandardLifeCycle(20000L);
-			System.out.println("--------------------------------------------------------------- RESULTATS --------------------------------------------------------------");
 
 			// Give some time to see the traces (convenience).
 			Thread.sleep(5000L);
+
 			// Simplifies the termination (termination has yet to be treated
 			// properly in BCM).
 			System.exit(0);

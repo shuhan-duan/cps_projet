@@ -17,7 +17,7 @@ import fr.sorbonne_u.components.ports.AbstractInboundPort;
  * @author lyna & shuhan 
  *
  */
-public class ManagementInBoundPort extends AbstractInboundPort  implements NodeManagementCI  {
+public class ManagementInBoundPort extends AbstractInboundPort  implements FacadeNodeAdressI  {
 
 	/**   
 	* @Function: NodeManagementInBoundPort.java
@@ -31,10 +31,14 @@ public class ManagementInBoundPort extends AbstractInboundPort  implements NodeM
 	*/
 	public ManagementInBoundPort(String uri , ComponentI owner)
 			throws Exception {
-		super(uri , (Class<? extends OfferedCI>) NodeManagementCI.class, owner);
+		super(uri ,  FacadeNodeAdressI.class, owner);
+		assert	uri != null && owner instanceof NodeManagementCI ;
+
 	}
 	public ManagementInBoundPort(ComponentI owner) throws Exception{
-		super((Class<? extends OfferedCI>) NodeManagementCI.class, owner); 
+		super( FacadeNodeAdressI.class, owner); 
+		assert	owner instanceof NodeManagementCI ;
+
 	}
 	/**
 	 * 
@@ -65,10 +69,30 @@ public class ManagementInBoundPort extends AbstractInboundPort  implements NodeM
 					}
 				}) ;
 	}
-	@Override
+	
 	public void leave(PeerNodeAddressI p) throws Exception {
 		// TODO Auto-generated method stub
 		
+	}
+	@Override
+	public String getNodeidentifier() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Boolean isfacade() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Boolean ispeer() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public String getNodeManagementUri() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/** 

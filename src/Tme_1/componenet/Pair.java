@@ -1,15 +1,24 @@
 package Tme_1.componenet;
+import  Tme_1.interfaces.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import Tme_1.interfaces.PeerNodeAddressI;
+import Tme_1.ports.ManagementOutboundPort;
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.annotations.RequiredInterfaces;
+import fr.sorbonne_u.components.cvm.AbstractCVM;
+import fr.sorbonne_u.components.examples.basic_cs.interfaces.URIConsumerCI;
+import fr.sorbonne_u.components.examples.basic_cs.ports.URIConsumerOutboundPort;
 
 /**
  * @author lyna & shuhan 
  *
  */
-public class Pair  extends AbstractComponent{
+@RequiredInterfaces(required = {PeerNodeAddressI.class})
+
+public class Pair  extends AbstractComponent {
 	
 	/**   
 	* @Function: Pair.java
@@ -17,16 +26,42 @@ public class Pair  extends AbstractComponent{
 	*
 	* @param: NodeUri
 	* @param: nbThreads
-	* @param: nbSchedulableThreads
 	* @version: 
 	* @author: lyna & shuhan 
 	* @date: 30 janv. 2023 20:34:23 
 	*/
-	protected Pair(String NodeUri, int nbThreads, int nbSchedulableThreads) {
-		super(NodeUri, nbThreads, nbSchedulableThreads);
+	protected final static int	N = 2 ;
+
+
+	/**	the outbound port used to call the service.							*/
+	protected ManagementOutboundPort	uriGetterPort ;
+	/**	counting service invocations.										*/
+	protected int						counter ;
+	protected String NodeUri;
+     
+	/**
+	 * @param uri				URI of the component
+	 * @param OutboundPort	URI of the URI getter outbound port.
+	 * @throws Exception		<i>todo.</i>
+	 */
+	protected Pair(String NodeUri, String outboundPortURI, int nbSchedulableThreads)throws Exception {
+		super(NodeUri, 0, 1);
+		this.uriGetterPort =new ManagementOutboundPort(outboundPortURI, this) ;
+		this.uriGetterPort.localPublishPort() ;
+		this.counter = 0 ;
+
+		if (AbstractCVM.isDistributed) {
+			this.getLogger().setDirectory(System.getProperty("user.dir")) ;
+		} else {
+			this.getLogger().setDirectory(System.getProperty("user.home")) ;
+		}
+		this.getTracer().setTitle("consumer") ;
+		this.getTracer().setRelativePosition(1, 1) ;
+
+		AbstractComponent.checkImplementationInvariant(this);
+		AbstractComponent.checkInvariant(this);
 	}
 
-	protected String NodeUri;
 	
 	
 	/**   
@@ -43,10 +78,11 @@ public class Pair  extends AbstractComponent{
 	*
 	* 
 	*/
+	//Ilfaut coder la fonction Join 
 	public Set<PeerNodeAddressI>  Join   (PeerNodeAddressI p) 
 	throws Exception{
 	   System.out.print("c'est ok join ");
-	   return  null; 
+	   return  new HashSet<PeerNodeAddressI>(); 
 	}
 	
 	/**   
@@ -84,13 +120,17 @@ public class Pair  extends AbstractComponent{
 			new AbstractComponent.AbstractTask() {
 				@Override
 				public void run() {
-					try {
-						((Pair)this.getTaskOwner()).Join(null);
+					try { 
+						((Pair)this.getTaskOwner()).Join(uriGetterPort  );
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
 			}) ;
 	}
+
+
+
+	
 
 }
