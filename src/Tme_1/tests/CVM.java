@@ -67,7 +67,7 @@ public class CVM extends AbstractCVM{
 					new Object[]{PAIR_COMPONENT_URI,
 							NodeManagemenInboundPort});
 		assert	this.isDeployedComponent(this.uriPairURI);
-		System.out.println("--------------------------------------------------------------- RESULTATS --------------------------------------------------------------");
+		System.out.println("\n Composant Pair OK \n");
 
 		// make it trace its operations; comment and uncomment the line to see
 		// the difference
@@ -85,6 +85,8 @@ public class CVM extends AbstractCVM{
 		// the difference
 		this.toggleTracing(this.uriFacadeURI);
 		this.toggleLogging(this.uriFacadeURI);
+		System.out.println("\n Composant Facade OK \n");
+
 		
 		// ---------------------------------------------------------------------
 		// Connection phase
@@ -100,6 +102,7 @@ public class CVM extends AbstractCVM{
 		// ---------------------------------------------------------------------
 		// Deployment done
 		// ---------------------------------------------------------------------
+		System.out.println("\n Composant Connector OK \n");
 
 		super.deploy();
 		assert	this.deploymentDone();

@@ -44,7 +44,7 @@ public class Pair  extends AbstractComponent {
 	 * @param OutboundPort	URI of the URI getter outbound port.
 	 * @throws Exception		<i>todo.</i>
 	 */
-	protected Pair(String NodeUri, String outboundPortURI, int nbSchedulableThreads)throws Exception {
+	protected Pair(String NodeUri, String outboundPortURI)throws Exception {
 		super(NodeUri, 0, 1);
 		this.uriGetterPort =new ManagementOutboundPort(outboundPortURI, this) ;
 		this.uriGetterPort.localPublishPort() ;
