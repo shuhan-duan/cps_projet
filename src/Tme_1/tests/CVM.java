@@ -113,8 +113,8 @@ public class CVM extends AbstractCVM{
 	* @Description: 
 	*
 	* @param:
-	* @return：
-	* @throws：
+	* @return：void
+	* @throws：Exception
 	*
 	* @version: v1.0.0
 	* @author: shuhan
@@ -132,6 +132,29 @@ public class CVM extends AbstractCVM{
 
 		super.finalise();
 	}
+	
+	@Override
+	public void				shutdown() throws Exception
+	{
+		assert	this.allFinalised();
+		// any disconnection not done yet can be performed here
+		
+		super.shutdown();
+	}
+	/**   
+	* @Function: CVM.java
+	* @Description: 
+	*
+	* @param: String[] args
+	* @return：void
+	* @throws：
+	*
+	* @version: v1.0.0
+	* @author: shuhan
+	* @date: 2 févr. 2023 21:55:34 
+	*
+	* 
+	*/
 	public static void		main(String[] args)
 	{
 		try {

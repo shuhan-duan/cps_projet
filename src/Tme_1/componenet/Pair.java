@@ -1,5 +1,4 @@
 package Tme_1.componenet;
-import  Tme_1.interfaces.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,8 +8,7 @@ import Tme_1.ports.ManagementOutboundPort;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
-import fr.sorbonne_u.components.examples.basic_cs.interfaces.URIConsumerCI;
-import fr.sorbonne_u.components.examples.basic_cs.ports.URIConsumerOutboundPort;
+import fr.sorbonne_u.components.exceptions.ComponentStartException;
 
 /**
  * @author lyna & shuhan 
@@ -104,6 +102,56 @@ public class Pair  extends AbstractComponent {
 	  System.out.print("c'est ok leave  ");
 	}
 	
+	
+	//-------------------------------------------------------------------------
+	// Component life-cycle
+	//-------------------------------------------------------------------------
+
+	/**
+	 * a component is always started by calling this method, so intercept the
+	 * call and make sure the task of the component is executed.
+	 * 
+	 * <p><strong>Contract</strong></p>
+	 * 
+	 * <pre>
+	 * pre	true				// no more preconditions.
+	 * post	true				// no more postconditions.
+	 * </pre>
+	 * 
+	 * @see fr.sorbonne_u.components.AbstractComponent#start()
+	 */
+	@Override
+	public void			start() throws ComponentStartException
+	{
+		this.logMessage("starting consumer component.") ;
+		super.start() ;
+		// initialisation code can be put here; do not however call any
+		// services of this component or of another component as they will
+		// not have started yet, hence not able to execute any incoming calls.
+	}
+
+	
+
+	/**
+	 * @see fr.sorbonne_u.components.AbstractComponent#finalise()
+	 */
+	@Override
+	public void			finalise() throws Exception
+	{
+		this.logMessage("stopping consumer component.") ;
+		this.printExecutionLogOnFile("consumer");
+		// This is the place where to clean up resources, such as
+		// disconnecting ports and unpublishing outbound ports that
+		// will be destroyed when shutting down.
+		// In static architectures like in this example, ports can also
+		// be disconnected by the finalise method of the component
+		// virtual machine.
+		this.uriGetterPort.unpublishPort() ;
+
+		// This called at the end to make the component internal
+		// state move to the finalised state.
+		super.finalise();
+	}
 	@Override
 	public void			execute() throws Exception
 	{

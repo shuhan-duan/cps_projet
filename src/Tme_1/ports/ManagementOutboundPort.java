@@ -2,11 +2,9 @@ package Tme_1.ports;
 
 import java.util.Set;
 
-import Tme_1.componenet.Pair;
-import Tme_1.interfaces.NodeManagementCI;
+
 import Tme_1.interfaces.PeerNodeAddressI;
 import fr.sorbonne_u.components.ComponentI;
-import fr.sorbonne_u.components.interfaces.RequiredCI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 
 /**

@@ -3,7 +3,8 @@ package Tme_1.componenet;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
-import fr.sorbonne_u.components.examples.basic_cs.interfaces.URIProviderCI;
+import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
+import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.PortI;
 import fr.sorbonne_u.exceptions.PostconditionException;
 import fr.sorbonne_u.exceptions.PreconditionException;
@@ -72,13 +73,68 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 						new PostconditionException("The component must have a "
 								+ "port with URI " + providerPortURI);
 			assert	this.findPortFromURI(providerPortURI).
-						getImplementedInterface().equals(URIProviderCI.class) :
+						getImplementedInterface().equals(FacadeNodeAdressI.class) :
 						new PostconditionException("The component must have a "
 								+ "port with implemented interface URIProviderI");
 			assert	this.findPortFromURI(providerPortURI).isPublished() :
 						new PostconditionException("The component must have a "
 								+ "port published with URI " + providerPortURI);
 		}
+	//--------------------------------------------------------------------------
+	// Component life-cycle
+	//--------------------------------------------------------------------------
+
+	/**
+	 * @see fr.sorbonne_u.components.AbstractComponent#start()
+	 */
+	@Override
+	public void			start() throws ComponentStartException
+	{
+		this.logMessage("starting provider component.");
+		super.start();
+	}
+
+	/**
+	 * @see fr.sorbonne_u.components.AbstractComponent#finalise()
+	 */
+	@Override
+	public void			finalise() throws Exception
+	{
+		this.logMessage("stopping provider component.");
+		this.printExecutionLogOnFile("provider");
+		super.finalise();
+	}
+
+	/**
+	 * @see fr.sorbonne_u.components.AbstractComponent#shutdown()
+	 */
+	@Override
+	public void			shutdown() throws ComponentShutdownException
+	{
+		try {
+			PortI[] p = this.findPortsFromInterface(FacadeNodeAdressI.class);
+			p[0].unpublishPort();
+		} catch (Exception e) {
+			throw new ComponentShutdownException(e);
+		}
+		super.shutdown();
+	}
+
+	/**
+	 * @see fr.sorbonne_u.components.AbstractComponent#shutdownNow()
+	 */
+	@Override
+	public void			shutdownNow() throws ComponentShutdownException
+	{
+		try {
+			PortI[] p = this.findPortsFromInterface(FacadeNodeAdressI.class);
+			p[0].unpublishPort();
+		} catch (Exception e) {
+			throw new ComponentShutdownException(e);
+		}
+		super.shutdownNow();
+	}
+
 
 	@Override
 	public String getNodeidentifier() throws Exception {
