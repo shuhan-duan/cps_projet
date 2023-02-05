@@ -86,9 +86,8 @@ public class CVM extends AbstractCVM{
 		this.toggleTracing(this.uriFacadeURI);
 		this.toggleLogging(this.uriFacadeURI);
 		System.out.println("\n Composant Facade OK \n");
-
 		
-		// ---------------------------------------------------------------------
+        // ---------------------------------------------------------------------
 		// Connection phase
 		// ---------------------------------------------------------------------
 
@@ -107,7 +106,7 @@ public class CVM extends AbstractCVM{
 		super.deploy();
 		assert	this.deploymentDone();
 	}
-
+    
 	/**   
 	* @Function: CVM.java
 	* @Description: 
@@ -124,12 +123,9 @@ public class CVM extends AbstractCVM{
 	*/
 	@Override
 	public void	finalise() throws Exception
-	{
-		// Port disconnections can be done here for static architectures
+	{   // Port disconnections can be done here for static architectures
 		// otherwise, they can be done in the finalise methods of components.
-		this.doPortDisconnection(this.uriPairURI,
-				NodeManagementOutboundPort);
-
+		this.doPortDisconnection(this.uriPairURI,NodeManagementOutboundPort);
 		super.finalise();
 	}
 	

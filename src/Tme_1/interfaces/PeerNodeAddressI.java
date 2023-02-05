@@ -25,7 +25,7 @@ public interface PeerNodeAddressI extends NodeAdresseI , RequiredCI{
 	* 
 	*/
 	public String getNodeUri() throws Exception;
-
+      
 	public void leave(PeerNodeAddressI p) throws Exception;
 
 	public Set<PeerNodeAddressI> Join(PeerNodeAddressI p) throws Exception;
