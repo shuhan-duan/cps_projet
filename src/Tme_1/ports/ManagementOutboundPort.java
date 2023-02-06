@@ -74,25 +74,100 @@ public class ManagementOutboundPort extends AbstractOutboundPort implements  Pee
 	* 
 	*/
 	
+	/** 
+	* @see Tme_1.interfaces.PeerNodeAddressI#leave(Tme_1.interfaces.PeerNodeAddressI)  
+	* @Function: ManagementOutboundPort.java
+	* @Description: 
+	*
+	* @param:PeerNodeAddressI p
+	* @return：void
+	* @throws：Exception
+	*
+	* @version: v1.0.0
+	* @author: lyna & shuhan
+	* @date: 6 févr. 2023 14:09:23 
+	*
+	* 
+	*/
 	public void leave(PeerNodeAddressI p) throws Exception {
 		 ((PeerNodeAddressI)this.getConnector()).leave(p); 	
    
 	}
+	/** 
+	* @see Tme_1.interfaces.NodeAdresseI#getNodeidentifier()  
+	* @Function: ManagementOutboundPort.java
+	* @Description: 
+	*
+	* @param:
+	* @return：String
+	* @throws：Exception
+	*
+	* @version: v1.0.0
+	* @author: lyna & shuhan
+	* @date: 6 févr. 2023 14:09:26 
+	*
+	* 
+	*/
 	@Override
 	public String getNodeidentifier() throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	/** 
+	* @see Tme_1.interfaces.NodeAdresseI#isfacade()  
+	* @Function: ManagementOutboundPort.java
+	* @Description: 
+	*
+	* @param:
+	* @return：Boolean
+	* @throws：Exception
+	*
+	* @version: v1.0.0
+	* @author: lyna & shuhan
+	* @date: 6 févr. 2023 14:09:32 
+	*
+	* 
+	*/
 	@Override
 	public Boolean isfacade() throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	/** 
+	* @see Tme_1.interfaces.NodeAdresseI#ispeer()  
+	* @Function: ManagementOutboundPort.java
+	* @Description: 
+	*
+	* @param:
+	* @return：Boolean
+	* @throws：Exception
+	*
+	* @version: v1.0.0
+	* @author: lyna & shuhan
+	* @date: 6 févr. 2023 14:09:35 
+	*
+	* 
+	*/
 	@Override
 	public Boolean ispeer() throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	/** 
+	* @see Tme_1.interfaces.PeerNodeAddressI#getNodeUri()  
+	* @Function: ManagementOutboundPort.java
+	* @Description: 
+	*
+	* @param:
+	* @return：String
+	* @throws：Exception
+	*
+	* @version: v1.0.0
+	* @author: lyna & shuhan
+	* @date: 6 févr. 2023 14:09:38 
+	*
+	* 
+	*/
 	@Override
 	public String getNodeUri() throws Exception {
 		// TODO Auto-generated method stub

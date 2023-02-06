@@ -25,7 +25,7 @@ public class ManagementConnector  extends  AbstractConnector implements PeerNode
 	* @throws：Exception
 	*
 	* @version: v1.0.0
-	* @author: shuhan
+	* @author: lyna & shuhan
 	* @date: 3 févr. 2023 21:56:54 
 	*
 	* 
@@ -45,7 +45,7 @@ public class ManagementConnector  extends  AbstractConnector implements PeerNode
 	* @throws：Exception
 	*
 	* @version: v1.0.0
-	* @author: shuhan
+	* @author: lyna & shuhan
 	* @date: 3 févr. 2023 21:57:41 
 	*
 	* 

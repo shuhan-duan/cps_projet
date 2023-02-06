@@ -15,7 +15,7 @@ public interface NodeAdresseI {
 	* @throws：Exception
 	*
 	* @version: v1.0.0
-	* @author: shuhan
+	* @author: lyna & shuhan 
 	* @date: 31 janv. 2023 21:20:40 
 	*
 	* 
@@ -30,7 +30,7 @@ public interface NodeAdresseI {
 	* @throws：Exception
 	*
 	* @version: v1.0.0
-	* @author: shuhan
+	* @author: lyna & shuhan 
 	* @date: 31 janv. 2023 21:20:42 
 	*
 	* 
@@ -45,7 +45,7 @@ public interface NodeAdresseI {
 	* @throws：Exception
 	*
 	* @version: v1.0.0
-	* @author: shuhan
+	* @author: lyna & shuhan 
 	* @date: 31 janv. 2023 21:20:45 
 	*
 	* 

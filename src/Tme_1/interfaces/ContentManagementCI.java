@@ -17,7 +17,7 @@ public interface ContentManagementCI {
 	* @throws：Exception
 	*
 	* @version: v1.0.0
-	* @author: shuhan
+	* @author: lyna & shuhan
 	* @date: 31 janv. 2023 21:13:43 
 	*
 	* 
@@ -35,7 +35,7 @@ public interface ContentManagementCI {
 	* @throws：Exception
 	*
 	* @version: v1.0.0
-	* @author: shuhan
+	* @author: lyna & shuhan
 	* @date: 31 janv. 2023 21:14:26 
 	*
 	* 

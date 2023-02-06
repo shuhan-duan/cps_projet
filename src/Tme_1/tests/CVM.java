@@ -28,7 +28,7 @@ public class CVM extends AbstractCVM{
 	*
 	* @param:
 	* @version: 
-	* @author: shuhan
+	* @author: lyna & shuhan
 	* @date: 31 janv. 2023 21:31:56 
 	*/
 	public CVM() throws Exception {
@@ -86,8 +86,9 @@ public class CVM extends AbstractCVM{
 		this.toggleTracing(this.uriFacadeURI);
 		this.toggleLogging(this.uriFacadeURI);
 		System.out.println("\n Composant Facade OK \n");
+
 		
-        // ---------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 		// Connection phase
 		// ---------------------------------------------------------------------
 
@@ -106,7 +107,7 @@ public class CVM extends AbstractCVM{
 		super.deploy();
 		assert	this.deploymentDone();
 	}
-    
+
 	/**   
 	* @Function: CVM.java
 	* @Description: 
@@ -123,9 +124,12 @@ public class CVM extends AbstractCVM{
 	*/
 	@Override
 	public void	finalise() throws Exception
-	{   // Port disconnections can be done here for static architectures
+	{
+		// Port disconnections can be done here for static architectures
 		// otherwise, they can be done in the finalise methods of components.
-		this.doPortDisconnection(this.uriPairURI,NodeManagementOutboundPort);
+		this.doPortDisconnection(this.uriPairURI,
+				NodeManagementOutboundPort);
+
 		super.finalise();
 	}
 	
@@ -146,7 +150,7 @@ public class CVM extends AbstractCVM{
 	* @throws：
 	*
 	* @version: v1.0.0
-	* @author: shuhan
+	* @author: lyna & shuhan
 	* @date: 2 févr. 2023 21:55:34 
 	*
 	* 

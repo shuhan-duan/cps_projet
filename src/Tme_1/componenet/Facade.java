@@ -16,7 +16,7 @@ import Tme_1.ports.ManagementInBoundPort;
  */
 @OfferedInterfaces(offered = {FacadeNodeAdressI.class})
 
-public class Facade  extends AbstractComponent  {
+public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 
 	/**   
 	* @Function: Facade.java
@@ -87,6 +87,7 @@ public class Facade  extends AbstractComponent  {
 	/**
 	 * @see fr.sorbonne_u.components.AbstractComponent#start()
 	 */
+	@Override
 	public void			start() throws ComponentStartException
 	{
 		this.logMessage("starting provider component.");
@@ -122,7 +123,7 @@ public class Facade  extends AbstractComponent  {
 	/**
 	 * @see fr.sorbonne_u.components.AbstractComponent#shutdownNow()
 	 */
-	
+	@Override
 	public void			shutdownNow() throws ComponentShutdownException
 	{
 		try {
@@ -135,25 +136,25 @@ public class Facade  extends AbstractComponent  {
 	}
 
 
-	
+	@Override
 	public String getNodeidentifier() throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	
+	@Override
 	public Boolean isfacade() throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	
+	@Override
 	public Boolean ispeer() throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	
+	@Override
 	public String getNodeManagementUri() throws Exception {
 		// TODO Auto-generated method stub
 		return null;

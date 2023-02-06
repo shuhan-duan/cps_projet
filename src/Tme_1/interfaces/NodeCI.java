@@ -14,7 +14,7 @@ public interface NodeCI {
 	* @throws：Exception
 	*
 	* @version: v1.0.0
-	* @author: shuhan
+	* @author: lyna & shuhan 
 	* @date: 31 janv. 2023 21:21:29 
 	*
 	* 
@@ -29,7 +29,7 @@ public interface NodeCI {
     * @throws：Exception
     *
     * @version: v1.0.0
-    * @author: shuhan
+    * @author: lyna & shuhan 
     * @date: 31 janv. 2023 21:21:32 
     *
     * 

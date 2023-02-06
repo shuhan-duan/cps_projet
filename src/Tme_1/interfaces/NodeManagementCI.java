@@ -16,7 +16,7 @@ public interface NodeManagementCI {
 	* @throws：Exception
 	*
 	* @version: v1.0.0
-	* @author: shuhan
+	* @author: lyna & shuhan 
 	* @date: 31 janv. 2023 21:22:24 
 	*
 	* 
@@ -31,7 +31,7 @@ public interface NodeManagementCI {
 	* @throws：Exception
 	*
 	* @version: v1.0.0
-	* @author: shuhan
+	* @author: lyna & shuhan 
 	* @date: 31 janv. 2023 21:22:26 
 	*
 	* 

@@ -35,6 +35,15 @@ public class ManagementInBoundPort extends AbstractInboundPort  implements Facad
 		assert	uri != null && owner instanceof NodeManagementCI ;
 
 	}
+	/**   
+	* @Function: ManagementInBoundPort.java
+	* @Description: 
+	*
+	* @param:ComponentI owner
+	* @version: 
+	* @author: lyna & shuhan
+	* @date: 6 févr. 2023 14:03:54 
+	*/
 	public ManagementInBoundPort(ComponentI owner) throws Exception{
 		super( FacadeNodeAdressI.class, owner); 
 		assert	owner instanceof NodeManagementCI ;
@@ -66,38 +75,12 @@ public class ManagementInBoundPort extends AbstractInboundPort  implements Facad
 					@Override 
 					public Set<PeerNodeAddressI> call() throws Exception {
 						return ((Pair)this.getServiceOwner()).Join(p) ;
-					}   //la dif entre getservice et getprovisd
+					}
 				}) ;
 	}
 	
-	public void leave(PeerNodeAddressI p) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public String getNodeidentifier() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public Boolean isfacade() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public Boolean ispeer() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public String getNodeManagementUri() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/** 
-	* @see Tme_1.interfaces.NodeManagementCI#leave(Tme_1.interfaces.PeerNodeAddressI)  
-	* @Function: NodeManagementInBoundPort.java
+	/**   
+	* @Function: ManagementInBoundPort.java
 	* @Description: 
 	*
 	* @param:PeerNodeAddressI p
@@ -105,10 +88,96 @@ public class ManagementInBoundPort extends AbstractInboundPort  implements Facad
 	* @throws：Exception
 	*
 	* @version: v1.0.0
-	* @author: lyna & shuhan
-	* @date: 30 janv. 2023 21:06:53 
+	* @author: lyna & shuhan 
+	* @date: 6 févr. 2023 14:04:42 
 	*
+	* 
 	*/
+	public void leave(PeerNodeAddressI p) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+	/** 
+	* @see Tme_1.interfaces.NodeAdresseI#getNodeidentifier()  
+	* @Function: ManagementInBoundPort.java
+	* @Description: 
+	*
+	* @param:
+	* @return：String
+	* @throws：Exception
+	*
+	* @version: v1.0.0
+	* @author: lyna & shuhan 
+	* @date: 6 févr. 2023 14:04:45 
+	*
+	* 
+	*/
+	@Override
+	public String getNodeidentifier() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	/** 
+	* @see Tme_1.interfaces.NodeAdresseI#isfacade()  
+	* @Function: ManagementInBoundPort.java
+	* @Description: 
+	*
+	* @param:
+	* @return：Boolean
+	* @throws：Exception
+	*
+	* @version: v1.0.0
+	* @author: shuhan
+	* @date: 6 févr. 2023 14:04:48 
+	*
+	* 
+	*/
+	@Override
+	public Boolean isfacade() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	/** 
+	* @see Tme_1.interfaces.NodeAdresseI#ispeer()  
+	* @Function: ManagementInBoundPort.java
+	* @Description: 
+	*
+	* @param:
+	* @return：Boolean
+	* @throws：Exception
+	*
+	* @version: v1.0.0
+	* @author: lyna & shuhan 
+	* @date: 6 févr. 2023 14:04:50 
+	*
+	* 
+	*/
+	@Override
+	public Boolean ispeer() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	/** 
+	* @see Tme_1.interfaces.FacadeNodeAdressI#getNodeManagementUri()  
+	* @Function: ManagementInBoundPort.java
+	* @Description: 
+	*
+	* @param:
+	* @return：String
+	* @throws：Exception
+	*
+	* @version: v1.0.0
+	* @author: lyna & shuhan 
+	* @date: 6 févr. 2023 14:04:53 
+	*
+	* 
+	*/
+	@Override
+	public String getNodeManagementUri() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 	
 }
