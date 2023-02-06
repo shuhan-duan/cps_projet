@@ -66,7 +66,7 @@ public class ManagementInBoundPort extends AbstractInboundPort  implements Facad
 					@Override 
 					public Set<PeerNodeAddressI> call() throws Exception {
 						return ((Pair)this.getServiceOwner()).Join(p) ;
-					}
+					}   //la dif entre getservice et getprovisd
 				}) ;
 	}
 	

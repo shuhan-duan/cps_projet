@@ -120,7 +120,7 @@ public class Pair  extends AbstractComponent {
 	 * 
 	 * @see fr.sorbonne_u.components.AbstractComponent#start()
 	 */
-	@Override
+	
 	public void			start() throws ComponentStartException
 	{
 		this.logMessage("starting consumer component.") ;
@@ -135,7 +135,7 @@ public class Pair  extends AbstractComponent {
 	/**
 	 * @see fr.sorbonne_u.components.AbstractComponent#finalise()
 	 */
-	@Override
+	
 	public void			finalise() throws Exception
 	{
 		this.logMessage("stopping consumer component.") ;
@@ -152,7 +152,7 @@ public class Pair  extends AbstractComponent {
 		// state move to the finalised state.
 		super.finalise();
 	}
-	@Override
+	
 	public void			execute() throws Exception
 	{
 		// application execution code (similar to a main method in Java) is
