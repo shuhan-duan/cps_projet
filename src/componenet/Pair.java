@@ -2,12 +2,17 @@ package componenet;
 
 
 
+import java.util.Set;
+
+import classes.ContentNodeAdress;
+import connector.ManagementConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import interfaces.PeerNodeAddressI;
 import ports.ManagementOutboundPort;
+import ports.NodeCOutboundPort;
 
 /**
  * @author lyna & shuhan 
@@ -32,9 +37,13 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI{
 
 	/**	the outbound port used to call the service.							*/
 	protected ManagementOutboundPort	uriGetterPort ;
+	protected NodeCOutboundPort	port_sortant ;
 	/**	counting service invocations.										*/
 	protected int						counter ;
 	protected String NodeUri;
+	protected NodeCOutboundPort	 uriNodeCI;
+	private ContentNodeAdress contentNodeAddress;
+	private Set<PeerNodeAddressI> liste;
      
 	/**
 	 * @param uri				URI of the component
@@ -46,6 +55,7 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI{
 		this.uriGetterPort =new ManagementOutboundPort(outboundPortURI, this) ;
 		this.uriGetterPort.publishPort() ;
 		this.counter = 0 ;
+		this.uriNodeCI = new NodeCOutboundPort(NodeUri,this);
 
 		if (AbstractCVM.isDistributed) {
 			this.getLogger().setDirectory(System.getProperty("user.dir")) ;
@@ -60,7 +70,57 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI{
 	}
 
 	
+	/**   
+	* @Function: Pair.java
+	* @Description: 
+	*
+	* @param:
+	* @return：
+	* @throws：
+	*
+	* @version: v1.0.0
+	* @author: lyna & shuhan
+	 * @throws Exception 
+	* @date: 6 févr. 2023 17:44:32 
+	*
+	* 
+	*/
+	public PeerNodeAddressI connecte (PeerNodeAddressI p ) throws Exception
+	{   
+		this.port_sortant= new NodeCOutboundPort("Sortant-uri",this);
+		this.port_sortant.publishPort();
+		this.doPortConnection(port_sortant.getPortURI(),p.getNodeUri(),ManagementConnector.class.getCanonicalName());
+		
+		for(PeerNodeAddressI peer: this.liste) {
+			this.port_sortant= new NodeCOutboundPort("Sortant-uri",this);
+			this.port_sortant.publishPort();
+			this.doPortConnection(port_sortant.getPortURI(),p.getNodeUri(),ManagementConnector.class.getCanonicalName());
+			this.port_sortant.connect(peer);
+			// creer equals pour les string => getURI()
+		}
+		
+		System.out.print("c'est ok connecte  ");
+		return this.contentNodeAddress;
+	}
 	
+	/**   
+	* @Function: Pair.java
+	* @Description: 
+	*
+	* @param:
+	* @return：
+	* @throws：
+	*
+	* @version: v1.0.0
+	* @author: lyna & shuhan
+	* @date: 6 févr. 2023 17:45:00 
+	*
+	* 
+	*/
+	public void disconect (PeerNodeAddressI p ) throws Exception
+	{
+		System.out.print("c'est ok disconnect  ");
+	}
 	
 	
 	
