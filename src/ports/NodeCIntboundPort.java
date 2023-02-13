@@ -2,6 +2,10 @@ package ports;
 
 import java.util.Set;
 
+<<<<<<< HEAD
+=======
+import componenet.Facade;
+>>>>>>> d0c35ec572c270934f1c4a1384469c304cef547b
 import componenet.Pair;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.ComponentI;
@@ -31,6 +35,7 @@ public class NodeCIntboundPort  extends AbstractInboundPort  implements NodeCI  
 
 	@Override
 	public void disconnect(PeerNodeAddressI p) throws Exception {
+<<<<<<< HEAD
 		// TODO Auto-generated method stub
 		
 	}
@@ -39,3 +44,15 @@ public class NodeCIntboundPort  extends AbstractInboundPort  implements NodeCI  
 
 	
 }
+=======
+			this.getOwner().handleRequest(new AbstractComponent.AbstractService<Void>() {
+				@Override 
+				public Void call() throws Exception {
+					((NodeCI)this.getServiceOwner()).disconnect(p) ;
+					return null;
+				}
+			}) ;
+	}
+	
+}
+>>>>>>> d0c35ec572c270934f1c4a1384469c304cef547b

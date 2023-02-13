@@ -26,7 +26,12 @@ public class ManagementConnector  extends  AbstractConnector implements NodeMana
 
 	@Override
 	public void leave(PeerNodeAddressI p) throws Exception {
+<<<<<<< HEAD
 		 ((NodeManagementCI)this.offering).leave(p);		
+=======
+		
+		((NodeManagementCI)this.offering).leave(p);
+>>>>>>> d0c35ec572c270934f1c4a1384469c304cef547b
 	}
 	
 
