@@ -26,9 +26,9 @@ public class ManagementConnector  extends  AbstractConnector implements NodeMana
 
 	@Override
 	public void leave(PeerNodeAddressI p) throws Exception {
-		// TODO Auto-generated method stub
-		
+		 ((NodeManagementCI)this.offering).leave(p);		
 	}
+	
 
 	
 

@@ -13,6 +13,7 @@ import fr.sorbonne_u.exceptions.PostconditionException;
 import fr.sorbonne_u.exceptions.PreconditionException;
 import interfaces.*;
 import ports.ManagementInBoundPort;
+import ports.ManagementOutboundPort;
 /**
  * @author lyna & shuhan 
  *
@@ -34,8 +35,9 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	* @date: 30 janv. 2023 20:29:55 
 	*/
 	protected String		uriPrefix;
-
-	protected	Facade(	String uriPrefix,	String providerPortURI	) throws Exception
+	protected NodeCI	uriGetterPort ;
+	Set<PeerNodeAddressI>   peerNodeList = new HashSet<PeerNodeAddressI>();;
+	protected	Facade(	String uriPrefix,	String providerPortURI	 ) throws Exception
 		{
 			// the reflection inbound port URI is the URI of the component
 			super(uriPrefix, 1, 0) ;
@@ -55,6 +57,7 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 			// create the port that exposes the offered interface with the
 			// given URI to ease the connection from client components.
 			PortI p = new ManagementInBoundPort(providerPortURI, this);
+
 			// publish the port
 			p.publishPort();
 
@@ -155,8 +158,19 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	//Il faut coder la fonction Join 
 	public Set<PeerNodeAddressI>  Join   (PeerNodeAddressI p) 
 	throws Exception{
-	   System.out.print("c'est ok join ");
-	   return  new HashSet<PeerNodeAddressI>(); 
+	
+			if(!peerNodeList.isEmpty()) {
+				Set<PeerNodeAddressI> result = new HashSet<PeerNodeAddressI>();
+				result.add(peerNodeList.iterator().next());
+				peerNodeList.add(p);
+				System.out.println("list not empty");
+				return result;
+			}
+			else {	   
+				System.out.println("ajout de l'adresse pair a la liste ");
+                 peerNodeList.add(p);
+				return peerNodeList;
+			}
 	}
 	
 	/**   
@@ -175,13 +189,13 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	*/
 	public void leave (PeerNodeAddressI p)
 	throws Exception{
-	  System.out.print("c'est ok leave  ");
+	  System.out.println("c'est ok fonction  leave  ");
 	}
 
 	@Override
 	public String getNodeidentifier() throws Exception {
 		// TODO Auto-generated method stub
-		return null;
+		return null; 
 	}
 
 	@Override
@@ -201,5 +215,5 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 }

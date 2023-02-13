@@ -49,7 +49,7 @@ public class ManagementOutboundPort extends AbstractOutboundPort implements  Nod
 	* @return：String
 	* @throws：Exception
 	*
-	* @version: v1.0.0
+	* @version: v1.0.0 
 	* @author: lyna & shuhan
 	* @date: 6 févr. 2023 14:09:26 
 	*

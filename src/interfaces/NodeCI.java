@@ -19,6 +19,8 @@ public interface NodeCI {
 	*
 	* 
 	*/
+	
+	
 	public PeerNodeAddressI	connect (PeerNodeAddressI p  ) throws Exception ;
     /**   
     * @Function: NodeCI.java

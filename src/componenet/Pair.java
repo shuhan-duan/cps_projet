@@ -2,10 +2,13 @@ package componenet;
 
 
 
+import java.util.Set;
+
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
+import interfaces.NodeCI;
 import interfaces.PeerNodeAddressI;
 import ports.ManagementOutboundPort;
 
@@ -58,10 +61,6 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI{
 		AbstractComponent.checkImplementationInvariant(this);
 		AbstractComponent.checkInvariant(this);
 	}
-
-	
-	
-	
 	
 	
 	//-------------------------------------------------------------------------
@@ -84,7 +83,6 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI{
 	@Override
 	public void			start() throws ComponentStartException
 	{
-		this.logMessage("starting consumer component.") ;
 		super.start() ;
 		// initialisation code can be put here; do not however call any
 		// services of this component or of another component as they will
@@ -126,22 +124,20 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI{
 		// below will be executed asynchronously as a separate task, hence this
 		// method execute will be free to finish its execution and free the
 		// thread that is executing it.
-		this.runTask(
+		this.runTask(  
 			new AbstractComponent.AbstractTask() {
 				@Override
 				public void run() {
 					try { 
-						((Pair)this.getTaskOwner()).uriGetterPort.Join((Pair)this.getTaskOwner());
+						Set<PeerNodeAddressI> liste =	 ((Pair)this.getTaskOwner()).uriGetterPort.Join((Pair)this.getTaskOwner());
+						
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
 			}) ;
+
 	}
-
-
-
-
 
 
 	@Override
@@ -151,10 +147,6 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI{
 	}
 
 
-
-
-
-
 	@Override
 	public Boolean isfacade() throws Exception {
 		// TODO Auto-generated method stub
@@ -162,18 +154,22 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI{
 	}
 
 
-
-
-
-
-	@Override
+ 	@Override
 	public Boolean ispeer() throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
+	public PeerNodeAddressI connect(PeerNodeAddressI p) throws Exception {
+		System.out.println(" conexion ");
+		return p; 
+}
 
+
+	public void disconnect(PeerNodeAddressI p) throws Exception {
+		System.out.println(" disconect ");
+	}
 
 
 
