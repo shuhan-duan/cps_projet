@@ -58,6 +58,8 @@ public class ManagementOutboundPort extends AbstractOutboundPort implements  Nod
 	
 	@Override
 	public Set<PeerNodeAddressI> Join(PeerNodeAddressI p) throws Exception {
+		//System.out.println("------------------------------");
+		//System.out.println(this.getPortURI() + " " + this.getConnector());
 		return ((NodeManagementCI)this.getConnector()).Join(p);
 	}
 	@Override

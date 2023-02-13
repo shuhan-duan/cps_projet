@@ -21,7 +21,7 @@ public interface NodeCI {
 	*/
 	
 	
-	public PeerNodeAddressI	connect (PeerNodeAddressI p  ) throws Exception ;
+	public PeerNodeAddressI	connecte (PeerNodeAddressI p  ) throws Exception ;
     /**   
     * @Function: NodeCI.java
     * @Description: 
@@ -36,5 +36,5 @@ public interface NodeCI {
     *
     * 
     */
-    public void disconnect (PeerNodeAddressI p ) throws Exception ;
+    public void disconnecte (PeerNodeAddressI p ) throws Exception ;
 }

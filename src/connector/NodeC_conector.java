@@ -7,13 +7,13 @@ import interfaces.PeerNodeAddressI;
 public class NodeC_conector  extends  AbstractConnector implements NodeCI{
 
 	@Override
-	public PeerNodeAddressI connect(PeerNodeAddressI p) throws Exception {
-    		return ((NodeCI)this.offering).connect(p);
+	public PeerNodeAddressI connecte(PeerNodeAddressI p) throws Exception {
+    		return ((NodeCI)this.offering).connecte(p);
 	}
 
 	@Override
-	public void disconnect(PeerNodeAddressI p) throws Exception {
-		 ((NodeCI)this.offering).disconnect(p);	
+	public void disconnecte(PeerNodeAddressI p) throws Exception {
+		 ((NodeCI)this.offering).disconnecte(p);	
 	}
 
 }

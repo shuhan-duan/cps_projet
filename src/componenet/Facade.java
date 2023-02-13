@@ -3,6 +3,8 @@ package componenet;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.processing.SupportedOptions;
+
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
@@ -36,7 +38,7 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	*/
 	protected String		uriPrefix;
 	protected NodeCI	uriGetterPort ;
-	Set<PeerNodeAddressI>   peerNodeList = new HashSet<PeerNodeAddressI>();;
+	protected Set<PeerNodeAddressI>   peerNodeList ;
 	protected	Facade(	String uriPrefix,	String providerPortURI	 ) throws Exception
 		{
 			// the reflection inbound port URI is the URI of the component
@@ -48,7 +50,7 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 						new PreconditionException("providerPortURI can't be null!");
 
 			this.uriPrefix = uriPrefix ;
-
+			this.peerNodeList = new HashSet<PeerNodeAddressI>();
 			// if the offered interface is not declared in an annotation on
 			// the component class, it can be added manually with the
 			// following instruction:
@@ -158,19 +160,10 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	//Il faut coder la fonction Join 
 	public Set<PeerNodeAddressI>  Join   (PeerNodeAddressI p) 
 	throws Exception{
-	
-			if(!peerNodeList.isEmpty()) {
-				Set<PeerNodeAddressI> result = new HashSet<PeerNodeAddressI>();
-				result.add(peerNodeList.iterator().next());
-				peerNodeList.add(p);
-				System.out.println("list not empty");
-				return result;
-			}
-			else {	   
-				System.out.println("ajout de l'adresse pair a la liste ");
-                 peerNodeList.add(p);
-				return peerNodeList;
-			}
+			peerNodeList.add(p);
+			System.out.println("c'est ok join ");
+			return this.peerNodeList;
+			
 	}
 	
 	/**   
@@ -189,13 +182,19 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	*/
 	public void leave (PeerNodeAddressI p)
 	throws Exception{
-	  System.out.println("c'est ok fonction  leave  ");
+		if(!peerNodeList.isEmpty()) {
+			peerNodeList.remove(p);
+			System.out.println("supprime l'adress pair " + p.getNodeUri()+" avec " + this.uriPrefix);
+		}
+		else {	   
+			System.out.println(" il y a pas de pair en connectent  ");	
+		}
 	}
 
 	@Override
 	public String getNodeidentifier() throws Exception {
 		// TODO Auto-generated method stub
-		return null; 
+		return uriPrefix; 
 	}
 
 	@Override
@@ -213,7 +212,7 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	@Override
 	public String getNodeManagementUri() throws Exception {
 		// TODO Auto-generated method stub
-		return null;
+		return uriPrefix;
 	}
 	
 }
