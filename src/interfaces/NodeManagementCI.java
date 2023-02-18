@@ -2,11 +2,13 @@ package interfaces;
 
 import java.util.Set;
 
+import fr.sorbonne_u.components.interfaces.OfferedCI;
+
 /**
  * @author lyna & shuhan 
  *
  */
-public interface NodeManagementCI {
+public interface NodeManagementCI extends OfferedCI{
 	/**   
 	* @Function: NodeManagementCI.java
 	* @Description: 

@@ -7,7 +7,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import classes.ContentDescriptor;
 import classes.ContentNodeAdress;
+import connector.ContentManagementCIConector;
 import connector.ManagementConnector;
 import connector.NodeC_conector;
 import fr.sorbonne_u.components.AbstractComponent;
@@ -16,8 +18,12 @@ import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import fr.sorbonne_u.components.ports.InboundPortI;
+import interfaces.ContentDescriptorI;
+import interfaces.ContentTemplateI;
 import interfaces.NodeCI;
 import interfaces.PeerNodeAddressI;
+import ports.ContentManagementCIIntbound;
+import ports.ContentManagementCIOutbound;
 import ports.ManagementOutboundPort;
 import ports.NodeCIntboundPort;
 import ports.NodeCOutboundPort;
@@ -28,7 +34,7 @@ import ports.NodeCOutboundPort;
  */
 @RequiredInterfaces(required = {PeerNodeAddressI.class})
 
-public class Pair  extends AbstractComponent implements PeerNodeAddressI{
+public class Pair  extends AbstractComponent implements PeerNodeAddressI {
 	
 	/**   
 	* @Function: Pair.java
@@ -49,9 +55,10 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI{
 	/**	counting service invocations.										*/
 	protected int						counter ;
 	protected String NodeUri;
-	private ContentNodeAdress contentNodeAddress;
-
+	//private ContentNodeAdress contentNodeAddress;
 	private ConcurrentHashMap<PeerNodeAddressI,NodeCOutboundPort> outPorts; 
+	protected ContentDescriptorI contentDescriptor;
+	protected ContentManagementCIIntbound contentPortIn;
      
 	/**
 	 * @param uri				URI of the component
@@ -69,6 +76,9 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI{
 		port_entrant.publishPort();
 		this.counter = 0 ;
 		this.outPorts = new ConcurrentHashMap<PeerNodeAddressI,NodeCOutboundPort>();
+		this.contentDescriptor = null ;
+		String inport = "inportCM";
+		this.contentPortIn = new ContentManagementCIIntbound(inport, this);
 
 		if (AbstractCVM.isDistributed) {
 			this.getLogger().setDirectory(System.getProperty("user.dir")) ;
@@ -132,8 +142,30 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI{
 		System.out.println("c'est ok "+  this.getNodeUri() +" disconnect  avec " + port_sortant.getPortURI());
 	}
 	
+	public ContentDescriptorI find(ContentTemplateI cd  ,int hops )throws Exception{
+		hops -- ; 
+		System.out.println("find in pair "+this.NodeUri);
+		if (hops != 0)
+		{
+			 for (PeerNodeAddressI p : outPorts.keySet()) {
+				String outport = AbstractOutboundPort.generatePortURI();
+				ContentManagementCIOutbound portOut = new ContentManagementCIOutbound(outport,(Pair)p );
+				System.out.println(" pair to connect :"+p.getNodeUri());
+				portOut.publishPort();
+				String inport = contentPortIn.getPortURI();
+				System.out.println("inportCM : "+inport+" of "+ this.NodeUri);
+				doPortConnection(outport,inport, ContentManagementCIConector.class.getCanonicalName());
+				System.out.println("connection in find in pair ");
+				return ((Pair) p).find(cd , hops );
+			 }
+		}else 
+		{ 
+			return contentDescriptor;
+		}
+		return null;
+	}
 	
-	
+
 	//-------------------------------------------------------------------------
 	// Component life-cycle
 	//-------------------------------------------------------------------------
@@ -203,6 +235,7 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI{
 		// thread that is executing it.
 		//System.out.println(this.uriGetterPort.getPortURI() + " " + this.uriGetterPort.connected());
 		Set<PeerNodeAddressI> liste = this.uriGetterPort.Join(this);
+
 		//connect
 		for (PeerNodeAddressI pAddressI: liste ) {
 			if(pAddressI != this){
@@ -218,8 +251,12 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI{
 			}
 		}
 		//Thread.sleep(1000);
+
 		//leave
 		this.uriGetterPort.leave(this);
+
+		//find
+		this.find(contentDescriptor, 2);
 		
 	}
 

@@ -2,11 +2,14 @@ package interfaces;
 
 import java.util.Set;
 
+import fr.sorbonne_u.components.interfaces.OfferedCI;
+import fr.sorbonne_u.components.interfaces.RequiredCI;
+
 /**
  * @author lyna & shuhan 
  *
  */
-public interface ContentManagementCI {
+public interface ContentManagementCI extends OfferedCI,RequiredCI{
 	/**   
 	* @Function: ContentManagementCI.java
 	* @Description: 

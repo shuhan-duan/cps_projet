@@ -13,9 +13,9 @@ import interfaces.ContentTemplateI;
 
 public class ContentManagementCIIntbound  extends AbstractInboundPort  implements     ContentManagementCI {
 
-	public ContentManagementCIIntbound(Class<? extends OfferedCI> implementedInterface, ComponentI owner)
+	public ContentManagementCIIntbound(String uri, ComponentI owner)
 			throws Exception {
-		super(implementedInterface, owner);
+				super(uri, ContentManagementCI.class, owner);
 		// TODO Auto-generated constructor stub
 	}
 

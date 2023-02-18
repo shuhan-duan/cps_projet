@@ -1,10 +1,12 @@
 package interfaces;
 
+import fr.sorbonne_u.components.interfaces.OfferedCI;
+
 /**
  * @author lyna & shuhan 
  *
  */
-public interface NodeCI {
+public interface NodeCI extends OfferedCI{
 	/**   
 	* @Function: NodeCI.java
 	* @Description: 

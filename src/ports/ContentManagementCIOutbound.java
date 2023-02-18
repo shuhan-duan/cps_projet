@@ -12,10 +12,12 @@ import interfaces.NodeManagementCI;
 
 public class ContentManagementCIOutbound   extends AbstractOutboundPort  implements    ContentManagementCI{
   ///a revoir le constructor 
-	public ContentManagementCIOutbound(Class<? extends RequiredCI> implementedInterface, ComponentI owner)
+	
+
+	public ContentManagementCIOutbound(String uri,  ComponentI owner)
 			throws Exception {
-		super(implementedInterface, owner);
-		// TODO Auto-generated constructor stub
+		super(uri, ContentManagementCI.class, owner);
+		//TODO Auto-generated constructor stub
 	}
 
 	/**

@@ -5,22 +5,28 @@ import java.util.Set;
 
 import javax.annotation.processing.SupportedOptions;
 
+import classes.ContentDescriptor;
+import connector.ContentManagementCIConector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
+import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
+import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import fr.sorbonne_u.components.ports.PortI;
 import fr.sorbonne_u.exceptions.PostconditionException;
 import fr.sorbonne_u.exceptions.PreconditionException;
 import interfaces.*;
+import ports.ContentManagementCIOutbound;
 import ports.ManagementInBoundPort;
 import ports.ManagementOutboundPort;
 /**
  * @author lyna & shuhan 
  *
  */
-@OfferedInterfaces(offered = {FacadeNodeAdressI.class})
+@OfferedInterfaces(offered = {NodeCI.class,ContentManagementCI.class,NodeManagementCI.class})
+@RequiredInterfaces(required = {ContentManagementCI.class})
 
 public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 
@@ -39,6 +45,7 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	protected String		uriPrefix;
 	protected NodeCI	uriGetterPort ;
 	protected Set<PeerNodeAddressI>   peerNodeList ;
+
 	protected	Facade(	String uriPrefix,	String providerPortURI	 ) throws Exception
 		{
 			// the reflection inbound port URI is the URI of the component
@@ -88,6 +95,23 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 						new PostconditionException("The component must have a "
 								+ "port published with URI " + providerPortURI);
 		}
+
+	
+
+
+	public ContentDescriptorI find (ContentTemplateI  ct , int hops ) throws Exception{
+		System.out.println("find in facade ");
+		for (PeerNodeAddressI p : peerNodeList) {
+			String outport = AbstractOutboundPort.generatePortURI();
+			ContentManagementCIOutbound portOut = new ContentManagementCIOutbound(outport,this );
+			portOut.publishPort();
+			String inport = ((Pair)p).contentPortIn.getPortURI();
+			doPortConnection(outport,inport , ContentManagementCIConector.class.getCanonicalName());
+			System.out.println("connection in find in facade ");
+			return ((Pair)p).find(ct, hops);
+		}
+		return null;
+	}
 	//--------------------------------------------------------------------------
 	// Component life-cycle
 	//--------------------------------------------------------------------------
