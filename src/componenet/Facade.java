@@ -2,6 +2,7 @@ package componenet;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.processing.SupportedOptions;
 
@@ -42,22 +43,23 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	* @author: lyna & shuhan
 	* @date: 30 janv. 2023 20:29:55 
 	*/
-	protected String		uriPrefix;
-	protected NodeCI	uriGetterPort ;
+	protected String		adress;
 	protected Set<PeerNodeAddressI>   peerNodeList ;
+	private ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound> outPortsCM; 
 
-	protected	Facade(	String uriPrefix,	String providerPortURI	 ) throws Exception
+	protected	Facade(	String adress,	String inportNM	 ) throws Exception
 		{
 			// the reflection inbound port URI is the URI of the component
-			super(uriPrefix, 1, 0) ;
+			super(adress, 1, 0) ;
 
-			assert	uriPrefix != null :
-						new PreconditionException("uri can't be null!");
-			assert	providerPortURI != null :
-						new PreconditionException("providerPortURI can't be null!");
+			assert	adress != null :
+						new PreconditionException("adress can't be null!");
+			assert	inportNM != null :
+						new PreconditionException("inportNM can't be null!");
 
-			this.uriPrefix = uriPrefix ;
+			this.adress = adress ;
 			this.peerNodeList = new HashSet<PeerNodeAddressI>();
+			this.outPortsCM =  new ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound>();
 			// if the offered interface is not declared in an annotation on
 			// the component class, it can be added manually with the
 			// following instruction:
@@ -65,10 +67,10 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 
 			// create the port that exposes the offered interface with the
 			// given URI to ease the connection from client components.
-			PortI p = new ManagementInBoundPort(providerPortURI, this);
+			ManagementInBoundPort  NMportIn = new ManagementInBoundPort(inportNM, this);
 
 			// publish the port
-			p.publishPort();
+			NMportIn.publishPort();
 
 			if (AbstractCVM.isDistributed) {
 				this.getLogger().setDirectory(System.getProperty("user.dir"));
@@ -81,19 +83,19 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 			Facade.checkInvariant(this) ;
 			AbstractComponent.checkImplementationInvariant(this);
 			AbstractComponent.checkInvariant(this);
-			assert	this.uriPrefix.equals(uriPrefix) :
+			assert	this.adress.equals(adress) :
 						new PostconditionException("The URI prefix has not "
 													+ "been initialised!");
-			assert	this.isPortExisting(providerPortURI) :
+			assert	this.isPortExisting(inportNM) :
 						new PostconditionException("The component must have a "
-								+ "port with URI " + providerPortURI);
-			assert	this.findPortFromURI(providerPortURI).
+								+ "port with URI " + inportNM);
+			assert	this.findPortFromURI(inportNM).
 						getImplementedInterface().equals(FacadeNodeAdressI.class) :
 						new PostconditionException("The component must have a "
 								+ "port with implemented interface URIProviderI");
-			assert	this.findPortFromURI(providerPortURI).isPublished() :
+			assert	this.findPortFromURI(inportNM).isPublished() :
 						new PostconditionException("The component must have a "
-								+ "port published with URI " + providerPortURI);
+								+ "port published with URI " + inportNM);
 		}
 
 	
@@ -101,15 +103,7 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 
 	public ContentDescriptorI find (ContentTemplateI  ct , int hops ) throws Exception{
 		System.out.println("find in facade ");
-		for (PeerNodeAddressI p : peerNodeList) {
-			String outport = AbstractOutboundPort.generatePortURI();
-			ContentManagementCIOutbound portOut = new ContentManagementCIOutbound(outport,this );
-			portOut.publishPort();
-			String inport = ((Pair)p).contentPortIn.getPortURI();
-			doPortConnection(outport,inport , ContentManagementCIConector.class.getCanonicalName());
-			System.out.println("connection in find in facade ");
-			return ((Pair)p).find(ct, hops);
-		}
+		
 		return null;
 	}
 	//--------------------------------------------------------------------------
@@ -184,8 +178,20 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	//Il faut coder la fonction Join 
 	public Set<PeerNodeAddressI>  Join   (PeerNodeAddressI p) 
 	throws Exception{
-			peerNodeList.add(p);
-			System.out.println("c'est ok join ");
+		peerNodeList.add(p);
+		System.out.println("c'est ok join ");
+
+			
+		String outportCM = AbstractOutboundPort.generatePortURI();
+		ContentManagementCIOutbound CMportOut= new ContentManagementCIOutbound(outportCM,this);
+		outPortsCM.put(p, CMportOut);
+		CMportOut.publishPort();
+		String inportCM_Pair = ((Pair)p).CMportIn.getPortURI();
+		System.out.println( p.getNodeUri() +" demande de connecte avec "+ this.adress +" en ContentManagementCI");
+		doPortConnection(outportCM,inportCM_Pair , ContentManagementCIConector.class.getCanonicalName());
+		System.out.println("c'est ok " + p.getNodeUri() +" connecte avec "+ this.adress +" en ContentManagementCI" );
+			
+
 			return this.peerNodeList;
 			
 	}
@@ -208,7 +214,7 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	throws Exception{
 		if(!peerNodeList.isEmpty()) {
 			peerNodeList.remove(p);
-			System.out.println("supprime l'adress pair " + p.getNodeUri()+" avec " + this.uriPrefix);
+			System.out.println("supprime l'adress pair " + p.getNodeUri()+" avec " + this.adress);
 		}
 		else {	   
 			System.out.println(" il y a pas de pair en connectent  ");	
@@ -218,7 +224,7 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	@Override
 	public String getNodeidentifier() throws Exception {
 		// TODO Auto-generated method stub
-		return uriPrefix; 
+		return adress; 
 	}
 
 	@Override
@@ -236,7 +242,7 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	@Override
 	public String getNodeManagementUri() throws Exception {
 		// TODO Auto-generated method stub
-		return uriPrefix;
+		return adress;
 	}
 	
 }

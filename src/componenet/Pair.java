@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import classes.ContentDescriptor;
-import classes.ContentNodeAdress;
 import connector.ContentManagementCIConector;
 import connector.ManagementConnector;
 import connector.NodeC_conector;
@@ -36,49 +35,40 @@ import ports.NodeCOutboundPort;
 
 public class Pair  extends AbstractComponent implements PeerNodeAddressI {
 	
-	/**   
-	* @Function: Pair.java
-	* @Description: 
-	*
-	* @param: NodeUri
-	* @param: nbThreads
-	* @version: 
-	* @author: lyna & shuhan 
-	* @date: 30 janv. 2023 20:34:23 
-	*/
+
 	protected final static int	N = 2 ;
 
 
 	/**	the outbound port used to call the service.							*/
-	protected ManagementOutboundPort	uriGetterPort ;
-	protected NodeCIntboundPort	port_entrant ;
+	protected ManagementOutboundPort	NMportOut ;
+	protected NodeCIntboundPort	NoPortIn ;
 	/**	counting service invocations.										*/
 	protected int						counter ;
-	protected String NodeUri;
-	//private ContentNodeAdress contentNodeAddress;
-	private ConcurrentHashMap<PeerNodeAddressI,NodeCOutboundPort> outPorts; 
+	protected String adress;
+	//private ContentNodeadress contentNodeAddress;
+	private ConcurrentHashMap<PeerNodeAddressI,NodeCOutboundPort> outPortsNodeC; 
 	protected ContentDescriptorI contentDescriptor;
-	protected ContentManagementCIIntbound contentPortIn;
+	protected ContentManagementCIIntbound CMportIn;
      
 	/**
-	 * @param uri				URI of the component
+	 * @param adress				adress of the component
 	 * @param OutboundPort	URI of the URI getter outbound port.
 	 * @throws Exception		<i>todo.</i>
 	 */
-	protected Pair(String NodeUri, String outboundPortURI)throws Exception {
-		super(NodeUri, 0, 1);
+	protected Pair(String adress, String NMoutboundPortURI)throws Exception {
+		super(adress, 0, 1);
 	
-		//System.out.println(NodeUri + " " + outboundPortURI);
-		this.NodeUri = NodeUri ;	
-		this.uriGetterPort =new ManagementOutboundPort(outboundPortURI, this) ;
-		this.uriGetterPort.publishPort() ;
-		this.port_entrant = new NodeCIntboundPort(NodeUri ,this);
-		port_entrant.publishPort();
+		//System.out.println(adress + " " + NMoutboundPortURI);
+		this.adress = adress ;	
+		this.NMportOut =new ManagementOutboundPort(NMoutboundPortURI, this) ;
+		this.NMportOut.publishPort() ;
+		this.NoPortIn = new NodeCIntboundPort(adress ,this);
+		NoPortIn.publishPort();
 		this.counter = 0 ;
-		this.outPorts = new ConcurrentHashMap<PeerNodeAddressI,NodeCOutboundPort>();
+		this.outPortsNodeC = new ConcurrentHashMap<PeerNodeAddressI,NodeCOutboundPort>();
 		this.contentDescriptor = null ;
-		String inport = "inportCM";
-		this.contentPortIn = new ContentManagementCIIntbound(inport, this);
+		String inportCM = "inportCM";
+		this.CMportIn = new ContentManagementCIIntbound(inportCM, this);
 
 		if (AbstractCVM.isDistributed) {
 			this.getLogger().setDirectory(System.getProperty("user.dir")) ;
@@ -109,14 +99,25 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI {
 	*/
 	public PeerNodeAddressI connecte (PeerNodeAddressI p ) throws Exception
 	{   
-		String inport = p.getNodeidentifier();
-		String outport = AbstractOutboundPort.generatePortURI();
-		NodeCOutboundPort port_sortant = new NodeCOutboundPort(outport,this );
-		port_sortant.publishPort();
-		outPorts.put(p, port_sortant);
-		this.doPortConnection(outport, inport, NodeC_conector.class.getCanonicalName());
-		System.out.println("c'est ok " + this.NodeUri  +" connecte avec "+ p.getNodeUri());
-		return p;
+		String inportN = this.NoPortIn.getPortURI();
+		String outportN_voisin = AbstractOutboundPort.generatePortURI();
+		NodeCOutboundPort NportOut_voisin = new NodeCOutboundPort(outportN_voisin,(Pair)p );
+		NportOut_voisin.publishPort();
+		System.out.println( p.getNodeUri() +" demande de connecte avec "+ this.adress +" en NodeCI");
+		outPortsNodeC.put(p, NportOut_voisin);
+		this.doPortConnection(outportN_voisin, inportN, NodeC_conector.class.getCanonicalName());
+		System.out.println("c'est ok " + p.getNodeUri() +" connecte avec "+ this.adress +" en NodeCI" );
+		
+		String inportCM = this.CMportIn.getPortURI();
+		String outportCM_voisin = AbstractOutboundPort.generatePortURI();
+		ContentManagementCIOutbound CMportOut_voisin = new ContentManagementCIOutbound(outportCM_voisin,(Pair)p );
+		System.out.println( p.getNodeUri() +" demande de connecte avec "+ this.adress +" en ContentManagementCI");
+		CMportOut_voisin.publishPort();
+		//System.out.println("inportCM : "+ inportCM +" of "+ this.adress);
+		//this.doPortConnection(outport,inport, ContentManagementCIConector.class.getCanonicalName());
+		doPortConnection(outportCM_voisin,inportCM, ContentManagementCIConector.class.getCanonicalName());
+		System.out.println("c'est ok " + p.getNodeUri() +" connecte avec "+ this.adress +" en ContentManagementCI" );
+		return this;
 	}
 	
 	/**   
@@ -135,27 +136,20 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI {
 	*/
 	public void disconnecte (PeerNodeAddressI p ) throws Exception
 	{
-		NodeCOutboundPort port_sortant = outPorts.get(p);
+		NodeCOutboundPort port_sortant = outPortsNodeC.get(p);
 		port_sortant.unpublishPort();
-		outPorts.remove(p);
+		outPortsNodeC.remove(p);
 		this.doPortDisconnection(port_sortant.getPortURI());
 		System.out.println("c'est ok "+  this.getNodeUri() +" disconnect  avec " + port_sortant.getPortURI());
 	}
 	
 	public ContentDescriptorI find(ContentTemplateI cd  ,int hops )throws Exception{
 		hops -- ; 
-		System.out.println("find in pair "+this.NodeUri);
+		System.out.println("find in pair "+this.adress);
 		if (hops != 0)
 		{
-			 for (PeerNodeAddressI p : outPorts.keySet()) {
-				String outport = AbstractOutboundPort.generatePortURI();
-				ContentManagementCIOutbound portOut = new ContentManagementCIOutbound(outport,(Pair)p );
-				System.out.println(" pair to connect :"+p.getNodeUri());
-				portOut.publishPort();
-				String inport = contentPortIn.getPortURI();
-				System.out.println("inportCM : "+inport+" of "+ this.NodeUri);
-				doPortConnection(outport,inport, ContentManagementCIConector.class.getCanonicalName());
-				System.out.println("connection in find in pair ");
+			 for (PeerNodeAddressI p : outPortsNodeC.keySet()) {
+				
 				return ((Pair) p).find(cd , hops );
 			 }
 		}else 
@@ -211,13 +205,14 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI {
 		
 		
 		//disconnect
+		/* 
 		System.out.println("*************");
-		for (PeerNodeAddressI pAddressI:  outPorts.keySet()) {
+		for (PeerNodeAddressI pAddressI:  outPortsNodeC.keySet()) {
 			if(pAddressI != this){  
 				this.disconnecte(pAddressI);			
 			}
-		} 
-		this.uriGetterPort.unpublishPort() ;
+		} */
+		this.NMportOut.unpublishPort() ;
 		super.finalise();
 	}
 	
@@ -233,8 +228,8 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI {
 		// below will be executed asynchronously as a separate task, hence this
 		// method execute will be free to finish its execution and free the
 		// thread that is executing it.
-		//System.out.println(this.uriGetterPort.getPortURI() + " " + this.uriGetterPort.connected());
-		Set<PeerNodeAddressI> liste = this.uriGetterPort.Join(this);
+		//System.out.println(this.NMportOut.getPortURI() + " " + this.NMportOut.connected());
+		Set<PeerNodeAddressI> liste = this.NMportOut.Join(this);
 
 		//connect
 		for (PeerNodeAddressI pAddressI: liste ) {
@@ -243,7 +238,7 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI {
 				String outport = AbstractOutboundPort.generatePortURI();
 				NodeCOutboundPort port_sortant = new NodeCOutboundPort(outport,this );
 				port_sortant.publishPort();
-				outPorts.put(pAddressI, port_sortant);
+				outPortsNodeC.put(pAddressI, port_sortant);
 				System.out.println("-------------");
 				System.out.println(port_sortant.getPortURI());
 				this.doPortConnection(port_sortant.getPortURI(), inport, NodeC_conector.class.getCanonicalName());
@@ -253,7 +248,7 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI {
 		//Thread.sleep(1000);
 
 		//leave
-		this.uriGetterPort.leave(this);
+		//this.NMportOut.leave(this);
 
 		//find
 		this.find(contentDescriptor, 2);
@@ -263,7 +258,7 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI {
 
 	@Override
 	public String getNodeidentifier() throws Exception {
-		return port_entrant.getPortURI();
+		return adress;
 	}
 
 
@@ -282,6 +277,6 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI {
 	
 	@Override
 	public String getNodeUri() throws Exception {
-		return NodeUri;
+		return adress;
 	}
 }

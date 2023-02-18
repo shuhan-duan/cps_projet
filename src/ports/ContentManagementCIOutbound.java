@@ -9,6 +9,7 @@ import interfaces.ContentDescriptorI;
 import interfaces.ContentManagementCI;
 import interfaces.ContentTemplateI;
 import interfaces.NodeManagementCI;
+import componenet.Pair;
 
 public class ContentManagementCIOutbound   extends AbstractOutboundPort  implements    ContentManagementCI{
   ///a revoir le constructor 
@@ -27,7 +28,7 @@ public class ContentManagementCIOutbound   extends AbstractOutboundPort  impleme
 
 	@Override
 	public ContentDescriptorI find(ContentTemplateI cd, int hops) throws Exception {
-		  return ((ContentManagementCI)this.getConnector()).find (cd  , hops );
+		return  ((Pair)this.getOwner()).find(cd ,hops );
 
 	}
 
