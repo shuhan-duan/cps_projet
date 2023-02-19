@@ -28,7 +28,7 @@ public class ContentManagementCIOutbound   extends AbstractOutboundPort  impleme
 
 	@Override
 	public ContentDescriptorI find(ContentTemplateI cd, int hops) throws Exception {
-		return  ((Pair)this.getOwner()).find(cd ,hops );
+		return  ((ContentManagementCI)this.getConnector()).find(cd , hops );
 
 	}
 

@@ -31,13 +31,16 @@ public class NodeCOutboundPort   extends AbstractOutboundPort implements  NodeCI
 
 	@Override
 	public PeerNodeAddressI connecte(PeerNodeAddressI p) throws Exception {
-		return ((Pair)this.getOwner()).connecte(p); 
+		//System.out.println("----------connecte--------------------");
+		//System.out.println(this.getPortURI() + " " + this.getConnector());
+		return ((NodeCI)this.getConnector()).connecte(p); 
 
 	}
 
 	@Override
 	public void disconnecte(PeerNodeAddressI p) throws Exception {
-
+		//System.out.println("----------disconnecte--------------------");
+		//System.out.println(this.getPortURI() + " " + this.getConnector());
 		((NodeCI) getConnector()).disconnecte(p);
 
 		

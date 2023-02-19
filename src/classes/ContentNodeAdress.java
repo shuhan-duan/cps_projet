@@ -8,6 +8,7 @@ import interfaces.ContentNodeAddressI;
 * @desc:
 */
 public class ContentNodeAdress implements ContentNodeAddressI{
+	
 	private String nodeURI;
 	private String nodeIdentifier;
 	private String contentManagementURI;

@@ -2,6 +2,7 @@ package componenet;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.processing.SupportedOptions;
@@ -45,7 +46,9 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	*/
 	protected String		adress;
 	protected Set<PeerNodeAddressI>   peerNodeList ;
+	//stock the outports of facade and the pair connecter with it
 	private ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound> outPortsCM; 
+	private ConcurrentHashMap<ContentTemplateI, ContentDescriptorI> contents;
 
 	protected	Facade(	String adress,	String inportNM	 ) throws Exception
 		{
@@ -60,6 +63,7 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 			this.adress = adress ;
 			this.peerNodeList = new HashSet<PeerNodeAddressI>();
 			this.outPortsCM =  new ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound>();
+			this.contents = new ConcurrentHashMap<ContentTemplateI, ContentDescriptorI>();
 			// if the offered interface is not declared in an annotation on
 			// the component class, it can be added manually with the
 			// following instruction:
@@ -68,7 +72,6 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 			// create the port that exposes the offered interface with the
 			// given URI to ease the connection from client components.
 			ManagementInBoundPort  NMportIn = new ManagementInBoundPort(inportNM, this);
-
 			// publish the port
 			NMportIn.publishPort();
 
@@ -101,65 +104,6 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	
 
 
-	public ContentDescriptorI find (ContentTemplateI  ct , int hops ) throws Exception{
-		System.out.println("find in facade ");
-		
-		return null;
-	}
-	//--------------------------------------------------------------------------
-	// Component life-cycle
-	//--------------------------------------------------------------------------
-
-	/**
-	 * @see fr.sorbonne_u.components.AbstractComponent#start()
-	 */
-	@Override
-	public void			start() throws ComponentStartException
-	{
-		this.logMessage("starting provider component.");
-		super.start();
-	}
-
-	/**
-	 * @see fr.sorbonne_u.components.AbstractComponent#finalise()
-	 */
-	@Override
-	public void			finalise() throws Exception
-	{
-		this.logMessage("stopping provider component.");
-		this.printExecutionLogOnFile("provider");
-		super.finalise();
-	}
-
-	/**
-	 * @see fr.sorbonne_u.components.AbstractComponent#shutdown()
-	 */
-	@Override
-	public void			shutdown() throws ComponentShutdownException
-	{
-		try {
-			PortI[] p = this.findPortsFromInterface(FacadeNodeAdressI.class);
-			p[0].unpublishPort();
-		} catch (Exception e) {
-			throw new ComponentShutdownException(e);
-		}
-		super.shutdown();
-	}
-
-	/**
-	 * @see fr.sorbonne_u.components.AbstractComponent#shutdownNow()
-	 */
-	@Override
-	public void			shutdownNow() throws ComponentShutdownException
-	{
-		try {
-			PortI[] p = this.findPortsFromInterface(FacadeNodeAdressI.class);
-			p[0].unpublishPort();
-		} catch (Exception e) {
-			throw new ComponentShutdownException(e);
-		}
-		super.shutdownNow();
-	}
 
 	/**   
 	* @Function: Pair.java
@@ -179,20 +123,23 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	public Set<PeerNodeAddressI>  Join   (PeerNodeAddressI p) 
 	throws Exception{
 		peerNodeList.add(p);
-		System.out.println("c'est ok join ");
+		System.out.println("\n"+ p.getNodeUri()+ " est join avec facade\n");
 
-			
-		String outportCM = AbstractOutboundPort.generatePortURI();
-		ContentManagementCIOutbound CMportOut= new ContentManagementCIOutbound(outportCM,this);
+		
+		
+		//do connect entre facade et pair en ContentManagementCI
+		String outportCM_Facade = "myOutportCMfacade" + UUID.randomUUID();
+		ContentManagementCIOutbound CMportOut= new ContentManagementCIOutbound(outportCM_Facade,this);
 		outPortsCM.put(p, CMportOut);
 		CMportOut.publishPort();
-		String inportCM_Pair = ((Pair)p).CMportIn.getPortURI();
-		System.out.println( p.getNodeUri() +" demande de connecte avec "+ this.adress +" en ContentManagementCI");
-		doPortConnection(outportCM,inportCM_Pair , ContentManagementCIConector.class.getCanonicalName());
-		System.out.println("c'est ok " + p.getNodeUri() +" connecte avec "+ this.adress +" en ContentManagementCI" );
-			
-
-			return this.peerNodeList;
+		String inportCM_Pair = ((Pair)p).CMportIn.getPortURI(); 
+		//System.out.println("ici "+inportCM_Pair);
+		System.out.println( "\n"+p.getNodeUri() +" demande de connecte avec "+ this.adress +" en ContentManagementCI\n");
+		doPortConnection(outportCM_Facade, inportCM_Pair, ContentManagementCIConector.class.getCanonicalName());
+		System.out.println("\nc'est ok " + p.getNodeUri() +" connecte avec "+ this.adress +" en ContentManagementCI\n" );	
+		
+		
+		return this.peerNodeList;
 			
 	}
 	
@@ -212,36 +159,66 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	*/
 	public void leave (PeerNodeAddressI p)
 	throws Exception{
+		System.out.println("\n"+ p.getNodeUri()+" demande de quitter facade\n");
+
 		if(!peerNodeList.isEmpty()) {
 			peerNodeList.remove(p);
-			System.out.println("supprime l'adress pair " + p.getNodeUri()+" avec " + this.adress);
+			System.out.println("\nsupprime l'adress pair " + p.getNodeUri()+" avec " + this.adress+"\n");
 		}
 		else {	   
-			System.out.println(" il y a pas de pair en connectent  ");	
+			System.out.println(" il y a pas de pair connecte avec facade ");	
 		}
+	}
+
+	public ContentDescriptorI find (ContentTemplateI  ct , int hops ) throws Exception{
+		System.out.println("\nc'est  find in facade \n");
+
+		if (hops == 0) {
+			return null;
+		}
+		// Cherche parmi ses propres contenus
+		for (ContentDescriptorI content : this.contents.values()) {
+			if (content.match(ct)) {
+				return content;
+			}
+		}
+		// Si le contenu n'est pas dans le nœud courant, demande à un autre pair
+		Set<PeerNodeAddressI> neighbors = outPortsCM.keySet();
+		if (neighbors == null) {
+			return null;
+		}
+		for (PeerNodeAddressI pair : neighbors) {
+			try {
+				ContentDescriptorI content = ((Pair)pair).find(ct, hops - 1);
+				if (content != null) {
+					return content;
+				}
+			} catch (Exception e) {
+				System.err.println("Failed to contact neighbor pair: " + pair.getNodeUri());
+			}
+		}
+	
+		return null;
+
 	}
 
 	@Override
 	public String getNodeidentifier() throws Exception {
-		// TODO Auto-generated method stub
 		return adress; 
 	}
 
 	@Override
 	public Boolean isfacade() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		return true;
 	}
 
 	@Override
 	public Boolean ispeer() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		return false;
 	}
 
 	@Override
 	public String getNodeManagementUri() throws Exception {
-		// TODO Auto-generated method stub
 		return adress;
 	}
 	

@@ -22,11 +22,11 @@ public class CVM extends AbstractCVM{
 	/** URI of the pair component (convenience).						*/
 	protected static final String	PAIR_COMPONENT_URI2 = "my-URI-pair2";
 	/** URI of the provider outbound port (simplifies the connection).		*/
-	protected static final String	NodeManagementOutboundPort1 = "oport1";
-	protected static final String	NodeManagementOutboundPort2 = "oport2";
+	protected static final String	NodeManagementOutboundPort1 = "outportNMpair1";
+	protected static final String	NodeManagementOutboundPort2 = "outportNMpair2";
 
 	/** URI of the consumer inbound port (simplifies the connection).		*/
-	protected static final String	NodeManagemenInboundPort = "iport";
+	protected static final String	NodeManagemenInboundPort = "inportNMfacade";
 
 	/**   
 	* @Function: CVM.java
@@ -43,8 +43,8 @@ public class CVM extends AbstractCVM{
 	}
 	
 	protected String	uriFacadeURI;
-	protected String	uriPairURI1;
-	protected String	uriPairURI2;
+	protected String	uriPair1URI;
+	protected String	uriPair2URI;
 
 	@Override
 	public void			deploy() throws Exception
@@ -82,28 +82,28 @@ public class CVM extends AbstractCVM{
 		// the difference
 		//this.toggleTracing(this.uriFacadeURI);
 		//this.toggleLogging(this.uriFacadeURI);
-		System.out.println("\n Composant Facade OK \n");
+		System.out.println("\nCreate Composant Facade OK \n");
 
 		
 		// create the component pair1 
-		this.uriPairURI1 =
+		this.uriPair1URI =
 			AbstractComponent.createComponent(
 					Pair.class.getCanonicalName(),
 					new Object[]{PAIR_COMPONENT_URI1,
 							NodeManagementOutboundPort1});  
-		assert	this.isDeployedComponent(this.uriPairURI1);
-		//this.toggleTracing(this.uriPairURI1);
-		//this.toggleLogging(this.uriPairURI1);
+		assert	this.isDeployedComponent(this.uriPair1URI);
+		//this.toggleTracing(this.uriPair1URI);
+		//this.toggleLogging(this.uriPair1URI);
 		
 		// create the component pair2
-		this.uriPairURI2 =
+		this.uriPair2URI =
 			AbstractComponent.createComponent(
 					Pair.class.getCanonicalName(),
 					new Object[]{PAIR_COMPONENT_URI2,
 							NodeManagementOutboundPort2});
-		assert	this.isDeployedComponent(this.uriPairURI2);
-		//this.toggleTracing(this.uriPairURI2);
-		//this.toggleLogging(this.uriPairURI2);
+		assert	this.isDeployedComponent(this.uriPair2URI);
+		//this.toggleTracing(this.uriPair2URI);
+		//this.toggleLogging(this.uriPair2URI);
 
 		// ---------------------------------------------------------------------
 		// Connection phase
@@ -111,14 +111,14 @@ public class CVM extends AbstractCVM{
 
 		// do the connection du composant pair1 avec facade 
 		this.doPortConnection(
-				this.uriPairURI1,
+				this.uriPair1URI,
 				NodeManagementOutboundPort1,
 				NodeManagemenInboundPort,
 				ManagementConnector.class.getCanonicalName()) ;
 				//System.out.println("++++++++++++++++++++++++++ 1 " );
 		// do the connection du composant pair2 avec facade 
 		this.doPortConnection(
-				this.uriPairURI2,
+				this.uriPair2URI,
 				NodeManagementOutboundPort2,
 				NodeManagemenInboundPort,
 				ManagementConnector.class.getCanonicalName()) ;
@@ -129,9 +129,14 @@ public class CVM extends AbstractCVM{
 		// ---------------------------------------------------------------------
 		// Deployment done
 		// ---------------------------------------------------------------------
-		System.out.println("\n Composant Connector  pair1 et pair2 OK \n");
+		System.out.println("\nCreate Composant Connector  pair1 et pair2 OK \n");
 		//Connection des deuc composant pair grace a nodeCi
-		
+		/*
+		System.out.println("//////////////////");
+		System.out.println(this.uriFacadeURI);
+		System.out.println(this.uriPair1URI);
+		System.out.println(this.uriPair2URI);
+		 */
 		
 
 		super.deploy();
@@ -157,11 +162,10 @@ public class CVM extends AbstractCVM{
 	{
 		// Port disconnections can be done here for static architectures
 		// otherwise, they can be done in the finalise methods of components.
-		this.doPortDisconnection(this.uriPairURI1,
+		this.doPortDisconnection(this.uriPair1URI,
 				NodeManagementOutboundPort1);
-		this.doPortDisconnection(this.uriPairURI2,
+		this.doPortDisconnection(this.uriPair2URI,
 				NodeManagementOutboundPort2);
-		//faut ajouter la deconection de pair2 
 		super.finalise();	
 	}
 	
@@ -197,7 +201,7 @@ public class CVM extends AbstractCVM{
 			a.startStandardLifeCycle(20000L);
 
 			// Give some time to see the traces (convenience).
-			Thread.sleep(5000L);
+			Thread.sleep(1000L);
 
 			// Simplifies the termination (termination has yet to be treated
 			// properly in BCM).

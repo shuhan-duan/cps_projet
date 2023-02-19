@@ -55,4 +55,6 @@ public interface ContentDescriptorI extends ContentTemplateI {
 	* 
 	*/
 	public boolean equals (ContentDescriptorI cd ) throws Exception;
+
+	public boolean match (ContentTemplateI t) throws Exception;
 }

@@ -16,7 +16,7 @@ public class ContentManagementCIIntbound  extends AbstractInboundPort  implement
 	public ContentManagementCIIntbound(String uri, ComponentI owner)
 			throws Exception {
 				super(uri, ContentManagementCI.class, owner);
-		// TODO Auto-generated constructor stub
+		
 	}
 
 	/**

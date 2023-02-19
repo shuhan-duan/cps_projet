@@ -14,20 +14,16 @@ import interfaces.PeerNodeAddressI;
  */
 public class ManagementConnector  extends  AbstractConnector implements NodeManagementCI{
 
-
-	
-
-
 	@Override
 	public Set<PeerNodeAddressI> Join(PeerNodeAddressI p) throws Exception {
-		
+		//System.out.println("ici dans ManagementConnector-------------");
+		//System.out.println(this.offeringPortURI);
 		return ((NodeManagementCI)this.offering).Join(p);
 	}
 
 	@Override
 	public void leave(PeerNodeAddressI p) throws Exception {
 		 ((NodeManagementCI)this.offering).leave(p);			
-		 ((NodeManagementCI)this.offering).leave(p);
 	}
 	
 

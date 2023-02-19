@@ -70,6 +70,8 @@ public class ManagementInBoundPort extends AbstractInboundPort  implements NodeM
 		return this.getOwner().handleRequest(new AbstractComponent.AbstractService<Set<PeerNodeAddressI>>() {
 					@Override 
 					public Set<PeerNodeAddressI> call() throws Exception {
+						//System.out.println("ici2----------");
+						//System.out.println(((Facade)this.getServiceOwner()).getNodeidentifier());
 						return ((Facade)this.getServiceOwner()).Join(p) ;
 					}
 				}) ;
