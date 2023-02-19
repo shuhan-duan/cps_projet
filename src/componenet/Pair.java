@@ -236,9 +236,29 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI {
 				System.out.println("the list of adress of pair in facade is empty!");
 			}
 			//do connection entre pair et pair en NodeCI
-			for (PeerNodeAddressI pAddressI: liste ) {
-				if(pAddressI != this){
-					((Pair)pAddressI).connecte(this);
+			for (PeerNodeAddressI p: liste ) {
+				if(p != this){
+					String inportNode_voisin = ((Pair)p).NodePortIn.getPortURI();
+					String outportN = "myOutPortNodeCIpair"+counter;
+					NodeCOutboundPort NportOut = new NodeCOutboundPort(outportN, this);
+					NportOut.publishPort();
+					outPortsNodeC.put(p, NportOut);
+					//System.out.println("\nthe uri of outport NodeCI  "+ p.getNodeUri() +" "+ NportOut.getPortURI());
+					doPortConnection(NportOut.getPortURI(), inportNode_voisin, NodeC_conector.class.getCanonicalName());
+					System.out.println("\nc'est ok " + p.getNodeUri() +" connecte avec "+ this.adress +" en NodeCI\n" );
+
+					String inportCM_voisin = ((Pair)p).CMportIn.getPortURI();
+					String outportCM = "myOutportCMpair" + UUID.randomUUID();
+					ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM,this );
+					System.out.println( "\n"+ p.getNodeUri() +" demande de connecte avec "+ this.adress +" en ContentManagementCI\n");
+					CMportOut.publishPort();
+					outPortsCM.put(p, CMportOut);
+					//System.out.println("inportCM : "+ inportCM +" of "+ this.adress);
+					//this.doPortConnection(outport,inport, ContentManagementCIConector.class.getCanonicalName());
+					doPortConnection(outportCM,inportCM_voisin, ContentManagementCIConector.class.getCanonicalName());
+					System.out.println("\nc'est ok " + p.getNodeUri() +" connecte avec "+ this.adress +" en ContentManagementCI\n" );
+
+
 				}
 			}
 
@@ -248,14 +268,30 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI {
 											new HashSet<String>(), new HashSet<String>(), 1000L, ca);
 			
 			ContentDescriptorI result = ((ContentManagementCI) NMportOut).find(cd, 1);
-
+			System.out.println("-------------find-------");
+			System.out.println(result.toString());
 
 			Thread.sleep(1000);
 
 			//disconnect
-			for (PeerNodeAddressI pAddressI:  outPortsNodeC.keySet()) {
-				if(pAddressI != this){  
-					this.disconnecte(pAddressI);			
+			for (PeerNodeAddressI p:  outPortsNodeC.keySet()) {
+				if(p != this){  
+					NodeCOutboundPort NodeCportOut = outPortsNodeC.get(p);
+					//System.out.println("ici");
+					NodeCportOut.unpublishPort();
+					outPortsNodeC.remove(p);
+					this.doPortDisconnection(NodeCportOut.getPortURI());
+					System.out.println("\nc'est ok "+ p.getNodeUri() +" disconnect  avec " + this.getNodeUri() +" en NodeCI  p\n");
+					
+					//do disconnection en CM
+					//get the outportCM of this , which is connected with p
+					ContentManagementCIOutbound CMportOut = outPortsCM.get(p);
+					//System.out.println("ici");
+					CMportOut.unpublishPort();
+					outPortsCM.remove(p);
+					this.doPortDisconnection(CMportOut.getPortURI());
+					System.out.println("\nc'est ok "+ p.getNodeUri() +" disconnect  avec " + this.getNodeUri() +" en ContentManagementCI p\n");
+
 				}
 			} 
 			while ( ! outPortsNodeC.isEmpty())
@@ -276,27 +312,6 @@ public class Pair  extends AbstractComponent implements PeerNodeAddressI {
 
 	}
 
-	/**
-	 * @see fr.sorbonne_u.components.AbstractComponent#finalise()
-	 */
-	@Override
-	public void			finalise() throws Exception
-	{
-		this.logMessage("stopping pair component.") ;
-		this.printExecutionLogOnFile("pair");
-		// This is the place where to clean up resources, such as
-		// disconnecting ports and unpublishing outbound ports that
-		// will be destroyed when shutting down.
-		// In static architectures like in this example, ports can also
-		// be disconnected by the finalise method of the component
-		// virtual machine.
-
-		
-		
-		// This called at the end to make the component internal
-		// state move to the finalised state.
-		super.finalise();
-	}
 
 	
 
