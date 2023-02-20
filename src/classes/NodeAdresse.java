@@ -5,30 +5,29 @@ import interfaces.NodeAdresseI;
 import interfaces.PeerNodeAddressI;
 
 public class NodeAdresse implements NodeAdresseI {
-String idetifier ; 
+
+	String uriCM ; 
 	
 	
+	
+	public NodeAdresse(String uriCM) {
+		this.uriCM = uriCM;
+	}
+
 	@Override
 	public String getNodeidentifier() throws Exception {
-		// TODO Auto-generated method stub
-		return idetifier;
+		return uriCM;
 	}
 
 	@Override
 	public Boolean isfacade() throws Exception {
-		// TODO Auto-generated method stub
 		return   this instanceof  FacadeNodeAdressI;
 	}
 
 	@Override
 	public Boolean ispeer() throws Exception {
-		// TODO Auto-generated method stub
+		
 		 return this instanceof  PeerNodeAddressI;
-	}
-
-	public NodeAdresse(String idetifier) {
-		super();
-		this.idetifier = idetifier;
 	}
 
 }

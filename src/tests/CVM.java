@@ -16,11 +16,7 @@ import fr.sorbonne_u.components.helpers.CVMDebugModes;
  */
 public class CVM extends AbstractCVM{
 	/** URI of the facade component (convenience).						*/
-	protected static final String	FACADE_COMPONENT_URI = "my-URI-facade";
-	/** URI of the pair component (convenience).						*/
-	protected static final String	PAIR_COMPONENT_URI1 = "my-URI-pair1";
-	/** URI of the pair component (convenience).						*/
-	protected static final String	PAIR_COMPONENT_URI2 = "my-URI-pair2";
+	protected static final String	ContentManagementInboudPort = "inportCMfacade";
 	/** URI of the provider outbound port (simplifies the connection).		*/
 	protected static final String	NodeManagementOutboundPort1 = "outportNMpair1";
 	protected static final String	NodeManagementOutboundPort2 = "outportNMpair2";
@@ -71,25 +67,14 @@ public class CVM extends AbstractCVM{
 		// Creation phase
 		// ---------------------------------------------------------------------
 
-		// create the component facade
-		this.uriFacadeURI =
-			AbstractComponent.createComponent(
-					Facade.class.getCanonicalName(),
-					new Object[]{FACADE_COMPONENT_URI,
-							NodeManagemenInboundPort});
-		assert	this.isDeployedComponent(this.uriFacadeURI);
-		// make it trace its operations; comment and uncomment the line to see
-		// the difference
-		//this.toggleTracing(this.uriFacadeURI);
-		//this.toggleLogging(this.uriFacadeURI);
-		System.out.println("\nCreate Composant Facade OK \n");
+		
 
 		
 		// create the component pair1 
 		this.uriPair1URI =
 			AbstractComponent.createComponent(
 					Pair.class.getCanonicalName(),
-					new Object[]{PAIR_COMPONENT_URI1,
+					new Object[]{
 							NodeManagementOutboundPort1});  
 		assert	this.isDeployedComponent(this.uriPair1URI);
 		//this.toggleTracing(this.uriPair1URI);
@@ -99,11 +84,24 @@ public class CVM extends AbstractCVM{
 		this.uriPair2URI =
 			AbstractComponent.createComponent(
 					Pair.class.getCanonicalName(),
-					new Object[]{PAIR_COMPONENT_URI2,
+					new Object[]{
 							NodeManagementOutboundPort2});
 		assert	this.isDeployedComponent(this.uriPair2URI);
 		//this.toggleTracing(this.uriPair2URI);
 		//this.toggleLogging(this.uriPair2URI);
+
+		// create the component facade
+		this.uriFacadeURI =
+			AbstractComponent.createComponent(
+					Facade.class.getCanonicalName(),
+					new Object[]{ContentManagementInboudPort,
+							NodeManagemenInboundPort});
+		assert	this.isDeployedComponent(this.uriFacadeURI);
+		// make it trace its operations; comment and uncomment the line to see
+		// the difference
+		//this.toggleTracing(this.uriFacadeURI);
+		//this.toggleLogging(this.uriFacadeURI);
+		System.out.println("\nCreate Composant Facade OK \n");
 
 		// ---------------------------------------------------------------------
 		// Connection phase
@@ -131,12 +129,7 @@ public class CVM extends AbstractCVM{
 		// ---------------------------------------------------------------------
 		System.out.println("\nCreate Composant Connector  pair1 et pair2 OK \n");
 		//Connection des deuc composant pair grace a nodeCi
-		/*
-		System.out.println("//////////////////");
-		System.out.println(this.uriFacadeURI);
-		System.out.println(this.uriPair1URI);
-		System.out.println(this.uriPair2URI);
-		 */
+		
 		
 
 		super.deploy();

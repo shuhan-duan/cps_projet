@@ -28,11 +28,6 @@ public class ManagementOutboundPort extends AbstractOutboundPort implements  Nod
 		super(uri,   PeerNodeAddressI.class, owner);
 		assert	uri != null && owner != null ;
 	}
-	public ManagementOutboundPort(ComponentI owner) throws Exception{
-		super( PeerNodeAddressI.class, owner);
-		assert	owner != null ;
-
-	}
 
 	/**
 	 * 

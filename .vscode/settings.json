@@ -1,8 +1,11 @@
 {
-    "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "/Users/shuhan/Downloads/BCM4Java-19092022.jar",
-        "/Users/shuhan/Downloads/javassist.jar",
-        "/Users/shuhan/Downloads/jing.jar"
-    ]
+    "java.project.referencedLibraries": {
+        "include": [
+            "lib/**/*.jar",
+            "/Users/shuhan/Downloads/jing.jar"
+        ],
+        "exclude": [
+            "/Users/shuhan/Downloads/BCM4Java-19092022.jar"
+        ]
+    }
 }

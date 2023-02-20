@@ -5,24 +5,19 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.processing.SupportedOptions;
-
-import classes.ContentDescriptor;
+import classes.FacadeNodeAdress;
 import connector.ContentManagementCIConector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
-import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
-import fr.sorbonne_u.components.exceptions.ComponentStartException;
-import fr.sorbonne_u.components.ports.AbstractOutboundPort;
-import fr.sorbonne_u.components.ports.PortI;
 import fr.sorbonne_u.exceptions.PostconditionException;
 import fr.sorbonne_u.exceptions.PreconditionException;
 import interfaces.*;
+import ports.ContentManagementCIIntbound;
 import ports.ContentManagementCIOutbound;
 import ports.ManagementInBoundPort;
-import ports.ManagementOutboundPort;
+
 /**
  * @author lyna & shuhan 
  *
@@ -30,7 +25,7 @@ import ports.ManagementOutboundPort;
 @OfferedInterfaces(offered = {NodeCI.class,ContentManagementCI.class,NodeManagementCI.class})
 @RequiredInterfaces(required = {ContentManagementCI.class})
 
-public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
+public class Facade  extends AbstractComponent  {
 
 	/**   
 	* @Function: Facade.java
@@ -44,23 +39,26 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 	* @author: lyna & shuhan
 	* @date: 30 janv. 2023 20:29:55 
 	*/
-	protected String		adress;
+	protected FacadeNodeAdress		adress;
 	protected Set<PeerNodeAddressI>   peerNodeList ;
 	//stock the outports of facade and the pair connecter with it
 	private ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound> outPortsCM; 
-	private ConcurrentHashMap<ContentTemplateI, ContentDescriptorI> contents;
 
-	protected	Facade(	String adress,	String inportNM	 ) throws Exception
+	private ConcurrentHashMap<ContentTemplateI, ContentDescriptorI> contents;
+	protected ManagementInBoundPort  NMportIn;
+	protected ContentManagementCIIntbound CMportIn;
+
+	protected	Facade(	String ContentManagementInboudPort,	String 	NodeManagemenInboundPort) throws Exception
 		{
 			// the reflection inbound port URI is the URI of the component
-			super(adress, 1, 0) ;
+			super(NodeManagemenInboundPort, 1, 0) ;
 
-			assert	adress != null :
-						new PreconditionException("adress can't be null!");
-			assert	inportNM != null :
+			assert	ContentManagementInboudPort != null :
+						new PreconditionException("inportCM can't be null!");
+			assert	NodeManagemenInboundPort != null :
 						new PreconditionException("inportNM can't be null!");
 
-			this.adress = adress ;
+			this.adress = new FacadeNodeAdress(ContentManagementInboudPort,NodeManagemenInboundPort) ;
 			this.peerNodeList = new HashSet<PeerNodeAddressI>();
 			this.outPortsCM =  new ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound>();
 			this.contents = new ConcurrentHashMap<ContentTemplateI, ContentDescriptorI>();
@@ -71,9 +69,11 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 
 			// create the port that exposes the offered interface with the
 			// given URI to ease the connection from client components.
-			ManagementInBoundPort  NMportIn = new ManagementInBoundPort(inportNM, this);
+			NMportIn = new ManagementInBoundPort(NodeManagemenInboundPort, this);
 			// publish the port
 			NMportIn.publishPort();
+			CMportIn = new ContentManagementCIIntbound(ContentManagementInboudPort, this);
+			CMportIn.publishPort();
 
 			if (AbstractCVM.isDistributed) {
 				this.getLogger().setDirectory(System.getProperty("user.dir"));
@@ -86,19 +86,26 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 			Facade.checkInvariant(this) ;
 			AbstractComponent.checkImplementationInvariant(this);
 			AbstractComponent.checkInvariant(this);
-			assert	this.adress.equals(adress) :
-						new PostconditionException("The URI prefix has not "
-													+ "been initialised!");
-			assert	this.isPortExisting(inportNM) :
+			assert	this.isPortExisting(NodeManagemenInboundPort) :
 						new PostconditionException("The component must have a "
-								+ "port with URI " + inportNM);
-			assert	this.findPortFromURI(inportNM).
+								+ "port with URI " + NodeManagemenInboundPort);
+			assert	this.findPortFromURI(NodeManagemenInboundPort).
 						getImplementedInterface().equals(FacadeNodeAdressI.class) :
 						new PostconditionException("The component must have a "
 								+ "port with implemented interface URIProviderI");
-			assert	this.findPortFromURI(inportNM).isPublished() :
+			assert	this.findPortFromURI(NodeManagemenInboundPort).isPublished() :
 						new PostconditionException("The component must have a "
-								+ "port published with URI " + inportNM);
+								+ "port published with URI " + NodeManagemenInboundPort);
+			assert	this.isPortExisting(ContentManagementInboudPort) :
+						new PostconditionException("The component must have a "
+								+ "port with URI " + ContentManagementInboudPort);
+			assert	this.findPortFromURI(ContentManagementInboudPort).
+						getImplementedInterface().equals(FacadeNodeAdressI.class) :
+						new PostconditionException("The component must have a "
+								+ "port with implemented interface URIProviderI");
+			assert	this.findPortFromURI(ContentManagementInboudPort).isPublished() :
+						new PostconditionException("The component must have a "
+								+ "port published with URI " + ContentManagementInboudPort);
 		}
 
 	
@@ -125,8 +132,6 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 		peerNodeList.add(p);
 		System.out.println("\n"+ p.getNodeUri()+ " est join avec facade\n");
 
-		
-		
 		//do connect entre facade et pair en ContentManagementCI
 		String outportCM_Facade = "myOutportCMfacade" + UUID.randomUUID();
 		ContentManagementCIOutbound CMportOut= new ContentManagementCIOutbound(outportCM_Facade,this);
@@ -138,7 +143,7 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 		doPortConnection(outportCM_Facade, inportCM_Pair, ContentManagementCIConector.class.getCanonicalName());
 		System.out.println("\nc'est ok " + p.getNodeUri() +" connecte avec "+ this.adress +" en ContentManagementCI\n" );	
 		
-		
+
 		return this.peerNodeList;
 			
 	}
@@ -187,39 +192,56 @@ public class Facade  extends AbstractComponent  implements FacadeNodeAdressI{
 		if (neighbors == null) {
 			return null;
 		}
-		for (PeerNodeAddressI pair : neighbors) {
+		System.out.println(outPortsCM);
+		for ( ContentManagementCIOutbound outportCMfacade: outPortsCM.values()) {
 			try {
-				ContentDescriptorI content = ((Pair)pair).find(ct, hops - 1);
+				ContentDescriptorI content = outportCMfacade.find(ct, hops); ;
 				if (content != null) {
+					System.out.println("-------------find-------");
+					System.out.println("Value returned by find is " +content);
 					return content;
 				}
 			} catch (Exception e) {
-				System.err.println("Failed to contact neighbor pair: " + pair.getNodeUri());
+				System.err.println("Failed to contact neighbor pair: " + outportCMfacade);
 			}
+			
 		}
 	
 		return null;
 
 	}
 
+	/*
 	@Override
-	public String getNodeidentifier() throws Exception {
-		return adress; 
-	}
+	public void			execute() throws Exception
+	{
+		// application execution code (similar to a main method in Java) is
+		// put here.
+		System.out.println("Entree dans l execute de la facade");
 
-	@Override
-	public Boolean isfacade() throws Exception {
-		return true;
-	}
+		this.logMessage("executing facade component.") ;
 
-	@Override
-	public Boolean ispeer() throws Exception {
-		return false;
-	}
+		// Run the first service method invocation; the code of the method run
+		// below will be executed asynchronously as a separate task, hence this
+		// method execute will be free to finish its execution and free the
+		// thread that is executing it.
 
-	@Override
-	public String getNodeManagementUri() throws Exception {
-		return adress;
-	}
+		
+		
+		
+		
+
+		while(outPortsCM.isEmpty()){
+			Thread.sleep(1000L);
+		 }
+		  System.out.println("Fini");
+		try { 
+			this.find(cd, 3); System.out.println("ici");
+		} catch (Exception e) {
+			e.printStackTrace(); 
+		  }
+		} 
+	 */
 	
+
 }

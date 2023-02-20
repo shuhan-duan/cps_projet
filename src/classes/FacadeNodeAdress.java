@@ -5,19 +5,18 @@ import interfaces.FacadeNodeAdressI;
 
 
 public class FacadeNodeAdress extends   NodeAdresse  implements FacadeNodeAdressI {
-String managememnt ;
 
+	public FacadeNodeAdress(String uriCM, String uriNM) {
+		super(uriCM);
+		this.uriNM = uriNM;
+	}
 
-	public FacadeNodeAdress(String idetifier, String managememnt) {
-	super(idetifier);
-	this.managememnt = managememnt;
-}
+	String  uriNM ;
 
 
 	@Override
 	public String getNodeManagementUri() throws Exception {
-		// TODO Auto-generated method stub
-		return managememnt;
+		return uriNM;
 	}
 
 

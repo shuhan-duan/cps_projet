@@ -30,7 +30,7 @@ public class NodeCIntboundPort  extends AbstractInboundPort  implements NodeCI  
 		return this.getOwner().handleRequest(new AbstractComponent.AbstractService<PeerNodeAddressI>() {
 			@Override 
 			public PeerNodeAddressI call() throws Exception {
-				return ((Pair)this.getServiceOwner()).connecte(p) ;
+				return ((Pair)this.getServiceOwner()).connectPair(p) ;
 			}
 		}) ;
 	}
@@ -41,7 +41,7 @@ public class NodeCIntboundPort  extends AbstractInboundPort  implements NodeCI  
 		this.getOwner().handleRequest(new AbstractComponent.AbstractService<Void>() {
 			@Override 
 			public Void call() throws Exception {
-				((Pair)this.getServiceOwner()).disconnecte(p) ;
+				((Pair)this.getServiceOwner()).disconnectePair(p) ;
 				return null;
 			}
 		}) ;
