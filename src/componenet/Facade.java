@@ -2,7 +2,6 @@ package componenet;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import classes.FacadeNodeAdress;
@@ -10,8 +9,6 @@ import connector.ContentManagementCIConector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
-import fr.sorbonne_u.components.cvm.AbstractCVM;
-import fr.sorbonne_u.exceptions.PostconditionException;
 import fr.sorbonne_u.exceptions.PreconditionException;
 import interfaces.*;
 import ports.ContentManagementCIIntbound;
@@ -26,6 +23,8 @@ import ports.ManagementInBoundPort;
 @RequiredInterfaces(required = {ContentManagementCI.class})
 
 public class Facade  extends AbstractComponent  {
+	public static int cpt = 0;//current racine nb
+	protected final int NB_RACINE = 2;
 
 	/**   
 	* @Function: Facade.java
@@ -41,8 +40,8 @@ public class Facade  extends AbstractComponent  {
 	*/
 	protected FacadeNodeAdress		adress;
 	protected Set<PeerNodeAddressI>   peerNodeList ;
-	//stock the outports of facade and the pair connecter with it
-	private ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound> outPortsCM; 
+	//stock the outports of facade and the racine pair connected with it
+	private ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound> outPortsCM;
 
 	private ConcurrentHashMap<ContentTemplateI, ContentDescriptorI> contents;
 	protected ManagementInBoundPort  NMportIn;
@@ -53,59 +52,19 @@ public class Facade  extends AbstractComponent  {
 			// the reflection inbound port URI is the URI of the component
 			super(NodeManagemenInboundPort, 1, 0) ;
 
-			assert	ContentManagementInboudPort != null :
-						new PreconditionException("inportCM can't be null!");
-			assert	NodeManagemenInboundPort != null :
-						new PreconditionException("inportNM can't be null!");
-
 			this.adress = new FacadeNodeAdress(ContentManagementInboudPort,NodeManagemenInboundPort) ;
 			this.peerNodeList = new HashSet<PeerNodeAddressI>();
 			this.outPortsCM =  new ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound>();
 			this.contents = new ConcurrentHashMap<ContentTemplateI, ContentDescriptorI>();
-			// if the offered interface is not declared in an annotation on
-			// the component class, it can be added manually with the
-			// following instruction:
-			//this.addOfferedInterface(URIProviderI.class) ;
 
 			// create the port that exposes the offered interface with the
 			// given URI to ease the connection from client components.
-			NMportIn = new ManagementInBoundPort(NodeManagemenInboundPort, this);
-			// publish the port
+			NMportIn = new ManagementInBoundPort(this.adress.getNodeManagementUri(), this);
 			NMportIn.publishPort();
-			CMportIn = new ContentManagementCIIntbound(ContentManagementInboudPort, this);
+			CMportIn = new ContentManagementCIIntbound(this.adress.getNodeidentifier(), this);
 			CMportIn.publishPort();
 
-			if (AbstractCVM.isDistributed) {
-				this.getLogger().setDirectory(System.getProperty("user.dir"));
-			} else {
-				this.getLogger().setDirectory(System.getProperty("user.home"));
-			}
-			this.getTracer().setTitle("provider");
-			this.getTracer().setRelativePosition(1, 0);
 
-			Facade.checkInvariant(this) ;
-			AbstractComponent.checkImplementationInvariant(this);
-			AbstractComponent.checkInvariant(this);
-			assert	this.isPortExisting(NodeManagemenInboundPort) :
-						new PostconditionException("The component must have a "
-								+ "port with URI " + NodeManagemenInboundPort);
-			assert	this.findPortFromURI(NodeManagemenInboundPort).
-						getImplementedInterface().equals(FacadeNodeAdressI.class) :
-						new PostconditionException("The component must have a "
-								+ "port with implemented interface URIProviderI");
-			assert	this.findPortFromURI(NodeManagemenInboundPort).isPublished() :
-						new PostconditionException("The component must have a "
-								+ "port published with URI " + NodeManagemenInboundPort);
-			assert	this.isPortExisting(ContentManagementInboudPort) :
-						new PostconditionException("The component must have a "
-								+ "port with URI " + ContentManagementInboudPort);
-			assert	this.findPortFromURI(ContentManagementInboudPort).
-						getImplementedInterface().equals(FacadeNodeAdressI.class) :
-						new PostconditionException("The component must have a "
-								+ "port with implemented interface URIProviderI");
-			assert	this.findPortFromURI(ContentManagementInboudPort).isPublished() :
-						new PostconditionException("The component must have a "
-								+ "port published with URI " + ContentManagementInboudPort);
 		}
 
 	
@@ -127,23 +86,21 @@ public class Facade  extends AbstractComponent  {
 	* 
 	*/
 	//Il faut coder la fonction Join 
-	public Set<PeerNodeAddressI>  Join   (PeerNodeAddressI p) 
+	public synchronized Set<PeerNodeAddressI> joinPair(PeerNodeAddressI p)
 	throws Exception{
 		peerNodeList.add(p);
-		System.out.println("\n"+ p.getNodeUri()+ " est join avec facade\n");
-
-		//do connect entre facade et pair en ContentManagementCI
-		String outportCM_Facade = "myOutportCMfacade" + UUID.randomUUID();
-		ContentManagementCIOutbound CMportOut= new ContentManagementCIOutbound(outportCM_Facade,this);
-		outPortsCM.put(p, CMportOut);
-		CMportOut.publishPort();
-		String inportCM_Pair = ((Pair)p).CMportIn.getPortURI(); 
-		//System.out.println("ici "+inportCM_Pair);
-		System.out.println( "\n"+p.getNodeUri() +" demande de connecte avec "+ this.adress +" en ContentManagementCI\n");
-		doPortConnection(outportCM_Facade, inportCM_Pair, ContentManagementCIConector.class.getCanonicalName());
-		System.out.println("\nc'est ok " + p.getNodeUri() +" connecte avec "+ this.adress +" en ContentManagementCI\n" );	
-		
-
+		if (peerNodeList.size() < NB_RACINE+1 ){
+			System.out.println("\ncreate nouvelle racine "+p.getNodeidentifier()+" connecte avec facade");
+			cpt++;
+			//do connect entre facade et racine en ContentManagementCI
+			String outportCM_Facade = "myOutportCMfacade" + cpt;
+			ContentManagementCIOutbound CMportOut= new ContentManagementCIOutbound(outportCM_Facade,this);
+			CMportOut.publishPort();
+			outPortsCM.put(p, CMportOut);
+			String inportCM_Pair =p.getNodeidentifier();
+			doPortConnection(outportCM_Facade, inportCM_Pair, ContentManagementCIConector.class.getCanonicalName());
+			//System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ outportCM_Facade +" en ContentManagementCI" );
+		}
 		return this.peerNodeList;
 			
 	}
@@ -162,17 +119,21 @@ public class Facade  extends AbstractComponent  {
 	*
 	* 
 	*/
-	public void leave (PeerNodeAddressI p)
+	public void leavePair (PeerNodeAddressI p)
 	throws Exception{
-		System.out.println("\n"+ p.getNodeUri()+" demande de quitter facade\n");
+		if (outPortsCM.containsKey(p)){
+			if(!outPortsCM.isEmpty()) {
+				//System.out.println("\nracine pair "+ p.getNodeidentifier()+" demande de quitter facade");
+				doPortDisconnection(outPortsCM.get(p).getPortURI());
+				//System.out.println("\nsupprime le inportCM racine pair :  " + p.getNodeidentifier()+" avec le outport facade: " + outPortsCM.get(p).getPortURI());
+				outPortsCM.remove(p);
+			}
+			else {
+				System.out.println(" il y a plus de pair racine connecte avec facade ");
+			}
 
-		if(!peerNodeList.isEmpty()) {
-			peerNodeList.remove(p);
-			System.out.println("\nsupprime l'adress pair " + p.getNodeUri()+" avec " + this.adress+"\n");
 		}
-		else {	   
-			System.out.println(" il y a pas de pair connecte avec facade ");	
-		}
+
 	}
 
 	public ContentDescriptorI find (ContentTemplateI  ct , int hops ) throws Exception{

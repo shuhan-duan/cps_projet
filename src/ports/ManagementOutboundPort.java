@@ -25,7 +25,7 @@ public class ManagementOutboundPort extends AbstractOutboundPort implements  Nod
 	*/
 	public ManagementOutboundPort(String uri, ComponentI owner)
 			throws Exception {
-		super(uri,   PeerNodeAddressI.class, owner);
+		super(uri,   NodeManagementCI.class, owner);
 		assert	uri != null && owner != null ;
 	}
 
@@ -52,10 +52,10 @@ public class ManagementOutboundPort extends AbstractOutboundPort implements  Nod
 	*/
 	
 	@Override
-	public Set<PeerNodeAddressI> Join(PeerNodeAddressI p) throws Exception {
+	public Set<PeerNodeAddressI> join(PeerNodeAddressI p) throws Exception {
 		//System.out.println("------------join------------------");
 		//System.out.println(this.getPortURI() + " " + this.getConnector());
-		return ((NodeManagementCI)this.getConnector()).Join(p);
+		return ((NodeManagementCI)this.getConnector()).join(p);
 	}
 	@Override
 	public void leave(PeerNodeAddressI p) throws Exception {

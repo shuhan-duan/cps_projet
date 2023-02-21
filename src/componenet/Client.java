@@ -5,22 +5,22 @@ import java.util.HashSet;
 import classes.ContentDescriptor;
 import classes.ContentNodeAdress;
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import interfaces.ContentDescriptorI;
+import interfaces.ContentManagementCI;
 import interfaces.ContentNodeAddressI;
 import ports.ContentManagementCIOutbound;
 
+@RequiredInterfaces(required = { ContentManagementCI.class })
 public class Client extends AbstractComponent {
     protected ContentManagementCIOutbound outportCM_client;
     protected ContentDescriptorI patron;
+    protected String inportCM_facade;
 
-    protected Client(String outport, int nbThreads, int nbSchedulableThreads) throws Exception {
-        super(outport, nbThreads, nbSchedulableThreads);
-        outportCM_client = new ContentManagementCIOutbound(outport, this);
-        outportCM_client.publishPort();
-        // Create a ContentDescriptorI object
-		ContentNodeAddressI ca = new ContentNodeAdress();
-	    ContentDescriptor patron = new ContentDescriptor("my title", "my album title",new HashSet<String>(), new HashSet<String>(), 1000L, ca);
-
+    protected Client(String ContentManagementInboudPort, String ContentManagementOutboudPort) throws Exception {
+        super(1,0);
+        outportCM_client = new ContentManagementCIOutbound(ContentManagementOutboudPort,this);
+        inportCM_facade = ContentManagementInboudPort;
     }
-    
+
 }

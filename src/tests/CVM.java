@@ -1,6 +1,7 @@
 package tests;
 
 
+import componenet.Client;
 import componenet.Facade;
 import componenet.Pair;
 import connector.ManagementConnector;
@@ -17,12 +18,15 @@ import fr.sorbonne_u.components.helpers.CVMDebugModes;
 public class CVM extends AbstractCVM{
 	/** URI of the facade component (convenience).						*/
 	protected static final String	ContentManagementInboudPort = "inportCMfacade";
+
+	protected static final String	ContentManagementOutboudPort = "outportCMclient";
+
 	/** URI of the provider outbound port (simplifies the connection).		*/
-	protected static final String	NodeManagementOutboundPort1 = "outportNMpair1";
-	protected static final String	NodeManagementOutboundPort2 = "outportNMpair2";
+	protected static final String	NodeManagementOutboundPort = "outportNMpair";
 
 	/** URI of the consumer inbound port (simplifies the connection).		*/
 	protected static final String	NodeManagemenInboundPort = "inportNMfacade";
+	protected final int NB_PEER = 2;
 
 	/**   
 	* @Function: CVM.java
@@ -37,31 +41,11 @@ public class CVM extends AbstractCVM{
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	
-	protected String	uriFacadeURI;
-	protected String	uriPair1URI;
-	protected String	uriPair2URI;
 
 	@Override
 	public void			deploy() throws Exception
 	{
 		assert	!this.deploymentDone() ;
-
-		// ---------------------------------------------------------------------
-		// Configuration phase
-		// ---------------------------------------------------------------------
-
-		// debugging mode configuration; comment and uncomment the line to see
-		// the difference
-		/* 
-		 * AbstractCVM.DEBUG_MODE.add(CVMDebugModes.LIFE_CYCLE);
-		AbstractCVM.DEBUG_MODE.add(CVMDebugModes.INTERFACES);
-		AbstractCVM.DEBUG_MODE.add(CVMDebugModes.PORTS);
-		AbstractCVM.DEBUG_MODE.add(CVMDebugModes.CONNECTING);
-		AbstractCVM.DEBUG_MODE.add(CVMDebugModes.CALLING);
-		AbstractCVM.DEBUG_MODE.add(CVMDebugModes.EXECUTOR_SERVICES);
-		*/
-		
 
 		// ---------------------------------------------------------------------
 		// Creation phase
@@ -70,65 +54,31 @@ public class CVM extends AbstractCVM{
 		
 
 		
-		// create the component pair1 
-		this.uriPair1URI =
+		// create the component pairs
+		for (int i = 1; i < NB_PEER +1 ; i++) {
 			AbstractComponent.createComponent(
-					Pair.class.getCanonicalName(),
-					new Object[]{
-							NodeManagementOutboundPort1});  
-		assert	this.isDeployedComponent(this.uriPair1URI);
-		//this.toggleTracing(this.uriPair1URI);
-		//this.toggleLogging(this.uriPair1URI);
-		
-		// create the component pair2
-		this.uriPair2URI =
-			AbstractComponent.createComponent(
-					Pair.class.getCanonicalName(),
-					new Object[]{
-							NodeManagementOutboundPort2});
-		assert	this.isDeployedComponent(this.uriPair2URI);
-		//this.toggleTracing(this.uriPair2URI);
-		//this.toggleLogging(this.uriPair2URI);
+							Pair.class.getCanonicalName(),
+							new Object[]{
+									NodeManagementOutboundPort+i,
+									NodeManagemenInboundPort});
+		}
+		System.out.println("\nCreate Composant pairs OK \n");
 
 		// create the component facade
-		this.uriFacadeURI =
 			AbstractComponent.createComponent(
 					Facade.class.getCanonicalName(),
 					new Object[]{ContentManagementInboudPort,
 							NodeManagemenInboundPort});
-		assert	this.isDeployedComponent(this.uriFacadeURI);
-		// make it trace its operations; comment and uncomment the line to see
-		// the difference
-		//this.toggleTracing(this.uriFacadeURI);
-		//this.toggleLogging(this.uriFacadeURI);
 		System.out.println("\nCreate Composant Facade OK \n");
 
-		// ---------------------------------------------------------------------
-		// Connection phase
-		// ---------------------------------------------------------------------
+		// create the component client
+		AbstractComponent.createComponent(
+				Client.class.getCanonicalName(),
+				new Object[]{ContentManagementInboudPort,
+						ContentManagementOutboudPort});
+		System.out.println("\nCreate Composant Facade OK \n");
 
-		// do the connection du composant pair1 avec facade 
-		this.doPortConnection(
-				this.uriPair1URI,
-				NodeManagementOutboundPort1,
-				NodeManagemenInboundPort,
-				ManagementConnector.class.getCanonicalName()) ;
-				//System.out.println("++++++++++++++++++++++++++ 1 " );
-		// do the connection du composant pair2 avec facade 
-		this.doPortConnection(
-				this.uriPair2URI,
-				NodeManagementOutboundPort2,
-				NodeManagemenInboundPort,
-				ManagementConnector.class.getCanonicalName()) ;
-				//System.out.println("++++++++++++++++++++++++++ 2");
 
-		
-
-		// ---------------------------------------------------------------------
-		// Deployment done
-		// ---------------------------------------------------------------------
-		System.out.println("\nCreate Composant Connector  pair1 et pair2 OK \n");
-		//Connection des deuc composant pair grace a nodeCi
 		
 		
 
@@ -136,41 +86,7 @@ public class CVM extends AbstractCVM{
 		assert	this.deploymentDone();
 	}
 
-	/**   
-	* @Function: CVM.java
-	* @Description: 
-	*
-	* @param:
-	* @return：void
-	* @throws：Exception
-	*
-	* @version: v1.0.0
-	* @author: shuhan
-	* @date: 31 janv. 2023 21:35:23 
-	*
-	* 
-	*/
-	@Override
-	public void	finalise() throws Exception
-	{
-		// Port disconnections can be done here for static architectures
-		// otherwise, they can be done in the finalise methods of components.
-		this.doPortDisconnection(this.uriPair1URI,
-				NodeManagementOutboundPort1);
-		this.doPortDisconnection(this.uriPair2URI,
-				NodeManagementOutboundPort2);
-		super.finalise();	
-	}
-	
-	
-	@Override
-	public void	 shutdown() throws Exception
-	{
-		assert	this.allFinalised();
-		// any disconnection not done yet can be performed here
-		
-		super.shutdown();
-	}
+
 	/**   
 	* @Function: CVM.java
 	* @Description: 

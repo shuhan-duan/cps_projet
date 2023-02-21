@@ -13,20 +13,9 @@ import interfaces.PeerNodeAddressI;
 
 public class NodeCOutboundPort   extends AbstractOutboundPort implements  NodeCI{
 
-
-	public NodeCOutboundPort(Class<? extends RequiredCI> implementedInterface, ComponentI owner) throws Exception {
-		super(implementedInterface, owner);
+	public NodeCOutboundPort(String uri, ComponentI owner) throws Exception {
+		super(uri, NodeCI.class, owner);
 	}
-
-	
-
-	public NodeCOutboundPort(String uri, ComponentI owner)
-			throws Exception {
-		super(uri,(Class<? extends RequiredCI>) NodeCI.class, owner);
-		// TODO Auto-generated constructor stub
-	}
-
-	private static final long serialVersionUID = 1L;
 
 
 	@Override

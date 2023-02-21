@@ -2,7 +2,6 @@ package ports;
 import java.util.Set;
 
 import componenet.*;
-import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import interfaces.FacadeNodeAdressI;
@@ -27,7 +26,7 @@ public class ManagementInBoundPort extends AbstractInboundPort  implements NodeM
 	*/
 	public ManagementInBoundPort(String uri , ComponentI owner)
 			throws Exception {
-		super(uri ,  FacadeNodeAdressI.class, owner);
+		super(uri ,  NodeManagementCI.class, owner);
 		assert	uri != null && owner instanceof NodeManagementCI ;
 
 	}
@@ -51,7 +50,7 @@ public class ManagementInBoundPort extends AbstractInboundPort  implements NodeM
 	private static final long serialVersionUID = 1L;
  
 	/** 
-	* @see interfaces.NodeManagementCI#Join(interfaces.PeerNodeAddressI)  
+	* @see interfaces.NodeManagementCI#join(interfaces.PeerNodeAddressI)
 	* @Function: NodeManagementInBoundPort.java
 	* @Description: 
 	*
@@ -65,16 +64,11 @@ public class ManagementInBoundPort extends AbstractInboundPort  implements NodeM
 	*          
 	*/
 	
-	public Set<PeerNodeAddressI> Join(PeerNodeAddressI p) throws Exception {
+	public Set<PeerNodeAddressI> join(PeerNodeAddressI p) throws Exception {
 	
-		return this.getOwner().handleRequest(new AbstractComponent.AbstractService<Set<PeerNodeAddressI>>() {
-					@Override 
-					public Set<PeerNodeAddressI> call() throws Exception {
-						//System.out.println("ici2----------");
-						//System.out.println(((Facade)this.getServiceOwner()).getNodeidentifier());
-						return ((Facade)this.getServiceOwner()).Join(p) ;
-					}
-				}) ;
+		return this.getOwner().handleRequest(
+				owner ->(((Facade) owner).joinPair(p))
+					);
 	}
 	
 	/**   
@@ -92,15 +86,14 @@ public class ManagementInBoundPort extends AbstractInboundPort  implements NodeM
 	* 
 	*/
 	public void leave(PeerNodeAddressI p) throws Exception {
-		this.getOwner().handleRequest(new AbstractComponent.AbstractService<Void>() {
-			@Override 
-			public Void call() throws Exception {
-				((Facade)this.getServiceOwner()).leave(p) ;
-				return null;
-			}
-		}) ;
+		this.getOwner().runTask(
+				owner -> {
+					try {
+						((Facade) owner).leavePair(p);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				});
 	}
 
-	
-	
 }

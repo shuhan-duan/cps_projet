@@ -15,10 +15,10 @@ import interfaces.PeerNodeAddressI;
 public class ManagementConnector  extends  AbstractConnector implements NodeManagementCI{
 
 	@Override
-	public Set<PeerNodeAddressI> Join(PeerNodeAddressI p) throws Exception {
+	public Set<PeerNodeAddressI> join(PeerNodeAddressI p) throws Exception {
 		//System.out.println("ici dans ManagementConnector-------------");
 		//System.out.println(this.offeringPortURI);
-		return ((NodeManagementCI)this.offering).Join(p);
+		return ((NodeManagementCI)this.offering).join(p);
 	}
 
 	@Override

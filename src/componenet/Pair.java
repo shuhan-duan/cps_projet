@@ -27,11 +27,7 @@ import interfaces.ContentTemplateI;
 import interfaces.NodeCI;
 import interfaces.NodeManagementCI;
 import interfaces.PeerNodeAddressI;
-import ports.ContentManagementCIIntbound;
-import ports.ContentManagementCIOutbound;
-import ports.ManagementOutboundPort;
-import ports.NodeCIntboundPort;
-import ports.NodeCOutboundPort;
+import ports.*;
 
 /**
  * @author lyna & shuhan 
@@ -41,109 +37,97 @@ import ports.NodeCOutboundPort;
 @OfferedInterfaces(offered = { NodeCI.class, ContentManagementCI.class })
 
 public class Pair  extends AbstractComponent  {
-	
 
-	protected final static int	N = 2 ;
 	public static int cpt = 0;
 
 	/**	the outbound port used to call the service.							*/
 	protected ManagementOutboundPort	NMportOut ;
+	protected String NMPortIn_facade;
 	protected NodeCIntboundPort	NodePortIn ;
 	protected ContentManagementCIIntbound CMportIn;
 	/**	counting service invocations.										*/
-	protected int						counter ;
+	protected static int counter ;
 	protected PeerNodeAddress adress;
-	
-	//stock the pairs connected with this pair and the outportNodeC of me 
-	private ConcurrentHashMap<PeerNodeAddressI,NodeCOutboundPort> outPortsNodeC; 
+
+	//stock the pairs connected with this pair and the outportNodeC of me
+	private ConcurrentHashMap<PeerNodeAddressI,NodeCOutboundPort> outPortsNodeC;
 	//stock the neighber pairs connected with this pair and the outportCMpair of me
-	private ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound> outPortsCM; 
+	private ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound> outPortsCM;
 	private ConcurrentHashMap<ContentTemplateI, ContentDescriptorI> contents;
-	
-     
+
+
 	/**
-	 * @param adress				adress of the component
-	 * @param OutboundPort	URI of the URI getter outbound port.
+	 * @param NMoutportUri	URI of the outbound port NM.
 	 * @throws Exception		<i>todo.</i>
 	 */
-	protected Pair( String NMoutportUri )throws Exception {
+	protected Pair( String NMoutportUri ,String NMPortIn_facade)throws Exception {
 		super(NMoutportUri, 0, 1);
-	
-		this.NMportOut = new ManagementOutboundPort(NMoutportUri, this);
-		NMportOut.publishPort();
 
-		this.adress = new PeerNodeAddress("CMuri"+cpt++, "NodeCuri"+cpt++);
-		this.NMportOut =new ManagementOutboundPort("outportNM", this) ;
+		this.adress = new PeerNodeAddress("CMuriIn"+ ++cpt, "NodeCuriIn"+cpt);
+		this.NMportOut =new ManagementOutboundPort(NMoutportUri, this) ;
 		NMportOut.publishPort() ;
 		this.NodePortIn = new NodeCIntboundPort(adress.getNodeUri() ,this);
 		NodePortIn.publishPort();
 		this.CMportIn = new ContentManagementCIIntbound(adress.getNodeidentifier(), this);
 		CMportIn.publishPort();
 		this.counter = 0 ;
+		this.NMPortIn_facade = NMPortIn_facade;
 		this.outPortsNodeC = new ConcurrentHashMap<PeerNodeAddressI,NodeCOutboundPort>();
 		this.outPortsCM = new ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound>();
 		this.contents = new ConcurrentHashMap<ContentTemplateI, ContentDescriptorI>();
-		
 
-		if (AbstractCVM.isDistributed) {
-			this.getLogger().setDirectory(System.getProperty("user.dir")) ;
-		} else {
-			this.getLogger().setDirectory(System.getProperty("user.home")) ;
-		}
-		this.getTracer().setTitle("consumer") ;
-		this.getTracer().setRelativePosition(1, 1) ;
 
-		AbstractComponent.checkImplementationInvariant(this);
-		AbstractComponent.checkInvariant(this);
 	}
-	
-	/**   
-	* @Function: Pair.java
-	* @Description: 
-	*
-	* @param:
-	* @return：
-	* @throws：
-	*
-	* @version: v1.0.0
-	* @author: lyna & shuhan
-	 * @throws Exception 
-	* @date: 6 févr. 2023 17:44:32 
-	*
-	* 
-	*/
+
+	/**
+	 * @Function: Pair.java
+	 * @Description:
+	 *
+	 * @param:
+	 * @return：
+	 * @throws：
+	 *
+	 * @version: v1.0.0
+	 * @author: lyna & shuhan
+	 * @throws Exception
+	 * @date: 6 févr. 2023 17:44:32
+	 *
+	 *
+	 */
 	public PeerNodeAddressI connectPair (PeerNodeAddressI p ) throws Exception
-	{   
+	{
 		if (p == null) {
 			throw new Exception("Connection failed , pair is null");
 		} else {
-			System.out.println("\npair "+ p.getNodeUri() +" demande de connecter avec pair "+ this.adress+ "\n");
+
+			System.out.println("\nreverse: pair "+ p.getNodeUri() +" demande de connecter avec pair "+ this.adress.getNodeUri()+ " en NodeCI");
 			//do connect entre pair et pair en NodeCI
-			doPortConnection(outPortsNodeC.get(p).getPortURI(), ((Pair)p).NodePortIn.getPortURI(), NodeC_conector.class.getCanonicalName());
-			System.out.println("\nc'est ok " + p.getNodeUri() +" connecte avec "+ this.adress +" en NodeCI\n" );
+			doPortConnection(outPortsNodeC.get(p).getPortURI(), p.getNodeUri(), NodeC_conector.class.getCanonicalName());
+			System.out.println("\nreverse:c'est ok " + p.getNodeUri() +" connecte avec "+ this.adress.getNodeUri() +" en "+ outPortsNodeC.get(p).getPortURI()+" en NodeCI" );
 
 			//do connect entre pair et pair en ContentManagementCI
-			doPortConnection(outPortsCM.get(p).getPortURI(),((Pair)p).CMportIn.getPortURI(), ContentManagementCIConector.class.getCanonicalName());
-			System.out.println("\nc'est ok " + p.getNodeUri() +" connecte avec "+ this.adress +" en ContentManagementCI\n" );
+			System.out.println("\nreverse:pair "+ p.getNodeidentifier() +" demande de connecter avec pair "+ this.adress.getNodeidentifier()+ " en ContentManagementCI");
+			doPortConnection(outPortsCM.get(p).getPortURI(), p.getNodeidentifier(), ContentManagementCIConector.class.getCanonicalName());
+			System.out.println("\nreverse:c'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier()+" en "+ outPortsCM.get(p).getPortURI() +" en ContentManagementCI" );
 		}
-		 
+
 		return p;
 	}
-	
-	/**   
-	* @Function: Pair.java
-	* @Description: 
-	*
-	* @param:
-	* @return：
-	* @throws：
-	*
-	* @version: v1.0.0
-	* @author: lyna & shuhan
-	* @date: 6 févr. 2023 17:45:00 
-	*
-	* 
-	*/
+
+	/**
+	 * @Function: Pair.java
+	 * @Description:
+	 *
+	 * @param:
+	 * @return：
+	 * @throws：
+	 *
+	 * @version: v1.0.0
+	 * @author: lyna & shuhan
+	 * @date: 6 févr. 2023 17:45:00
+	 *
+	 *
+	 */
 	public void disconnectePair (PeerNodeAddressI p ) throws Exception
 	{
 
@@ -154,8 +138,8 @@ public class Pair  extends AbstractComponent  {
 		outPortsNodeC.remove(p);
 		this.doPortDisconnection(NodeCportOut.getPortURI());
 		System.out.println("\nc'est ok "+ p.getNodeUri() +" disconnect  avec " + this.adress +" en NodeCI\n");
-		
-		
+
+
 		//do disconnection en CM
 		System.out.println("\n"+ p.getNodeUri()+" demande de disconnecter avec pair "+ this.adress+ " en ContentManagementCI\n");
 		//get the outportCM of this , which is connected with p
@@ -164,12 +148,12 @@ public class Pair  extends AbstractComponent  {
 		outPortsCM.remove(p);
 		this.doPortDisconnection(CMportOut.getPortURI());
 		System.out.println("\nc'est ok "+ p.getNodeUri() +" disconnect  avec " + this.adress +" en ContentManagementCI\n");
-		 
-		
 
-		
+
+
+
 	}
-	
+
 
 	public ContentDescriptorI find(ContentTemplateI ct  ,int hops )throws Exception{
 		System.out.println("\nc'est dans find in pair "+this.adress);
@@ -197,18 +181,26 @@ public class Pair  extends AbstractComponent  {
 				System.err.println("Failed to contact neighbor pair: " + pair.getNodeUri());
 			}
 		}
-	
+
 		return null;
-		
+
 	}
-	
+
 
 	//-------------------------------------------------------------------------
 	// Component life-cycle
 	//-------------------------------------------------------------------------
+	@Override
+	public void start() throws ComponentStartException {
+		super.start();
+		try {
+			this.doPortConnection(NMportOut.getPortURI(), NMPortIn_facade,
+					ManagementConnector.class.getCanonicalName());
+		} catch (Exception e) {
+			throw new ComponentStartException(e);
+		}
+	}
 
-	
-	
 	@Override
 	public void			execute() throws Exception
 	{
@@ -224,64 +216,73 @@ public class Pair  extends AbstractComponent  {
 
 		try {
 			//do join
-			Set<PeerNodeAddressI> liste = this.NMportOut.Join(this.adress);
+			Set<PeerNodeAddressI> liste = this.NMportOut.join(this.adress);
+
+
 			if(liste.size() == 1) {
 				System.out.println("the list of adress of pair in facade is empty!");
 			}
 			//do connection entre pair et pair en NodeCI
 			for (PeerNodeAddressI p: liste ) {
-				if(p != this && p != null){
+				if(p != this.adress && p != null){
 					counter++;
-					String outportN = "myOutPortNodeCIpair"+counter;
+					String outportN = "myOutPortNodeCIpair"+ counter;
 					NodeCOutboundPort NportOut = new NodeCOutboundPort(outportN, this);
 					NportOut.publishPort();
 					outPortsNodeC.put(p, NportOut);
-					doPortConnection(NportOut.getPortURI(), 
-									((Pair)p).NodePortIn.getPortURI(), 
-									NodeC_conector.class.getCanonicalName());
+					doPortConnection(NportOut.getPortURI(),
+							p.getNodeUri(),
+							NodeC_conector.class.getCanonicalName());
+					System.out.println("\nc'est ok "+ p.getNodeUri() +" connect  avec " +this.adress.getNodeUri() +" en "+ NportOut.getPortURI()+ " en NodeCI");
 
-					String outportCM = "myOutportCMpair" + UUID.randomUUID();
+					String outportCM = "myOutportCMpair" + ++cpt ;
 					ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM,this );
 					CMportOut.publishPort();
 					outPortsCM.put(p, CMportOut);
 					doPortConnection(outportCM,
-									((Pair)p).CMportIn.getPortURI(), 
-									ContentManagementCIConector.class.getCanonicalName());
+							p.getNodeidentifier(),
+							ContentManagementCIConector.class.getCanonicalName());
+					System.out.println("\nc'est ok "+ p.getNodeidentifier() +" connect  avec " +this.adress.getNodeidentifier() +" en "+ CMportOut.getPortURI() +" en ContentManagement");
 
-					PeerNodeAddressI myID = NportOut.connecte(p);
-					
-					//System.out.println(this.outPortsNodeC.get(p).getPortURI());
-					//System.out.println(this.outPortsNodeC.get(p).getConnector());
-					//this.outPortsNodeC.get(p).connecte(p);
+					//PeerNodeAddressI myID = NportOut.connecte(this.adress);
+
 				}
 			}
 
 
-			
+
 			Thread.sleep(1000);
 
-			//disconnect
+			/*//disconnect
 			for (PeerNodeAddressI p:  outPortsNodeC.keySet()) {
-				if(p != this){  
+				if(p != this){
 					this.outPortsNodeC.get(p).disconnecte(p);
 				}
-			} 
-			while ( ! outPortsNodeC.isEmpty())
+			}*/
+			/*while ( ! outPortsNodeC.isEmpty())
 			{
 				//wait
 			}
-			outPortsNodeC.clear();
+			outPortsNodeC.clear();*/
 
 			//leave
 			NMportOut.leave(this.adress);
-			this.NMportOut.unpublishPort() ;
-					
 
-			
+
+
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
+	}
+	@Override
+	public void	finalise() throws Exception
+	{
+		// Port disconnections can be done here for static architectures
+		// otherwise, they can be done in the finalise methods of components.
+		this.doPortDisconnection(NMportOut.getPortURI());
+		super.finalise();
 	}
 
 }

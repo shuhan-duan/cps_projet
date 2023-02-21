@@ -6,7 +6,6 @@ import fr.sorbonne_u.components.connectors.AbstractConnector;
 import interfaces.ContentDescriptorI;
 import interfaces.ContentManagementCI;
 import interfaces.ContentTemplateI;
-import interfaces.NodeCI;
 
 public class ContentManagementCIConector   extends  AbstractConnector implements  ContentManagementCI {
 

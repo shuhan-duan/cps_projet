@@ -3,12 +3,13 @@ package interfaces;
 import java.util.Set;
 
 import fr.sorbonne_u.components.interfaces.OfferedCI;
+import fr.sorbonne_u.components.interfaces.RequiredCI;
 
 /**
  * @author lyna & shuhan 
  *
  */
-public interface NodeManagementCI extends OfferedCI{
+public interface NodeManagementCI extends OfferedCI, RequiredCI {
 	/**   
 	* @Function: NodeManagementCI.java
 	* @Description: 
@@ -23,7 +24,7 @@ public interface NodeManagementCI extends OfferedCI{
 	*
 	* 
 	*/
-	public Set <PeerNodeAddressI> Join( PeerNodeAddressI p   ) throws Exception ;
+	public Set <PeerNodeAddressI> join( PeerNodeAddressI p   ) throws Exception ;
 	/**   
 	* @Function: NodeManagementCI.java
 	* @Description: 

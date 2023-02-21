@@ -21,8 +21,7 @@ public class NodeCIntboundPort  extends AbstractInboundPort  implements NodeCI  
 
 	public NodeCIntboundPort(String uri, ComponentI owner)
 			throws Exception {
-		super(uri , (Class<? extends OfferedCI>) NodeCI.class, owner);
-		//TODO Auto-generated constructor stub
+		super(uri ,  NodeCI.class, owner);
 	}
 
 	@Override
