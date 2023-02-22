@@ -24,7 +24,7 @@ public interface NodeManagementCI extends OfferedCI, RequiredCI {
 	*
 	* 
 	*/
-	public Set <PeerNodeAddressI> join( PeerNodeAddressI p   ) throws Exception ;
+	public Set <ContentNodeAddressI> join( ContentNodeAddressI p   ) throws Exception ;
 	/**   
 	* @Function: NodeManagementCI.java
 	* @Description: 
@@ -39,5 +39,5 @@ public interface NodeManagementCI extends OfferedCI, RequiredCI {
 	*
 	* 
 	*/
-	public void leave ( PeerNodeAddressI p  )  throws Exception;
+	public void leave ( ContentNodeAddressI p  )  throws Exception;
 }

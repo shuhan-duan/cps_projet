@@ -24,7 +24,7 @@ public interface NodeCI extends OfferedCI, RequiredCI {
 	*/
 	
 	
-	public PeerNodeAddressI	connecte (PeerNodeAddressI p  ) throws Exception ;
+	public ContentNodeAddressI	connecte (ContentNodeAddressI p  ) throws Exception ;
     /**   
     * @Function: NodeCI.java
     * @Description: 
@@ -39,5 +39,5 @@ public interface NodeCI extends OfferedCI, RequiredCI {
     *
     * 
     */
-    public void disconnecte (PeerNodeAddressI p ) throws Exception ;
+    public void disconnecte (ContentNodeAddressI p ) throws Exception ;
 }

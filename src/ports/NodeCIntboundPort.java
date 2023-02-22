@@ -10,6 +10,7 @@ import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.interfaces.OfferedCI;
 import fr.sorbonne_u.components.interfaces.RequiredCI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
+import interfaces.ContentNodeAddressI;
 import interfaces.FacadeNodeAdressI;
 import interfaces.NodeCI;
 import interfaces.NodeManagementCI;
@@ -26,13 +27,15 @@ public class NodeCIntboundPort  extends AbstractInboundPort  implements NodeCI  
 	}
 
 	@Override
-	public PeerNodeAddressI connecte(PeerNodeAddressI a) throws Exception {
+	public ContentNodeAddressI connecte(ContentNodeAddressI a) throws Exception {
 		return ((Pair) this.getOwner()).connecte(a) ;
 	}
 
 	@Override
-	public void disconnecte(PeerNodeAddressI p) throws Exception {
+	public void disconnecte(ContentNodeAddressI p) throws Exception {
+		
 				((Pair)this.getOwner()).disconnectePair(p) ;
+		
 	}
 	
 }

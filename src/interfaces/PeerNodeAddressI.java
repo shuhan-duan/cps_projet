@@ -1,13 +1,12 @@
 package interfaces;
 
 
-import fr.sorbonne_u.components.interfaces.RequiredCI;
 
 /**
  * @author lyna & shuhan 
  *
  */
-public interface PeerNodeAddressI extends NodeAdresseI , RequiredCI{
+public interface PeerNodeAddressI extends NodeAdresseI {
 	
 	/**   
 	* @Function: PeerNodeAddressI.java

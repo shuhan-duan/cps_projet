@@ -7,43 +7,27 @@ import interfaces.ContentNodeAddressI;
 * @create time：12 févr. 2023 23:04:47
 * @desc:
 */
-public class ContentNodeAdress implements ContentNodeAddressI{
+public class ContentNodeAdress extends PeerNodeAddress  implements ContentNodeAddressI {
 	
-	private String nodeURI;
-	private String nodeIdentifier;
-	private String contentManagementURI;
-	private boolean isFacade;
-	private boolean isPeer;
 	
 
-	@Override
-	public String getNodeUri() throws Exception {
-		// TODO Auto-generated method stub
-		return nodeURI;
+	public ContentNodeAdress(String uriPrefix, String uriCM , String uriNodeC) {
+		super(uriPrefix, uriNodeC);
+		this.uriCM = uriCM;
 	}
 
-	@Override
-	public String getNodeidentifier() throws Exception {
-		// TODO Auto-generated method stub
-		return nodeIdentifier;
-	}
+	private String uriCM;
 
 	@Override
-	public Boolean isfacade() throws Exception {
+	public String getContentManagementURI() throws Exception {
 		// TODO Auto-generated method stub
-		return isFacade;
+		return uriCM;
 	}
 
-	@Override
-	public Boolean ispeer() throws Exception {
-		// TODO Auto-generated method stub
-		return isPeer;
-	}
 
-	@Override
-	public String getContentManagementURI() {
-		// TODO Auto-generated method stub
-		return contentManagementURI;
-	}
+	
+
+
+
 
 }

@@ -18,30 +18,27 @@ public class ContentManagementCIIntbound  extends AbstractInboundPort  implement
 				super(uri, ContentManagementCI.class, owner);
 		
 	}
-	public ContentManagementCIIntbound(ComponentI owner) throws Exception {
-		super(ContentManagementCI.class, owner);
-	}
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-
-
-@Override
-public ContentDescriptorI find(ContentTemplateI cd, int hops) throws Exception {
-	return this.getOwner().handleRequest(new AbstractComponent.AbstractService<ContentDescriptorI>() {
-		@Override 
-		public ContentDescriptorI call() throws Exception {
-			return ((Facade) getOwner()).find(cd,hops) ; //????
-		}
-	}) ;
-}
+	@Override
+	public ContentDescriptorI find(ContentTemplateI cd, int hops) throws Exception {
+		return this.getOwner().handleRequest(new AbstractComponent.AbstractService<ContentDescriptorI>() {
+			@Override 
+			public ContentDescriptorI call() throws Exception {
+				 return ((ContentManagementCI)this.getServiceOwner()).find(cd ,hops ) ;
+				
+			}
+		});
+	}
 
 	@Override
 	public Set<ContentDescriptorI> match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops)
 			throws Exception {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

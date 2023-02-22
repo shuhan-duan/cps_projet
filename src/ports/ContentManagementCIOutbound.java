@@ -9,7 +9,6 @@ import interfaces.ContentDescriptorI;
 import interfaces.ContentManagementCI;
 import interfaces.ContentTemplateI;
 import interfaces.NodeManagementCI;
-import componenet.Facade;
 import componenet.Pair;
 
 public class ContentManagementCIOutbound   extends AbstractOutboundPort  implements    ContentManagementCI{
