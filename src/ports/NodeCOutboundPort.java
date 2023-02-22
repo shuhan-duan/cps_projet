@@ -22,7 +22,7 @@ public class NodeCOutboundPort   extends AbstractOutboundPort implements  NodeCI
 	public PeerNodeAddressI connecte(PeerNodeAddressI p) throws Exception {
 		//System.out.println("----------connecte--------------------");
 		//System.out.println(this.getPortURI() + " " + this.getConnector());
-		return ((Pair)this.getOwner()).connectPair(p);
+		return ((NodeCI) this.getConnector()).connecte(p);
 
 	}
 
@@ -30,7 +30,7 @@ public class NodeCOutboundPort   extends AbstractOutboundPort implements  NodeCI
 	public void disconnecte(PeerNodeAddressI p) throws Exception {
 		//System.out.println("----------disconnecte--------------------");
 		//System.out.println(this.getPortURI() + " " + this.getConnector());
-		((Pair)this.getOwner()).disconnectePair(p);
+		((NodeCI) this.getConnector()).disconnecte(p);
 
 		
 	}
