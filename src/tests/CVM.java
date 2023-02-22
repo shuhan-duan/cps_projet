@@ -76,7 +76,7 @@ public class CVM extends AbstractCVM{
 				Client.class.getCanonicalName(),
 				new Object[]{ContentManagementInboudPort,
 						ContentManagementOutboudPort});
-		System.out.println("\nCreate Composant Facade OK \n");
+		System.out.println("\nCreate Composant client OK \n");
 
 
 		

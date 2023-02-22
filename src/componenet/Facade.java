@@ -103,7 +103,9 @@ public class Facade  extends AbstractComponent  {
 		}else {
 			liste_racine.put(p ,this.CMportOut);
 		}
-		return this.peerNodeList;
+		Set<PeerNodeAddressI> result = new HashSet<>(peerNodeList);
+    	result.remove(p);
+    	return result;
 	}
 	
 	/**   
@@ -168,37 +170,7 @@ public class Facade  extends AbstractComponent  {
 		return null;
 	}
 
-	/*
-	@Override
-	public void			execute() throws Exception
-	{
-		// application execution code (similar to a main method in Java) is
-		// put here.
-		System.out.println("Entree dans l execute de la facade");
 
-		this.logMessage("executing facade component.") ;
-
-		// Run the first service method invocation; the code of the method run
-		// below will be executed asynchronously as a separate task, hence this
-		// method execute will be free to finish its execution and free the
-		// thread that is executing it.
-
-		
-		
-		
-		
-
-		while(outPortsCM.isEmpty()){
-			Thread.sleep(1000L);
-		 }
-		  System.out.println("Fini");
-		try { 
-			this.find(cd, 3); System.out.println("ici");
-		} catch (Exception e) {
-			e.printStackTrace(); 
-		  }
-		} 
-	 */
 	
 
 }
