@@ -72,6 +72,11 @@ public class CVM extends AbstractCVM{
 				new Object[]{ContentManagementInboudPort,
 						ContentManagementOutboudPort});
 		System.out.println("\nCreate Composant Facade OK \n");
+
+
+		
+		
+
 		super.deploy();
 		assert	this.deploymentDone();
 	}
