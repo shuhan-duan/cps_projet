@@ -39,7 +39,6 @@ public class CVM extends AbstractCVM{
 	*/
 	public CVM() throws Exception {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -49,11 +48,7 @@ public class CVM extends AbstractCVM{
 
 		// ---------------------------------------------------------------------
 		// Creation phase
-		// ---------------------------------------------------------------------
-
-		
-
-		
+		// ---------------------------------------------------------------------	
 		// create the component pairs
 		for (int i = 1; i < NB_PEER +1 ; i++) {
 			AbstractComponent.createComponent(
@@ -77,15 +72,9 @@ public class CVM extends AbstractCVM{
 				new Object[]{ContentManagementInboudPort,
 						ContentManagementOutboudPort});
 		System.out.println("\nCreate Composant Facade OK \n");
-
-
-		
-		
-
 		super.deploy();
 		assert	this.deploymentDone();
 	}
-
 
 	/**   
 	* @Function: CVM.java

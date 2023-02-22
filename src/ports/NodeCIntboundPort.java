@@ -32,9 +32,7 @@ public class NodeCIntboundPort  extends AbstractInboundPort  implements NodeCI  
 
 	@Override
 	public void disconnecte(PeerNodeAddressI p) throws Exception {
-		
 				((Pair)this.getOwner()).disconnectePair(p) ;
-		
 	}
 	
 }

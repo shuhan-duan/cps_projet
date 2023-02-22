@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.naming.spi.DirStateFactory.Result;
+
 import classes.FacadeNodeAdress;
 import connector.ContentManagementCIConector;
 import fr.sorbonne_u.components.AbstractComponent;
@@ -99,11 +101,12 @@ public class Facade  extends AbstractComponent  {
 			outPortsCM.put(p, CMportOut);
 			String inportCM_Pair =p.getNodeidentifier();
 			doPortConnection(outportCM_Facade, inportCM_Pair, ContentManagementCIConector.class.getCanonicalName());
-			//System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ outportCM_Facade +" en ContentManagementCI" );
 		}else {
 			liste_racine.put(p ,this.CMportOut);
 		}
-		return this.peerNodeList;
+		Set<PeerNodeAddressI> result = new HashSet<>(peerNodeList);
+    	result.remove(p);
+    	return result;
 	}
 	
 	/**   
@@ -116,7 +119,7 @@ public class Facade  extends AbstractComponent  {
 	*
 	* @version: v1.0.0
 	* @author: lyna & shuhan 
-	* @date: 30 janv. 2023 20:35:22 
+	* @date: 30 janv. 2023 20:35:22 fin
 	*
 	* 
 	*/
@@ -135,23 +138,11 @@ public class Facade  extends AbstractComponent  {
 	}
 
 	public ContentDescriptorI find (ContentTemplateI  ct , int hops ) throws Exception{
-		System.out.println("\nc'est  find in facade \n");
-
-		if (hops == 0) {
-			return null;
-		}
-		// Cherche parmi ses propres contenus
-		for (ContentDescriptorI content : this.contents.values()) {
-			if (content.match(ct)) {
-				return content;
-			}
-		}
 		// Si le contenu n'est pas dans le nœud courant, demande à un autre pair
 		Set<PeerNodeAddressI> neighbors = outPortsCM.keySet();
 		if (neighbors == null) {
 			return null;
 		}
-		System.out.println(outPortsCM);
 		for ( ContentManagementCIOutbound outportCMfacade: outPortsCM.values()) {
 			try {
 				ContentDescriptorI content = outportCMfacade.find(ct, hops); ;
@@ -163,7 +154,6 @@ public class Facade  extends AbstractComponent  {
 			} catch (Exception e) {
 				System.err.println("Failed to contact neighbor pair: " + outportCMfacade);
 			}
-			
 		}
 		return null;
 	}
