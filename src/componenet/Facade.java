@@ -1,5 +1,6 @@
 package componenet;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,12 +47,16 @@ public class Facade  extends AbstractComponent  {
 	private ConcurrentHashMap<ContentTemplateI, ContentDescriptorI> contents;
 	protected ManagementInBoundPort  NMportIn;
 	protected ContentManagementCIIntbound CMportIn;
+	protected ContentManagementCIOutbound CMportOut;
+
+	//liste_racine 
+	private HashMap<PeerNodeAddressI, ContentManagementCIOutbound> liste_racine;
+
 
 	protected	Facade(	String ContentManagementInboudPort,	String 	NodeManagemenInboundPort) throws Exception
 		{
 			// the reflection inbound port URI is the URI of the component
 			super(NodeManagemenInboundPort, 1, 0) ;
-
 			this.adress = new FacadeNodeAdress(ContentManagementInboudPort,NodeManagemenInboundPort) ;
 			this.peerNodeList = new HashSet<PeerNodeAddressI>();
 			this.outPortsCM =  new ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound>();
@@ -66,10 +71,6 @@ public class Facade  extends AbstractComponent  {
 
 
 		}
-
-	
-
-
 
 	/**   
 	* @Function: Pair.java
@@ -90,7 +91,6 @@ public class Facade  extends AbstractComponent  {
 	throws Exception{
 		peerNodeList.add(p);
 		if (peerNodeList.size() < NB_RACINE+1 ){
-			System.out.println("\ncreate nouvelle racine "+p.getNodeidentifier()+" connecte avec facade");
 			cpt++;
 			//do connect entre facade et racine en ContentManagementCI
 			String outportCM_Facade = "myOutportCMfacade" + cpt;
@@ -100,9 +100,10 @@ public class Facade  extends AbstractComponent  {
 			String inportCM_Pair =p.getNodeidentifier();
 			doPortConnection(outportCM_Facade, inportCM_Pair, ContentManagementCIConector.class.getCanonicalName());
 			//System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ outportCM_Facade +" en ContentManagementCI" );
+		}else {
+			liste_racine.put(p ,this.CMportOut);
 		}
 		return this.peerNodeList;
-			
 	}
 	
 	/**   
@@ -123,17 +124,14 @@ public class Facade  extends AbstractComponent  {
 	throws Exception{
 		if (outPortsCM.containsKey(p)){
 			if(!outPortsCM.isEmpty()) {
-				//System.out.println("\nracine pair "+ p.getNodeidentifier()+" demande de quitter facade");
 				doPortDisconnection(outPortsCM.get(p).getPortURI());
-				//System.out.println("\nsupprime le inportCM racine pair :  " + p.getNodeidentifier()+" avec le outport facade: " + outPortsCM.get(p).getPortURI());
+				System.out.println("\nsupprime le inportCM racine pair :  " + p.getNodeidentifier()+" avec le outport facade: " + outPortsCM.get(p).getPortURI());
 				outPortsCM.remove(p);
 			}
 			else {
 				System.out.println(" il y a plus de pair racine connecte avec facade ");
 			}
-
 		}
-
 	}
 
 	public ContentDescriptorI find (ContentTemplateI  ct , int hops ) throws Exception{
@@ -167,9 +165,7 @@ public class Facade  extends AbstractComponent  {
 			}
 			
 		}
-	
 		return null;
-
 	}
 
 	/*

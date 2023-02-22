@@ -2,10 +2,15 @@
     "java.project.referencedLibraries": {
         "include": [
             "lib/**/*.jar",
-            "/Users/shuhan/Downloads/jing.jar"
+            "/Users/shuhan/Downloads/jing.jar",
+            "c:\\Users\\azero\\Downloads\\javassist.jar",
+            "c:\\Users\\azero\\Downloads\\BCM4Java-19092022.jar"
         ],
         "exclude": [
-            "/Users/shuhan/Downloads/BCM4Java-19092022.jar"
+            "/Users/shuhan/Downloads/BCM4Java-19092022.jar",
+            "c:\\Users\\shuhan\\Downloads\\jing.jar",
+            "c:\\Users\\shuhan\\Downloads\\javassist.jar",
+            "c:\\Users\\shuhan\\Downloads\\BCM4Java-19092022.jar"
         ]
     }
 }

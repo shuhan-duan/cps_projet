@@ -17,7 +17,8 @@ import interfaces.PeerNodeAddressI;
 
 public class NodeCIntboundPort  extends AbstractInboundPort  implements NodeCI  {
 
-	
+
+	private static final long serialVersionUID = 1L;
 
 	public NodeCIntboundPort(String uri, ComponentI owner)
 			throws Exception {
@@ -25,25 +26,14 @@ public class NodeCIntboundPort  extends AbstractInboundPort  implements NodeCI  
 	}
 
 	@Override
-	public PeerNodeAddressI connecte(PeerNodeAddressI p) throws Exception {
-		return this.getOwner().handleRequest(new AbstractComponent.AbstractService<PeerNodeAddressI>() {
-			@Override 
-			public PeerNodeAddressI call() throws Exception {
-				return ((Pair)this.getServiceOwner()).connectPair(p) ;
-			}
-		}) ;
+	public PeerNodeAddressI connecte(PeerNodeAddressI a) throws Exception {
+		return ((Pair) this.getOwner()).connecte(a) ;
 	}
 
 	@Override
 	public void disconnecte(PeerNodeAddressI p) throws Exception {
 		
-		this.getOwner().handleRequest(new AbstractComponent.AbstractService<Void>() {
-			@Override 
-			public Void call() throws Exception {
-				((Pair)this.getServiceOwner()).disconnectePair(p) ;
-				return null;
-			}
-		}) ;
+				((Pair)this.getOwner()).disconnectePair(p) ;
 		
 	}
 	
