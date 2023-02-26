@@ -39,7 +39,7 @@ public class Client extends AbstractComponent {
 	}
 	public void execute() throws Exception{
         //System.out.println("je suis la  debut find ");
- 	 //	ContentDescriptorI c_d=this.outportCM_client.find(c_t,1);	
+ 	  	ContentDescriptorI c_d=this.outportCM_client.find(c_t,1);	
        //System.out.println(c_d.getALbum()) ;
     }
     
