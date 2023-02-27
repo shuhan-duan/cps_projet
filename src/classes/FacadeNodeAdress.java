@@ -20,4 +20,14 @@ public class FacadeNodeAdress  extends   NodeAdresse  implements FacadeNodeAdres
 	}
 
 
+	@Override
+	public Boolean ispeer() throws Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}	
+	@Override
+	public Boolean isfacade() throws Exception {
+		// TODO Auto-generated method stub
+		return true;
+	}
 }

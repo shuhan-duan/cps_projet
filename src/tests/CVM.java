@@ -26,7 +26,7 @@ public class CVM extends AbstractCVM{
 
 	/** URI of the consumer inbound port (simplifies the connection).		*/
 	protected static final String	NodeManagemenInboundPort = "inportNMfacade";
-	protected final int NB_PEER = 2;
+	protected final int NB_PEER = 3;
 
 	/**   
 	* @Function: CVM.java

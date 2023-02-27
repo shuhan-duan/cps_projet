@@ -15,5 +15,16 @@ public class ApplicationNodeAdress extends FacadeNodeAdress implements Applicati
 		// TODO Auto-generated method stub
 		return uriCM;
 	}
+	
+	@Override
+	public Boolean ispeer() throws Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}	
+	@Override
+	public Boolean isfacade() throws Exception {
+		// TODO Auto-generated method stub
+		return true;
+	}
 
 }

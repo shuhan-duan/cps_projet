@@ -21,13 +21,11 @@ import ports.NodeManagementInBoundPort;
  * @author lyna & shuhan 
  *
  */
-@OfferedInterfaces(offered = {NodeCI.class,ContentManagementCI.class,NodeManagementCI.class})
-@RequiredInterfaces(required = {ContentManagementCI.class})
 
 public class Facade  extends AbstractComponent  {
 	public static int cpt = 0;//current racine nb
 	public static int cpt_facade = 0;
-	protected final int NB_RACINE = 2;
+	protected final int NB_RACINE = 3;
 
 	/**   
 	* @Function: Facade.java
@@ -49,10 +47,9 @@ public class Facade  extends AbstractComponent  {
 	private ConcurrentHashMap<ContentTemplateI, ContentDescriptorI> contents;
 	protected NodeManagementInBoundPort  NMportIn;
 	protected ContentManagementCIIntbound CMportIn;
-	protected ContentManagementCIOutbound CMportOut;
 
 	//liste_racine 
-	private HashMap<ContentNodeAddressI, ContentManagementCIOutbound> liste_racine;
+	private ConcurrentHashMap<ContentNodeAddressI, ContentManagementCIOutbound> liste_racine;
 
 
 	protected	Facade(	String ContentManagementInboudPort,	String 	NodeManagemenInboundPort) throws Exception
@@ -63,13 +60,15 @@ public class Facade  extends AbstractComponent  {
 			this.peerNodeList = new HashSet<ContentNodeAddressI>();
 			this.outPortsCM =  new ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound>();
 			this.contents = new ConcurrentHashMap<ContentTemplateI, ContentDescriptorI>();
+			this.liste_racine = new ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound>();
 
 			// create the port that exposes the offered interface with the
 			// given URI to ease the connection from client components.
 			NMportIn = new NodeManagementInBoundPort(this.adress.getNodeManagementUri(), this);
 			NMportIn.publishPort();
-			CMportIn = new ContentManagementCIIntbound(this.adress.getNodeidentifier(), this);
+			CMportIn = new ContentManagementCIIntbound(this.adress.getContentManagementURI(), this);
 			CMportIn.publishPort();
+			
 
 
 		}
@@ -92,21 +91,25 @@ public class Facade  extends AbstractComponent  {
 	public synchronized Set<ContentNodeAddressI> joinPair(ContentNodeAddressI p)
 	throws Exception{
 		peerNodeList.add(p);
-		if (peerNodeList.size() < NB_RACINE+1 ){
-			cpt++;
-			//do connect entre facade et racine en ContentManagementCI
-			String outportCM_Facade = "myOutportCMfacade" + cpt;
-			ContentManagementCIOutbound CMportOut= new ContentManagementCIOutbound(outportCM_Facade,this);
-			CMportOut.publishPort();
-			outPortsCM.put(p, CMportOut);
-			String inportCM_Pair =p.getContentManagementURI();
-			doPortConnection(outportCM_Facade, inportCM_Pair, ContentManagementConector.class.getCanonicalName());
-			System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ outportCM_Facade +" en ContentManagementCI" );
-		}else {
-			liste_racine.put(p ,this.CMportOut);
-		}
+		 
 		Set<ContentNodeAddressI> result = new HashSet<>(peerNodeList);
     	result.remove(p);
+    	
+    	if (peerNodeList.size() < NB_RACINE +1 ){ 
+			cpt++; 
+			//do connect entre facade et racine en ContentManagementCI 
+			String outportCM_Facade = "myOutportCMfacade" + cpt; 
+			ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM_Facade,this);
+			CMportOut.publishPort(); 
+			outPortsCM.put(p, CMportOut); 
+			String inportCM_Pair = p.getContentManagementURI();
+			doPortConnection(outportCM_Facade,
+					  			inportCM_Pair, 
+					  			ContentManagementConector.class.getCanonicalName());
+			System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+outportCM_Facade +" en ContentManagementCI" ); 
+			liste_racine.put(p,CMportOut); 
+		}
+		
     	return result;
 	}
 	

@@ -6,26 +6,22 @@ import interfaces.ContentTemplateI;
 
 public class ContentTemplate implements   ContentTemplateI{
 	private String title , albumtitre;
-	Set<String> interpreter , comopsers;
+	private Set<String> interpreter , comopsers;
 	
 	@Override
 	public String getTitre() throws Exception {
-		// TODO Auto-generated method stub
 		return title ;
 	}
 	@Override
-	public String getALbum() throws Exception {
-		// TODO Auto-generated method stub
+	public String getALbumTitre() throws Exception {
 		return albumtitre;
 	}
 	@Override
 	public Set<String> getInterpreters() throws Exception {
-		// TODO Auto-generated method stub
 		return interpreter;
 	}
 	@Override
 	public Set<String> getComposers() throws Exception {
-		// TODO Auto-generated method stub
 		return comopsers;
 	}
 	public ContentTemplate(String title, String albumtitre, Set<String> interpreter, Set<String> comopsers) {

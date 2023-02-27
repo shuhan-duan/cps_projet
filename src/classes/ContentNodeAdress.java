@@ -25,7 +25,16 @@ public class ContentNodeAdress extends PeerNodeAddress  implements ContentNodeAd
 	}
 
 
-	
+	@Override
+	public Boolean ispeer() throws Exception {
+		// TODO Auto-generated method stub
+		return true;
+	}	
+	@Override
+	public Boolean isfacade() throws Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 
 
