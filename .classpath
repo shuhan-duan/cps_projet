@@ -1,18 +1,18 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-  <classpathentry kind="src" path="src"/>
-  <classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
-  <classpathentry kind="lib" path="C:/Users/azero/Downloads/jing.jar"/>
-  <classpathentry kind="lib" path="C:/Users/azero/Downloads/BCM4Java-19092022.jar"/>
-  <classpathentry kind="lib" path="C:/Users/azero/Downloads/javassist.jar"/>
-  <classpathentry kind="output" path="bin"/>
-  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
-    <attributes>
-      <attribute name="module" value="true"/>
-    </attributes>
-    <accessrules>
-      <accessrule kind="accessible" pattern="javafx/**"/>
-      <accessrule kind="accessible" pattern="com/sun/javafx/**"/>
-    </accessrules>
-  </classpathentry>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="javafx/**"/>
+			<accessrule kind="accessible" pattern="com/sun/javafx/**"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="src/lib/BCM4Java-19092022.jar"/>
+	<classpathentry kind="lib" path="src/lib/javassist.jar"/>
+	<classpathentry kind="lib" path="src/lib/jing.jar"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>

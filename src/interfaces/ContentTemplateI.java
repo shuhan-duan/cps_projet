@@ -37,7 +37,7 @@ public interface ContentTemplateI {
 	*
 	* 
 	*/
-	public String getALbum ()throws Exception;
+	public String getALbumTitre ()throws Exception;
 	/**   
 	* @Function: ContentTemplateI.java
 	* @Description: 

@@ -79,6 +79,8 @@ public class Facade  extends AbstractComponent  {
 			NMportIn.publishPort();
 			CMportIn = new ContentManagementCIIntbound(this.adress.getNodeidentifier(), this);
 			CMportIn.publishPort();
+			CMopfacade= new ContentManagementCIOutbound("test_CM_find", this);
+			CMopfacade.publishPort();
 
 		}
 
@@ -109,6 +111,7 @@ public class Facade  extends AbstractComponent  {
 			outPortsCM.put(p, CMportOut);
 			String inportCM_Pair =p.getNodeidentifier();
 			doPortConnection(outportCM_Facade, inportCM_Pair, ContentManagementCIConector.class.getCanonicalName());
+			System.out.("je suis dans jin")
 		}else {
 			liste_racine.put(p ,this.CMopfacade);
 		}
@@ -149,7 +152,7 @@ public class Facade  extends AbstractComponent  {
 		System.out.println(" find in  facade");
 		//je ne sais pas si il faut parcourir racine ou outPortsCM
 		//faire une boucle 
-		Object uri=liste_racine.keySet();
+		Object uri=liste_racine.keySet().toArray()[0];
 		ContentManagementCIOutbound port=liste_racine.get(uri);
 		System.out.println("je suis la "+port.getPortURI());
 		return ( port).find(ct, hops);

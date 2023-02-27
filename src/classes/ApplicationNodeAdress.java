@@ -43,5 +43,16 @@ public class ApplicationNodeAdress  implements ApplicationNodeAdressI{
 	public  String getContentManagementURI() throws Exception {
 		return contentManagementURI;
 	}
+	
+	@Override
+	public Boolean ispeer() throws Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}	
+	@Override
+	public Boolean isfacade() throws Exception {
+		// TODO Auto-generated method stub
+		return true;
+	}
 
 }

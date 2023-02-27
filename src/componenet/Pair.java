@@ -9,9 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import classes.ContentDescriptor;
 import classes.ContentNodeAdress;
 import classes.PeerNodeAddress;
-import connector.ContentManagementCIConector;
-import connector.ManagementConnector;
-import connector.NodeC_conector;
+
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
@@ -103,7 +101,7 @@ public class Pair  extends AbstractComponent  {
 			NodeCOutboundPort NportOut = new NodeCOutboundPort(outportN, this);
 			NportOut.publishPort();
 			outPortsNodeC.put(p, NportOut);
-			doPortConnection(outPortsNodeC.get(p).getPortURI(), p.getNodeUri(), NodeC_conector.class.getCanonicalName());
+			doPortConnection(outPortsNodeC.get(p).getPortURI(), p.getNodeUri(), NodeConnector.class.getCanonicalName());
 			System.out.println("\nreverse:c'est ok " + p.getNodeUri() +" connecte avec "+ this.adress.getNodeUri() +" en "+ outPortsNodeC.get(p).getPortURI()+" en NodeCI" );
 
 			//do connect entre pair et pair en ContentManagementCI
@@ -137,13 +135,13 @@ public class Pair  extends AbstractComponent  {
 			voisin.unpublishPort();
 			this.doPortDisconnection(voisin.getPortURI());
 			outPortsNodeC.remove(p);
-			System.out.println("\nc'est ok "+ p.getNodeUri() +" disconnect  avec " + this.adress.getNodeUri()+" en NodeCI");
+			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en NodeCI");
 			//get the outportContentManagementCI of this , which is connected with p
 			ContentManagementCIOutbound voisin2= outPortsCM.get(p);
 			voisin2.unpublishPort();
 			this.doPortDisconnection(voisin2.getPortURI());
 			outPortsCM.remove(p);
-			System.out.println("\nc'est ok "+ p.getNodeUri() +" disconnect  avec " + this.adress.getNodeUri()+" en ContentManagementCI");
+			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en ContentManagementCI");
 			
 	}
 	public ContentDescriptorI find(ContentTemplateI ct  ,int hops )throws Exception{
@@ -217,6 +215,7 @@ public class Pair  extends AbstractComponent  {
 					doPortConnection(outportCM,	p.getNodeidentifier(),	ContentManagementCIConector.class.getCanonicalName());
 					System.out.println("\nc'est ok "+ p.getNodeidentifier() +" connect  avec " +this.adress.getNodeidentifier() +" en "+ CMportOut.getPortURI() +" en ContentManagement");
 					NportOut.connecte(this.adress);
+	
 					Thread.sleep(1000);
 					//disconnect
 					NportOut.disconnecte(this.adress);

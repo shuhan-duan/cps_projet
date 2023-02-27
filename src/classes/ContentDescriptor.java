@@ -15,8 +15,8 @@ public class ContentDescriptor extends ContentTemplate implements  ContentDescri
 		this.ca = ca;
 	}
 
-	long size ; 
-	ContentNodeAddressI ca ;
+	private long size ; 
+	private ContentNodeAddressI ca ;
 	
 
 	@Override
@@ -54,7 +54,7 @@ public class ContentDescriptor extends ContentTemplate implements  ContentDescri
     }
 
     private boolean isAlbumTitleEquals(ContentTemplateI request) throws Exception {
-        return request.getALbum().equals(getTitre());
+        return request.getALbumTitre().equals(getTitre());
     }
 	
 	/**
