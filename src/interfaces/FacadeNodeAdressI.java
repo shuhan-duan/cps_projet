@@ -1,12 +1,10 @@
 package interfaces;
 
-import fr.sorbonne_u.components.interfaces.OfferedCI;
-
 /**
  * @author lyna & shuhan 
  *
  */
-public interface FacadeNodeAdressI extends NodeAdresseI , OfferedCI {
+public interface FacadeNodeAdressI extends NodeAdresseI {
 	
 	/**   
 	* @Function: FacadeNodeAdressI.java

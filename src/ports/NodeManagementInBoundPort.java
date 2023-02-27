@@ -3,8 +3,8 @@ import java.util.Set;
 
 import componenet.*;
 import fr.sorbonne_u.components.ComponentI;
-import fr.sorbonne_u.components.interfaces.OfferedCI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
+import interfaces.ContentNodeAddressI;
 import interfaces.FacadeNodeAdressI;
 import interfaces.NodeManagementCI;
 import interfaces.PeerNodeAddressI;
@@ -13,7 +13,9 @@ import interfaces.PeerNodeAddressI;
  * @author lyna & shuhan 
  *
  */
-public class ManagementInBoundPort extends AbstractInboundPort  implements NodeManagementCI  {
+public class NodeManagementInBoundPort extends AbstractInboundPort  implements NodeManagementCI  {
+
+	private static final long serialVersionUID = 1L;
 
 	/**   
 	* @Function: NodeManagementInBoundPort.java
@@ -25,30 +27,13 @@ public class ManagementInBoundPort extends AbstractInboundPort  implements NodeM
 	* @author: lyna & shuhan
 	* @date: 30 janv. 2023 21:04:56 
 	*/
-	public ManagementInBoundPort(String uri , ComponentI owner)
+	public NodeManagementInBoundPort(String uri , ComponentI owner)
 			throws Exception {
 		super(uri ,  NodeManagementCI.class, owner);
 		assert	uri != null && owner instanceof NodeManagementCI ;
 
 	}
-	/**   
-	* @Function: ManagementInBoundPort.java
-	* @Description: 
-	*
-	* @param:ComponentI owner
-	* @version: 
-	* @author: lyna & shuhan
-	* @date: 6 févr. 2023 14:03:54 
-	*/
-	public ManagementInBoundPort(ComponentI owner) throws Exception{
-		super( (Class<? extends OfferedCI>) FacadeNodeAdressI.class, owner); 
-		assert	owner instanceof NodeManagementCI ;
 
-	}
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
  
 	/** 
 	* @see interfaces.NodeManagementCI#join(interfaces.PeerNodeAddressI)

@@ -7,11 +7,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.spi.DirStateFactory.Result;
 
+import classes.ApplicationNodeAdress;
 import classes.FacadeNodeAdress;
 import connector.ContentManagementCIConector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
+import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
+import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.exceptions.PreconditionException;
 import interfaces.*;
 import ports.ContentManagementCIIntbound;
@@ -22,8 +25,10 @@ import ports.ManagementInBoundPort;
  * @author lyna & shuhan 
  *
  */
-@OfferedInterfaces(offered = {NodeCI.class,ContentManagementCI.class,NodeManagementCI.class})
-@RequiredInterfaces(required = {ContentManagementCI.class})
+
+
+@RequiredInterfaces(required = { NodeManagementCI.class, NodeCI.class, ContentManagementCI.class })
+@OfferedInterfaces(offered = { NodeCI.class, ContentManagementCI.class, ContentManagementCI.class })
 
 public class Facade  extends AbstractComponent  {
 	public static int cpt = 0;//current racine nb
@@ -50,6 +55,9 @@ public class Facade  extends AbstractComponent  {
 	protected ManagementInBoundPort  NMportIn;
 	protected ContentManagementCIIntbound CMportIn;
 	protected ContentManagementCIOutbound CMportOut;
+	private ContentManagementCIOutbound CMopfacade;
+	private ApplicationNodeAdress applicationNodeAddress;
+
 
 	//liste_racine 
 	private HashMap<PeerNodeAddressI, ContentManagementCIOutbound> liste_racine;
@@ -61,16 +69,16 @@ public class Facade  extends AbstractComponent  {
 			super(NodeManagemenInboundPort, 1, 0) ;
 			this.adress = new FacadeNodeAdress(ContentManagementInboudPort,NodeManagemenInboundPort) ;
 			this.peerNodeList = new HashSet<PeerNodeAddressI>();
+			liste_racine= new HashMap<>();
 			this.outPortsCM =  new ConcurrentHashMap<PeerNodeAddressI,ContentManagementCIOutbound>();
 			this.contents = new ConcurrentHashMap<ContentTemplateI, ContentDescriptorI>();
-
+			this.applicationNodeAddress=new ApplicationNodeAdress("test1", "CMportIn", "NodeManagemenInboundPort");
 			// create the port that exposes the offered interface with the
 			// given URI to ease the connection from client components.
 			NMportIn = new ManagementInBoundPort(this.adress.getNodeManagementUri(), this);
 			NMportIn.publishPort();
 			CMportIn = new ContentManagementCIIntbound(this.adress.getNodeidentifier(), this);
 			CMportIn.publishPort();
-
 
 		}
 
@@ -102,7 +110,7 @@ public class Facade  extends AbstractComponent  {
 			String inportCM_Pair =p.getNodeidentifier();
 			doPortConnection(outportCM_Facade, inportCM_Pair, ContentManagementCIConector.class.getCanonicalName());
 		}else {
-			liste_racine.put(p ,this.CMportOut);
+			liste_racine.put(p ,this.CMopfacade);
 		}
 		Set<PeerNodeAddressI> result = new HashSet<>(peerNodeList);
     	result.remove(p);
@@ -138,27 +146,53 @@ public class Facade  extends AbstractComponent  {
 	}
 
 	public ContentDescriptorI find (ContentTemplateI  ct , int hops ) throws Exception{
-		// Si le contenu n'est pas dans le nœud courant, demande à un autre pair
-		Set<PeerNodeAddressI> neighbors = outPortsCM.keySet();
-		if (neighbors == null) {
-			return null;
-		}
-		for ( ContentManagementCIOutbound outportCMfacade: outPortsCM.values()) {
-			try {
-				ContentDescriptorI content = outportCMfacade.find(ct, hops); ;
-				if (content != null) {
-					System.out.println("-------------find-------");
-					System.out.println("Value returned by find is " +content);
-					return content;
-				}
-			} catch (Exception e) {
-				System.err.println("Failed to contact neighbor pair: " + outportCMfacade);
-			}
-		}
-		return null;
+		System.out.println(" find in  facade");
+		//je ne sais pas si il faut parcourir racine ou outPortsCM
+		//faire une boucle 
+		Object uri=liste_racine.keySet();
+		ContentManagementCIOutbound port=liste_racine.get(uri);
+		System.out.println("je suis la "+port.getPortURI());
+		return ( port).find(ct, hops);
 	}
 
+	/*
+	 for (ContentDescriptorI localCd : this.contentsDescriptors) {
+			
+		System.out.println(this.getNodeIdentifier().getFirst() + " n'a pas");
+		if (hops-- == 0)
+			return null;
 
+		for (PeerNodeAddressI node : this.peersGetterPorts.keySet()) {
+			OutboundPortCM outBoundPort = peersGetterPorts.get(node).getSecond();
+			if (outBoundPort != null) {
+				ContentDescriptorI res = ((ContentManagementCI) outBoundPort).find(request, hops);
+				if (res != null)
+					return res;
+			}
+		}
+
+		return null;
+	 */
+	
+	@Override
+	public synchronized void shutdown() throws ComponentShutdownException {
+		try {
+			
+		} catch (Exception e) {
+			throw new ComponentShutdownException(e);
+		}
+		super.shutdown();
+	}
+
+	public synchronized void start() throws ComponentStartException {
+		try {
+			
+			
+		} catch (Exception e) {
+			throw new ComponentStartException(e);
+		}
+		super.start();
+	}
 	
 
 }

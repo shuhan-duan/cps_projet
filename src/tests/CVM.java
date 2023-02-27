@@ -4,8 +4,8 @@ package tests;
 import componenet.Client;
 import componenet.Facade;
 import componenet.Pair;
-import connector.ManagementConnector;
-import connector.NodeC_conector;
+import connector.NodeManagementConnector;
+import connector.NodeConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.components.helpers.CVMDebugModes;
@@ -39,6 +39,7 @@ public class CVM extends AbstractCVM{
 	*/
 	public CVM() throws Exception {
 		super();
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -48,7 +49,11 @@ public class CVM extends AbstractCVM{
 
 		// ---------------------------------------------------------------------
 		// Creation phase
-		// ---------------------------------------------------------------------	
+		// ---------------------------------------------------------------------
+
+		
+
+		
 		// create the component pairs
 		for (int i = 1; i < NB_PEER +1 ; i++) {
 			AbstractComponent.createComponent(
@@ -71,7 +76,7 @@ public class CVM extends AbstractCVM{
 				Client.class.getCanonicalName(),
 				new Object[]{ContentManagementInboudPort,
 						ContentManagementOutboudPort});
-		System.out.println("\nCreate Composant Facade OK \n");
+		System.out.println("\nCreate Composant client OK \n");
 
 
 		
@@ -80,6 +85,7 @@ public class CVM extends AbstractCVM{
 		super.deploy();
 		assert	this.deploymentDone();
 	}
+
 
 	/**   
 	* @Function: CVM.java

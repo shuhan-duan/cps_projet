@@ -1,17 +1,17 @@
 package classes;
 
-
 import interfaces.FacadeNodeAdressI;
 
 
-public class FacadeNodeAdress extends   NodeAdresse  implements FacadeNodeAdressI {
 
-	public FacadeNodeAdress(String uriCM, String uriNM) {
-		super(uriCM);
-		this.uriNM = uriNM;
+public class FacadeNodeAdress  extends   NodeAdresse  implements FacadeNodeAdressI {
+
+	public FacadeNodeAdress(String uriPrefix, String uriNM) {
+		super(uriPrefix);
+		this.uriNM =  uriNM;
 	}
 
-	String  uriNM ;
+	private String  uriNM ;
 
 
 	@Override

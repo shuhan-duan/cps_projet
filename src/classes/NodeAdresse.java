@@ -6,17 +6,17 @@ import interfaces.PeerNodeAddressI;
 
 public class NodeAdresse implements NodeAdresseI {
 
-	String uriCM ; 
+	String uriPrefix ; 
 	
 	
 	
-	public NodeAdresse(String uriCM) {
-		this.uriCM = uriCM;
+	public NodeAdresse(String uriPrefix) {
+		this.uriPrefix = uriPrefix;
 	}
 
 	@Override
 	public String getNodeidentifier() throws Exception {
-		return uriCM;
+		return uriPrefix;
 	}
 
 	@Override
