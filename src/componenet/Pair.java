@@ -209,10 +209,6 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		for (ContentDescriptorI content : this.contents) {
 			if (content.match(cd)) {
 				matched.add(content);
-				System.out.println("add content");
-				
-			}else {
-				System.out.println(" didn't match ");
 			}
 		}
 		
@@ -227,7 +223,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 			ContentNodeAddressI neighbor = array[randomIndex];
 			ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
 			System.out.println("\nwill do match in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
-			System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());
+			//System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());
 			Set<ContentDescriptorI> reSet =((ContentManagementCI)outportCM).match(cd, matched ,hops -1	);
 			matched.addAll(reSet);
 			/*

@@ -59,7 +59,7 @@ public class Client extends AbstractComponent {
         }else {
         	System.out.println("\nwe have matched: ");
         	for (ContentDescriptorI contentDescriptorI : matched) {
-        		System.out.println("\n we matched :" + contentDescriptorI.toString()+"\n");
+        		System.out.println("we matched :" + contentDescriptorI.toString());
 			}
   		
         }
