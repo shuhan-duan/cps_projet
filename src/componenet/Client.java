@@ -1,42 +1,90 @@
 package componenet;
 
 
-import classes.ContentDescriptor;
-import classes.ContentNodeAdress;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
+
+import classes.ContentTemplate;
+import connector.ContentManagementConector;
 import fr.sorbonne_u.components.AbstractComponent;
-import fr.sorbonne_u.components.annotations.RequiredInterfaces;
-import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
+import fr.sorbonne_u.components.exceptions.ComponentStartException;
+import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import interfaces.ContentDescriptorI;
-import interfaces.ContentManagementCI;
-import interfaces.ContentNodeAddressI;
 import interfaces.ContentTemplateI;
 import ports.ContentManagementCIOutbound;
 
 public class Client extends AbstractComponent {
-    protected ContentManagementCIOutbound outportCM_client ;
-    protected ContentDescriptorI patron;
+    protected ContentManagementCIOutbound outportCM_client;
     protected String inportCM_facade;
-    protected ContentTemplateI c_t;
-    
+    protected final int ID_TEMP = 0;
 
     protected Client(String ContentManagementInboudPort, String ContentManagementOutboudPort) throws Exception {
         super(1,0);
         outportCM_client = new ContentManagementCIOutbound(ContentManagementOutboudPort,this);
+        outportCM_client.publishPort();
         inportCM_facade = ContentManagementInboudPort;
     }
     
-	
-    public synchronized void shutdown() throws ComponentShutdownException {
-		try {
-			this.outportCM_client.unpublishPort();
-		} catch (Exception e) {
-			throw new ComponentShutdownException(e);
-		}
-		super.shutdown();
+    public ContentTemplate createTemplate(int numbre) throws ClassNotFoundException, IOException{
+        ContentDataManager.DATA_DIR_NAME = "src/data";
+        ArrayList<HashMap<String, Object>> result = ContentDataManager.readTemplates(numbre);
+        HashMap<String, Object> res = result.get(0);
+        ContentTemplate temp = new ContentTemplate(res);
+        return temp;
+    }
+    
+    public void doFind(ContentTemplateI temp) throws Exception {
+    	//find
+        System.out.println("\nplease find the template:\n "+ temp.toString());
+        ContentDescriptorI res =this.outportCM_client.find(temp, 10); 
+        if (res == null) {
+        	System.out.println("\ncannot find !");
+        }else {
+        	System.out.println("\nwe find :" + res.toString());
+        }
 	}
-	public synchronized void finalise() throws Exception{
-		super.finalise();
+    
+    public void doMatch(ContentTemplateI temp) throws Exception {
+    	//match
+        System.out.println("\nplease match the template:\n"+ temp.toString());
+        
+        Set<ContentDescriptorI> matched = new HashSet<>();
+        matched =this.outportCM_client.match(temp,matched, 10); 
+        if (matched == null) {
+        	System.out.println("\n cannot match !");
+        }else {
+        	for (ContentDescriptorI contentDescriptorI : matched) {
+        		System.out.println("\n we match :" + contentDescriptorI.toString()+"\n");
+			}
+  		
+        }
 	}
-
+    
+    @Override
+    public void start() throws ComponentStartException {
+      try {
+        super.start();
+        this.doPortConnection(outportCM_client.getPortURI(), inportCM_facade, ContentManagementConector.class.getCanonicalName());
+      } catch (Exception e) {
+        throw new ComponentStartException(e);
+      }
+    }
+    
+    @Override
+    public void execute() throws Exception {
+      super.execute();
+      Thread.sleep(2000);
+      //choose template
+      ContentTemplateI temp = createTemplate(ID_TEMP);
+      //find
+      doFind(temp);
+      //match
+      //doMatch(temp);
+      
+    }
 
 }

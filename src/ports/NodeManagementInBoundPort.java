@@ -50,7 +50,7 @@ public class NodeManagementInBoundPort extends AbstractInboundPort  implements N
 	*          
 	*/
 	
-	public Set<PeerNodeAddressI> join(PeerNodeAddressI p) throws Exception {
+	public Set<ContentNodeAddressI> join(ContentNodeAddressI p) throws Exception {
 	
 		return this.getOwner().handleRequest(
 				owner ->(((Facade) owner).joinPair(p))
@@ -71,7 +71,7 @@ public class NodeManagementInBoundPort extends AbstractInboundPort  implements N
 	*
 	* 
 	*/
-	public void leave(PeerNodeAddressI p) throws Exception {
+	public void leave(ContentNodeAddressI p) throws Exception {
 		this.getOwner().runTask(
 				owner -> {
 					try {

@@ -2,46 +2,18 @@ package classes;
 
 import interfaces.ApplicationNodeAdressI;
 
-public class ApplicationNodeAdress  implements ApplicationNodeAdressI{
+public class ApplicationNodeAdress extends FacadeNodeAdress implements ApplicationNodeAdressI{
 
-	private String nodeManagementURI;
-	private String nodeIdentifier;
-	private String contentManagementURI;
-	private boolean isFacade;
-	private boolean isPeer;
-	
-	public ApplicationNodeAdress(String managementURI, String nodeIdentifier, String contentManagementURI) {
-		super();
-		this.nodeManagementURI = managementURI;
-		this.nodeIdentifier = nodeIdentifier;
-		this.contentManagementURI = contentManagementURI;
+	public ApplicationNodeAdress(String uriPrefix, String uriCM ,String  uriNM) {
+		super(uriPrefix, uriNM);
+		this.uriCM = uriCM;
 	}
 
+	private String uriCM;
 	@Override
-	public String getNodeManagementUri() throws Exception {
-			return nodeManagementURI;
-	}
-
-	@Override
-	public String getNodeidentifier() throws Exception {
-		return nodeIdentifier;
-	}
-
-	@Override
-	public Boolean isfacade() throws Exception {
-		throw new UnsupportedOperationException("Unimplemented method 'isfacade'");
-	}
-
-	@Override
-	public Boolean ispeer() throws Exception {
-		throw new UnsupportedOperationException("Unimplemented method 'ispeer'");
-	}
-
-
-
-	@Override
-	public  String getContentManagementURI() throws Exception {
-		return contentManagementURI;
+	public String getContentManagementURI() throws Exception {
+		// TODO Auto-generated method stub
+		return uriCM;
 	}
 	
 	@Override

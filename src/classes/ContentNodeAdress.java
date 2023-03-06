@@ -8,8 +8,6 @@ import interfaces.ContentNodeAddressI;
 * @desc:
 */
 public class ContentNodeAdress extends PeerNodeAddress  implements ContentNodeAddressI {
-	
-	
 
 	public ContentNodeAdress(String uriPrefix, String uriCM , String uriNodeC) {
 		super(uriPrefix, uriNodeC);

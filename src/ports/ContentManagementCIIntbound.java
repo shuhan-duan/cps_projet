@@ -2,7 +2,6 @@ package ports;
 
 import java.util.Set;
 
-import classes.PeerNodeAddress;
 import componenet.Facade;
 import componenet.Pair;
 import fr.sorbonne_u.components.AbstractComponent;
@@ -12,17 +11,14 @@ import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import interfaces.ContentDescriptorI;
 import interfaces.ContentManagementCI;
 import interfaces.ContentTemplateI;
-import interfaces.FacadeNodeAdressI;
+import interfaces.MyCMI;
 
 public class ContentManagementCIIntbound  extends AbstractInboundPort  implements     ContentManagementCI {
 
-	public ContentManagementCIIntbound(ComponentI owner) throws Exception {
-		super(ContentManagementCI.class, owner);
-	}
-
-	public ContentManagementCIIntbound(String uri,ComponentI owner)
+	public ContentManagementCIIntbound(String uri, ComponentI owner)
 			throws Exception {
-		super(uri, ContentManagementCI.class, owner);
+				super(uri, ContentManagementCI.class, owner);
+		
 	}
 
 	/**
@@ -32,20 +28,21 @@ public class ContentManagementCIIntbound  extends AbstractInboundPort  implement
 
 	@Override
 	public ContentDescriptorI find(ContentTemplateI cd, int hops) throws Exception {
-		System.out.println("je suis dans find CM_in");
-		return this.getOwner().handleRequest(new AbstractComponent.AbstractService<ContentDescriptorI>() {
-			@Override 
-			public ContentDescriptorI call() throws Exception {
-				return ((ContentManagementCI) getOwner()).find(cd,hops) ;
-			}
-		}) ;
-			
+		return this.getOwner().handleRequest(
+                owner -> {
+                    return ((MyCMI) owner).find(cd, hops);
+                });
 	}
 
 	@Override
 	public Set<ContentDescriptorI> match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops)
 			throws Exception {
-		return null;
+		return this.getOwner().handleRequest(
+                owner -> {
+                    return ((MyCMI) owner).match(cd, matched, hops);
+                });
 	}
+
+	
 
 }

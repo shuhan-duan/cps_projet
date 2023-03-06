@@ -26,7 +26,7 @@ public class CVM extends AbstractCVM{
 
 	/** URI of the consumer inbound port (simplifies the connection).		*/
 	protected static final String	NodeManagemenInboundPort = "inportNMfacade";
-	protected final int NB_PEER = 3;
+	protected final int NB_PEER = 10;
 
 	/**   
 	* @Function: CVM.java
@@ -55,28 +55,28 @@ public class CVM extends AbstractCVM{
 
 		
 		// create the component pairs
-		for (int i = 1; i < NB_PEER +1 ; i++) {
+		for (int i = 0; i < NB_PEER  ; i++) {
 			AbstractComponent.createComponent(
 							Pair.class.getCanonicalName(),
 							new Object[]{
 									NodeManagementOutboundPort+i,
-									NodeManagemenInboundPort});
+									NodeManagemenInboundPort, i });
 		}
-		System.out.println("\nCreate Composant pairs OK \n");
+		System.out.println("\nCreate Composant pairs OK ");
 
 		// create the component facade
 			AbstractComponent.createComponent(
 					Facade.class.getCanonicalName(),
 					new Object[]{ContentManagementInboudPort,
 							NodeManagemenInboundPort});
-		System.out.println("\nCreate Composant Facade OK \n");
+		System.out.println("\nCreate Composant Facade OK ");
 
 		// create the component client
 		AbstractComponent.createComponent(
 				Client.class.getCanonicalName(),
 				new Object[]{ContentManagementInboudPort,
 						ContentManagementOutboudPort});
-		System.out.println("\nCreate Composant client OK \n");
+		System.out.println("\nCreate Composant client OK ");
 
 
 		
@@ -107,7 +107,7 @@ public class CVM extends AbstractCVM{
 			// Create an instance of the defined component virtual machine.
 			CVM a = new CVM();
 			// Execute the application.
-			a.startStandardLifeCycle(20000L);
+			a.startStandardLifeCycle(40000L);
 
 			// Give some time to see the traces (convenience).
 			Thread.sleep(1000L);

@@ -9,7 +9,7 @@ import fr.sorbonne_u.components.interfaces.RequiredCI;
  * @author lyna & shuhan 
  *
  */
-public interface ContentManagementCI extends OfferedCI,RequiredCI{
+public interface ContentManagementCI extends OfferedCI,RequiredCI,MyCMI{
 	/**   
 	* @Function: ContentManagementCI.java
 	* @Description: 

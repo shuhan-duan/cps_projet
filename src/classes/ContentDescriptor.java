@@ -1,5 +1,6 @@
 package classes;
 
+import java.util.HashMap;
 import java.util.Set;
 
 import interfaces.ContentDescriptorI;
@@ -15,6 +16,11 @@ public class ContentDescriptor extends ContentTemplate implements  ContentDescri
 		this.ca = ca;
 	}
 
+	public ContentDescriptor(HashMap<String, Object> toLoad) {
+        super(toLoad);
+        this.size = (Long) toLoad.get("size");
+    }
+	
 	private long size ; 
 	private ContentNodeAddressI ca ;
 	
@@ -38,47 +44,49 @@ public class ContentDescriptor extends ContentTemplate implements  ContentDescri
 
 	@Override
 	public boolean match(ContentTemplateI t) throws Exception {
-		if (isTitleEquals(t))
-			return true;
-		if (isAlbumTitleEquals(t))
-			return true;
-		if (isIntrepretersContains(t))
-			return true;
-		if (isComposersContains(t))
-			return true;
-		return false;
+		boolean res = false;
+        if(t.getTitre()!=null) res = isTitleEquals(t);
+        if(t.getALbumTitre()!=null) res = isAlbumTitleEquals(t);
+        if(t.getInterpreters().size()!=0) res = isIntrepretersContains(t);
+        if(t.getComposers().size()!=0) res =isComposersContains(t);
+        return res;
 	}
 
-	private boolean isTitleEquals(ContentTemplateI request) throws Exception {
-        return (request.getTitre()).equals(this.getTitre());
+	private boolean isTitleEquals(ContentTemplateI t) throws Exception {
+        return (t.getTitre()).equals(this.getTitre());
     }
 
-    private boolean isAlbumTitleEquals(ContentTemplateI request) throws Exception {
-        return request.getALbumTitre().equals(getTitre());
+    private boolean isAlbumTitleEquals(ContentTemplateI t) throws Exception {
+        return t.getALbumTitre().equals(this.getALbumTitre());
     }
 	
 	/**
-     * > If the interpreters of the request are contained in the interpreters of the
+     * > If the interpreters of the t are contained in the interpreters of the
      * content template, then
      * return true
      * 
-     * @param request The request to be checked.
+     * @param t The t to be checked.
      * @return A boolean value.
 	 * @throws Exception
      */
-    private boolean isIntrepretersContains(ContentTemplateI request) throws Exception {
-        return getInterpreters().containsAll(request.getInterpreters());
+    private boolean isIntrepretersContains(ContentTemplateI t) throws Exception {
+        return this.getInterpreters().containsAll(t.getInterpreters());
     }
 
     /**
-     * If the composers of this template contain all the composers of the request,
+     * If the composers of this template contain all the composers of the t,
      * then return true.
      * 
-     * @param request The request to be fulfilled.
+     * @param t The t to be fulfilled.
      * @return A boolean value.
      * @throws Exception
      */
-    private boolean isComposersContains(ContentTemplateI request) throws Exception {
-        return getComposers().containsAll(request.getInterpreters());
+    private boolean isComposersContains(ContentTemplateI t) throws Exception {
+        return this.getComposers().containsAll(t.getComposers());
     }
+    
+    @Override
+	public String toString() {
+		return super.toString()+ " \nsize :" +size;
+	}
 }
