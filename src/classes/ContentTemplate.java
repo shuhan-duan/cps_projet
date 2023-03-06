@@ -42,8 +42,10 @@ public class ContentTemplate implements   ContentTemplateI{
         this.interpreters = new HashSet<String>();
 
         ArrayList<?> composersBeforeCast = (ArrayList<?>) toLoad.get("composers");
-        for (Object object : composersBeforeCast)
-            this.composers.add((String) object);
+        if (composersBeforeCast != null) {
+        	for (Object object : composersBeforeCast)
+                this.composers.add((String) object);
+		}
 
         ArrayList<?> intepretersBeforeCast = (ArrayList<?>) toLoad.get("interpreters");
         if(intepretersBeforeCast!=null){
@@ -52,7 +54,7 @@ public class ContentTemplate implements   ContentTemplateI{
         }
     }
 	
-	@Override
+	@Override 
 	public String toString() {
 		String intersString  ="";
 		for (String string : interpreters) {

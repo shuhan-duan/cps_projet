@@ -155,11 +155,11 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			ContentNodeAddressI neighbor = array[randomIndex];
 			ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
 			System.out.println("\nwill do find in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
-			System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());
+			//System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());
 			ContentDescriptorI content = ((ContentManagementCI)outportCM).find(ct, hops - 1);
 			if (content != null) {
 				return content;
-			}
+			} 
 			/*
 			for ( ContentNodeAddressI neighbor: neighbors) {
 				ContentManagementCIOutbound outportCMfacade = outPortsCM.get(neighbor);

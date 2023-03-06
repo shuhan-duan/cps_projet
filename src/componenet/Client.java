@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 
@@ -32,7 +33,9 @@ public class Client extends AbstractComponent {
     public ContentTemplate createTemplate(int numbre) throws ClassNotFoundException, IOException{
         ContentDataManager.DATA_DIR_NAME = "src/data";
         ArrayList<HashMap<String, Object>> result = ContentDataManager.readTemplates(numbre);
-        HashMap<String, Object> res = result.get(0);
+        Random rand = new Random();
+		int randomIndex = rand.nextInt(result.size());
+        HashMap<String, Object> res = result.get(randomIndex);
         ContentTemplate temp = new ContentTemplate(res);
         return temp;
     }
@@ -43,7 +46,7 @@ public class Client extends AbstractComponent {
         ContentDescriptorI res =this.outportCM_client.find(temp, 10); 
         if (res == null) {
         	System.out.println("\ncannot find !");
-        }else {
+        }else { 
         	System.out.println("\nwe find :" + res.toString());
         }
 	}
@@ -81,6 +84,7 @@ public class Client extends AbstractComponent {
       Thread.sleep(2000);
       //choose template
       ContentTemplateI temp = createTemplate(ID_TEMP);
+      System.out.println(temp.toString());
       //find
       //doFind(temp);
       //match

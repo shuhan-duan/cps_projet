@@ -265,7 +265,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		} catch (Exception e) {
 			throw new ComponentStartException(e);
 		}
-	}
+	}  
 
 	@Override
 	public void			execute() throws Exception
