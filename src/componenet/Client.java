@@ -40,7 +40,7 @@ public class Client extends AbstractComponent {
     public void doFind(ContentTemplateI temp) throws Exception {
     	//find
         System.out.println("\nplease find the template:\n "+ temp.toString());
-        ContentDescriptorI res =this.outportCM_client.find(temp, 3); 
+        ContentDescriptorI res =this.outportCM_client.find(temp, 10); 
         if (res == null) {
         	System.out.println("\ncannot find !");
         }else {
@@ -53,7 +53,7 @@ public class Client extends AbstractComponent {
         System.out.println("\nplease match the template:\n"+ temp.toString());
         
         Set<ContentDescriptorI> matched = new HashSet<>();
-        matched =this.outportCM_client.match(temp,matched, 10); 
+        matched =this.outportCM_client.match(temp,matched, 15); 
         if (matched == null) {
         	System.out.println("\n cannot match !");
         }else {
@@ -82,9 +82,9 @@ public class Client extends AbstractComponent {
       //choose template
       ContentTemplateI temp = createTemplate(ID_TEMP);
       //find
-      doFind(temp);
+      //doFind(temp);
       //match
-      //doMatch(temp);
+      doMatch(temp);
       
     }
 

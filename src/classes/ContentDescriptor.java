@@ -87,6 +87,6 @@ public class ContentDescriptor extends ContentTemplate implements  ContentDescri
     
     @Override
 	public String toString() {
-		return super.toString()+ " \nsize :" +size;
+		return super.toString()+ " \nsize :" +size + "\n";
 	}
 }

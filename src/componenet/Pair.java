@@ -5,6 +5,7 @@ package componenet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -152,7 +153,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	public ContentDescriptorI find(ContentTemplateI ct  ,int hops )throws Exception{
 		System.out.println("\nc'est find in pair "+this.adress.getNodeidentifier() + " " +  hops);
 		if (hops == 0) {
-			System.out.println("\nc'est find in pair qui termine");
+			System.out.println("c'est find in pair qui termine");
 			return null;
 		}
 		// Cherche parmi ses propres contenus
@@ -168,6 +169,17 @@ public class Pair  extends AbstractComponent implements MyCMI {
 			System.out.println("\npas de neighbor : "+ this.adress.getNodeidentifier());
 			return null;
 		}else {
+			ContentNodeAddressI[] array = neighbors .toArray(new ContentNodeAddressI[0]);
+			Random rand = new Random();
+			int randomIndex = rand.nextInt(neighbors.size());
+			ContentNodeAddressI neighbor = array[randomIndex];
+			ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
+			System.out.println("\nwill do find in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
+			//System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());
+			ContentDescriptorI content = ((ContentManagementCI)outportCM).find(ct, hops - 1);
+			if (content != null) {
+				return content;
+			}	
 			/*
 			for ( ContentNodeAddressI neighbor: neighbors) {
 				ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
@@ -188,22 +200,37 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	@Override
 	public Set<ContentDescriptorI> match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops)
 			throws Exception {
-		System.out.println("\nc'est  match in pair " + this.adress.getNodeidentifier());
+		System.out.println("\nc'est  match in pair " + this.adress.getNodeidentifier()+ " " +  hops);
 
 		if (hops == 0) {
-			return null;
+			return matched;
 		}
 		// Cherche parmi ses propres contenus
 		for (ContentDescriptorI content : this.contents) {
 			if (content.match(cd)) {
 				matched.add(content);
+				System.out.println("add content");
+				
+			}else {
+				System.out.println(" didn't match ");
 			}
 		}
+		
 		// Si le contenu n'est pas dans le nœud courant, demande à un autre pair
 		Set<ContentNodeAddressI> neighbors = outPortsCM.keySet();
 		if (neighbors == null) {
 			return matched;
 		}else {
+			ContentNodeAddressI[] array = neighbors .toArray(new ContentNodeAddressI[0]);
+			Random rand = new Random();
+			int randomIndex = rand.nextInt(neighbors.size());
+			ContentNodeAddressI neighbor = array[randomIndex];
+			ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
+			System.out.println("\nwill do match in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
+			System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());
+			Set<ContentDescriptorI> reSet =((ContentManagementCI)outportCM).match(cd, matched ,hops -1	);
+			matched.addAll(reSet);
+			/*
 			for ( ContentNodeAddressI neighbor: neighbors) {
 				ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
 				System.out.println("\nwill do match in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
@@ -211,6 +238,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 				matched.addAll(reSet);
 				return matched;
 			}
+			*/
 		}
 		return matched;
 	}

@@ -2,6 +2,7 @@ package componenet;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -148,6 +149,18 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			System.out.println("\n	on a pas de neighbors");
 			return null;
 		}else {
+			ContentNodeAddressI[] array = neighbors .toArray(new ContentNodeAddressI[0]);
+			Random rand = new Random();
+			int randomIndex = rand.nextInt(neighbors.size());
+			ContentNodeAddressI neighbor = array[randomIndex];
+			ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
+			System.out.println("\nwill do find in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
+			System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());
+			ContentDescriptorI content = ((ContentManagementCI)outportCM).find(ct, hops - 1);
+			if (content != null) {
+				return content;
+			}
+			/*
 			for ( ContentNodeAddressI neighbor: neighbors) {
 				ContentManagementCIOutbound outportCMfacade = outPortsCM.get(neighbor);
 				System.out.println("\nwill do find in :" + neighbor.getNodeidentifier()+" "+ outportCMfacade.getPortURI());
@@ -156,6 +169,7 @@ public class Facade  extends AbstractComponent implements MyCMI {
 					return content;
 				}			
 			}
+			*/
 		}
 		return null;
 	}
@@ -164,14 +178,24 @@ public class Facade  extends AbstractComponent implements MyCMI {
 		System.out.println("\nc'est  match in facade");
 
 		if (hops == 0) {
-			return null;
+			return matched;
 		}
 		
 		Set<ContentNodeAddressI> neighbors = outPortsCM.keySet();
 		if (neighbors == null) {
 			System.out.println("\n	on a pas de neighbors");
-			return null;
+			return matched;
 		}else {
+			ContentNodeAddressI[] array = neighbors .toArray(new ContentNodeAddressI[0]);
+			Random rand = new Random();
+			int randomIndex = rand.nextInt(neighbors.size());
+			ContentNodeAddressI neighbor = array[randomIndex];
+			ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
+			System.out.println("\nwill do match in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
+			Set<ContentDescriptorI> reSet =((ContentManagementCI)outportCM).match(cd, matched ,hops -1	);
+			matched.addAll(reSet);
+			return matched;
+			/*
 			for ( ContentNodeAddressI neighbor: neighbors) {
 				ContentManagementCIOutbound outportCMfacade = outPortsCM.get(neighbor);
 				System.out.println("\nwill do match in :" + neighbor.getNodeidentifier()+" "+ outportCMfacade.getPortURI());
@@ -179,9 +203,8 @@ public class Facade  extends AbstractComponent implements MyCMI {
 				matched.addAll(reSet);
 				return matched;
 			}
-			
+			*/
 		}
-		return null;
 	}
 
 }
