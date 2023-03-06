@@ -57,7 +57,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	 * @throws Exception		<i>todo.</i>
 	 */
 	protected Pair( String NMoutportUri ,String NMPortIn_facade, int DescriptorID)throws Exception {
-		super(NMoutportUri, 0, 1);
+		super(NMoutportUri, 10, 0);
 		
 		cpt++;
 		this.adress = new ContentNodeAdress("Pair" + cpt,"CMuriIn"+ cpt, "NodeCuriIn"+ cpt);
@@ -150,8 +150,9 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	
 	@Override
 	public ContentDescriptorI find(ContentTemplateI ct  ,int hops )throws Exception{
-		System.out.println("\nc'est find in pair "+this.adress.getNodeidentifier());
+		System.out.println("\nc'est find in pair "+this.adress.getNodeidentifier() + " " +  hops);
 		if (hops == 0) {
+			System.out.println("\nc'est find in pair qui termine");
 			return null;
 		}
 		// Cherche parmi ses propres contenus
@@ -167,6 +168,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 			System.out.println("\npas de neighbor : "+ this.adress.getNodeidentifier());
 			return null;
 		}else {
+			/*
 			for ( ContentNodeAddressI neighbor: neighbors) {
 				ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
 				System.out.println("\nwill do find in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
@@ -177,6 +179,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 					return content;
 				}			
 			}
+			*/
 		}
 		return null;
 

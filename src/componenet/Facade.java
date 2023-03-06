@@ -51,7 +51,7 @@ public class Facade  extends AbstractComponent implements MyCMI {
 	protected	Facade(	String ContentManagementInboudPort,	String 	NodeManagemenInboundPort) throws Exception
 		{
 			// the reflection inbound port URI is the URI of the component
-			super(NodeManagemenInboundPort, 1, 0) ;
+			super(NodeManagemenInboundPort, 2, 0) ;
 			this.adress = new ApplicationNodeAdress("Facade",ContentManagementInboudPort,NodeManagemenInboundPort) ;
 			this.peerNodeList = new HashSet<ContentNodeAddressI>();
 			this.outPortsCM =  new ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound>();
@@ -175,7 +175,7 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			for ( ContentNodeAddressI neighbor: neighbors) {
 				ContentManagementCIOutbound outportCMfacade = outPortsCM.get(neighbor);
 				System.out.println("\nwill do match in :" + neighbor.getNodeidentifier()+" "+ outportCMfacade.getPortURI());
-				Set<ContentDescriptorI> reSet =((ContentManagementCI)outportCMfacade).match(cd, matched ,hops);
+				Set<ContentDescriptorI> reSet =((ContentManagementCI)outportCMfacade).match(cd, matched ,hops -1);
 				matched.addAll(reSet);
 				return matched;
 			}
