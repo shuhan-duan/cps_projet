@@ -55,7 +55,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	/**	counting service invocations.										*/
 	protected static int counter ;
 	protected ContentNodeAdress adress;
-	Set<ContentNodeAddressI> liste;
+	protected Set<ContentNodeAddressI> liste;
 
 
 	//stock the pairs connected with this pair and the outportNodeC of me
@@ -138,9 +138,9 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	 * @Function: Pair.java
 	 * @Description:
 	 *
-	 * @param:ContentNodeAddressI
+	 * @param:
 	 * @return：
-	 * @throws：Exception
+	 * @throws：
 	 *
 	 * @version: v1.0.0
 	 * @author: lyna & shuhan
@@ -151,16 +151,18 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	public void disconnectePair (ContentNodeAddressI p ) throws Exception
 	{   	//get the outportNodeCI of this , which is connected with p
 		    NodeCOutboundPort voisin= outPortsNodeC.get(p);
+		    //System.out.println(voisin.connected()+"   "+ voisin.getConnector());
 			this.doPortDisconnection(voisin.getPortURI());
 			voisin.unpublishPort();
 			outPortsNodeC.remove(p);
-			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en NodeCI");
+			//System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en NodeCI");
 			//get the outportContentManagementCI of this , which is connected with p
 			ContentManagementCIOutbound voisin2= outPortsCM.get(p);
 			this.doPortDisconnection(voisin2.getPortURI());
 			voisin2.unpublishPort();
 			outPortsCM.remove(p);
-			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en ContentManagementCI");	
+			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier());
+			
 	}
 	
 	@Override
@@ -291,7 +293,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		AcceleratedClock clock = this.csop.getClock(CVM.CLOCK_URI);
 		Instant startInstant = clock.getStartInstant();
 		clock.waitUntilStart();
-		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(150));
+		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(10 + counter*10));
 			//do join
 				this.scheduleTask(
 						o -> {
@@ -328,20 +330,6 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		super.shutdown();
 	}
 	
-	/**   
-	* @Function: Pair.java
-	* @Description: 
-	*
-	* @param: 
-	* @return：
-	* @throws：Exception
-	*
-	* @version: v1.0.0
-	* @author: lyna & shuhan 
-	* @date: 10 Mars. 2023 20:34:57 
-	*
-	* 
-	*/
 	public void		action() throws Exception
 	{
 		liste = this.NMportOut.join(this.adress);
@@ -356,8 +344,8 @@ public class Pair  extends AbstractComponent implements MyCMI {
 				String outportN = "myOutPortNodeCIpair"+ cpt;
 				NodeCOutboundPort NportOut = new NodeCOutboundPort(outportN, this);
 				NportOut.publishPort();
-				doPortConnection(NportOut.getPortURI(),	p.getNodeUri(),NodeConnector.class.getCanonicalName());
 				outPortsNodeC.put(p, NportOut);
+				doPortConnection(NportOut.getPortURI(),	p.getNodeUri(),NodeConnector.class.getCanonicalName());
 				//System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier() +" en "+ outPortsNodeC.get(p).getPortURI()+" en NodeCI" );
 				
 				String outportCM = "myOutportCMpair" + cpt ;

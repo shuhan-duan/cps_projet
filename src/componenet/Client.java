@@ -170,7 +170,7 @@ public class Client extends AbstractComponent {
     	//choose template
         ContentTemplateI temp = createTemplate(ID_TEMP);
         //find
-        // doFind(temp);
+         doFind(temp);
         //match
         doMatch(temp);
 	}
