@@ -155,6 +155,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		//disconnect pair et pair en NodeC et CM
 			//get the outportNodeCI of this , which is connected with p
 		    NodeCOutboundPort voisin= outPortsNodeC.get(p);
+<<<<<<< HEAD
 		    if (voisin!=null) { 
 		    	//System.out.println(voisin.connected()+"  1 "+ voisin.getConnector());
 				this.doPortDisconnection(voisin.getPortURI());
@@ -172,6 +173,21 @@ public class Pair  extends AbstractComponent implements MyCMI {
 				outPortsCM.remove(p);
 				System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier());
 			}	
+=======
+		    //System.out.println(voisin.connected()+"  1 "+ voisin.getConnector());
+			this.doPortDisconnection(voisin.getPortURI());
+			voisin.unpublishPort();
+			outPortsNodeC.remove(p);
+			//System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en NodeCI");
+			//get the outportContentManagementCI of this , which is connected with p
+			ContentManagementCIOutbound voisin2= outPortsCM.get(p);
+			//System.out.println(voisin2.connected()+" 2  "+ voisin2.getConnector());
+			this.doPortDisconnection(voisin2.getPortURI());
+			voisin2.unpublishPort();
+			outPortsCM.remove(p);
+			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier());
+			
+>>>>>>> refs/remotes/origin/horloge
 	}
 	
 	@Override
@@ -317,8 +333,14 @@ public class Pair  extends AbstractComponent implements MyCMI {
 						delayInNanos,
 						TimeUnit.NANOSECONDS);
 				
+<<<<<<< HEAD
 		// disconntec  
 		long delayInNanos2 = clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(80));
+=======
+		long delayInNanos2 = clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(80));
+		//System.out.println("pair disconntc -----" + delayInNanos2 );
+		// disconntec  
+>>>>>>> refs/remotes/origin/horloge
 		this.scheduleTask(o ->{
 			try {
 				((Pair)o).action2();
@@ -344,6 +366,10 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	public void	finalise() throws Exception
 	{
 		this.doPortDisconnection(this.csop.getPortURI());
+<<<<<<< HEAD
+=======
+		this.doPortDisconnection(NMportOut.getPortURI());
+>>>>>>> refs/remotes/origin/horloge
 		super.finalise();
 	}
 	@Override
@@ -400,6 +426,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		}
 		
 	}
+<<<<<<< HEAD
 	/**   
 	* @Function: Pair.java
 	* @Description: 
@@ -414,6 +441,8 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	*
 	* 
 	*/
+=======
+>>>>>>> refs/remotes/origin/horloge
 	// disconnect  
 	public void action2() throws Exception {
 		//Disconecte
@@ -423,6 +452,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		}
 		
 	}
+<<<<<<< HEAD
 	/**   
 	* @Function: Pair.java
 	* @Description: 
@@ -440,6 +470,12 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	public void action3() throws Exception {
 		//leave 
 		this.NMportOut.leave(adress);
+=======
+	
+	public void action3() throws Exception {
+		//leave 
+				this.NMportOut.leave(adress);
+>>>>>>> refs/remotes/origin/horloge
 	}
 
 }

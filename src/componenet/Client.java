@@ -27,10 +27,12 @@ import interfaces.ContentTemplateI;
 import ports.ContentManagementCIOutbound;
 import tests.CVM;
 @RequiredInterfaces(required={ClocksServerCI.class}) 
+
 /**
  * @author azerouk Shuhan
  *
  */
+
 public class Client extends AbstractComponent {
     protected ContentManagementCIOutbound outportCM_client;
 	protected ClocksServerOutboundPort csop; 
@@ -57,6 +59,7 @@ public class Client extends AbstractComponent {
         ContentTemplate temp = new ContentTemplate(res);
         return temp;
     }
+
     /**   
 	* @Function: Client.java
 	* @Description: 
@@ -71,6 +74,8 @@ public class Client extends AbstractComponent {
 	*
 	* 
 	*/
+
+    
     public void doFind(ContentTemplateI temp) throws Exception {
     	//find
         System.out.println("\nplease find the template:\n "+ temp.toString()+"\n");
@@ -81,6 +86,7 @@ public class Client extends AbstractComponent {
         	System.out.println("\nwe find :" + res.toString());
         }
 	}
+    
     /**   
  	* @Function: Client.java
  	* @Description: 
@@ -95,6 +101,7 @@ public class Client extends AbstractComponent {
  	*
  	* 
  	*/
+
     public void doMatch(ContentTemplateI temp) throws Exception {
     	//match
         System.out.println("\nplease match the template:\n"+ temp.toString());
@@ -134,6 +141,7 @@ public class Client extends AbstractComponent {
 		Instant startInstant = clock.getStartInstant();
 		clock.waitUntilStart();
 		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(20));
+
 		this.scheduleTask(
 				o -> {
 					try {
@@ -147,20 +155,7 @@ public class Client extends AbstractComponent {
     }
     
     
-	/**   
-	* @Function: Client.java
-	* @Description: 
-	*
-	* @param: 
-	* @return：
-	* @throws：Exception
-	*
-	* @version: v1.0.0
-	* @author: lyna & shuhan 
-	* @date: 10 Mars. 2023 20:34:57 
-	*
-	* 
-	*/
+    
     public void		action() throws Exception
 	{
     	 //choose template
