@@ -313,7 +313,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 						delayInNanos,
 						TimeUnit.NANOSECONDS);
 				
-		long delayInNanos2 = clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(60));
+		long delayInNanos2 = clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(80));
 		//System.out.println("pair disconntc -----" + delayInNanos2 );
 		// disconntec  
 		this.scheduleTask(o ->{
@@ -325,7 +325,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		}, delayInNanos2,
 				TimeUnit.NANOSECONDS);
 		
-		long delayInNanos3 = clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(80));
+		long delayInNanos3 = clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(100));
 		//leave
 		this.scheduleTask(o ->{
 			try {
@@ -348,7 +348,6 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	public synchronized void	shutdown() throws ComponentShutdownException
 	{
 		try {
-			
 			this.csop.unpublishPort();
 		} catch (Exception e) {
 			throw new ComponentShutdownException(e) ;
