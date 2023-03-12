@@ -63,9 +63,6 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			NMportIn.publishPort();
 			CMportIn = new ContentManagementCIIntbound(this.adress.getContentManagementURI(), this);
 			CMportIn.publishPort();
-			
-			
-
 
 		}
 
@@ -162,16 +159,7 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			if (content != null) {
 				return content;
 			}
-			/*
-			for ( ContentNodeAddressI neighbor: neighbors) {
-				ContentManagementCIOutbound outportCMfacade = outPortsCM.get(neighbor);
-				System.out.println("\nwill do find in :" + neighbor.getNodeidentifier()+" "+ outportCMfacade.getPortURI());
-				ContentDescriptorI content = ((ContentManagementCI)outportCMfacade).find(ct, hops);
-				if (content != null) {
-					return content;
-				}			
-			}
-			*/
+		
 		}
 		return null;
 	}
@@ -193,19 +181,10 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			int randomIndex = rand.nextInt(neighbors.size());
 			ContentNodeAddressI neighbor = array[randomIndex];
 			ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
-			//System.out.println("\nwill do match in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
 			Set<ContentDescriptorI> reSet =((ContentManagementCI)outportCM).match(cd, matched ,hops -1	);
 			matched.addAll(reSet);
 			return matched;
-			/*
-			for ( ContentNodeAddressI neighbor: neighbors) {
-				ContentManagementCIOutbound outportCMfacade = outPortsCM.get(neighbor);
-				System.out.println("\nwill do match in :" + neighbor.getNodeidentifier()+" "+ outportCMfacade.getPortURI());
-				Set<ContentDescriptorI> reSet =((ContentManagementCI)outportCMfacade).match(cd, matched ,hops -1);
-				matched.addAll(reSet);
-				return matched;
-			}
-			*/
+		
 		}
 	}
 
