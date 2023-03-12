@@ -26,7 +26,7 @@ import ports.NodeManagementInBoundPort;
 public class Facade  extends AbstractComponent implements MyCMI {
 	public static int cpt = 0;//current racine nb
 	public static int cpt_facade = 0;
-	protected final int NB_RACINE = 1;
+	protected final int NB_RACINE = 3;
 
 	/**   
 	* @Function: Facade.java

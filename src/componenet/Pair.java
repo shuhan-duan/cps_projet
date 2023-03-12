@@ -114,7 +114,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 			CMportOut.publishPort();
 			outPortsCM.put(p, CMportOut);
 			doPortConnection(outPortsCM.get(p).getPortURI(), p.getContentManagementURI(), ContentManagementConector.class.getCanonicalName());
-			//System.out.println("\nreverse:c'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier()+" en "+ outPortsCM.get(p).getPortURI() +" en ContentManagementCI" );
+			System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier() );
 		}
 		return p;
 	}
@@ -139,21 +139,21 @@ public class Pair  extends AbstractComponent implements MyCMI {
 			voisin.unpublishPort();
 			this.doPortDisconnection(voisin.getPortURI());
 			outPortsNodeC.remove(p);
-			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en NodeCI");
+			//System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en NodeCI");
 			//get the outportContentManagementCI of this , which is connected with p
 			ContentManagementCIOutbound voisin2= outPortsCM.get(p);
 			voisin2.unpublishPort();
 			this.doPortDisconnection(voisin2.getPortURI());
 			outPortsCM.remove(p);
-			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en ContentManagementCI");
+			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier());
 			
 	}
 	
 	@Override
 	public ContentDescriptorI find(ContentTemplateI ct  ,int hops )throws Exception{
-		System.out.println("\nc'est find in pair "+this.adress.getNodeidentifier() + " " +  hops);
+		//System.out.println("\nc'est find in pair "+this.adress.getNodeidentifier() + " " +  hops);
 		if (hops == 0) {
-			System.out.println("c'est find in pair qui termine");
+			//System.out.println("c'est find in pair qui termine");
 			return null;
 		}
 		// Cherche parmi ses propres contenus
@@ -174,7 +174,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 			int randomIndex = rand.nextInt(neighbors.size());
 			ContentNodeAddressI neighbor = array[randomIndex];
 			ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
-			System.out.println("\nwill do find in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
+			//System.out.println("\nwill do find in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
 			//System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());
 			ContentDescriptorI content = ((ContentManagementCI)outportCM).find(ct, hops - 1);
 			if (content != null) {
@@ -200,7 +200,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	@Override
 	public Set<ContentDescriptorI> match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops)
 			throws Exception {
-		System.out.println("\nc'est  match in pair " + this.adress.getNodeidentifier()+ " " +  hops);
+		//System.out.println("\nc'est  match in pair " + this.adress.getNodeidentifier()+ " " +  hops);
 
 		if (hops == 0) {
 			return matched;
@@ -222,7 +222,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 			int randomIndex = rand.nextInt(neighbors.size());
 			ContentNodeAddressI neighbor = array[randomIndex];
 			ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
-			System.out.println("\nwill do match in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
+			//System.out.println("\nwill do match in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
 			//System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());
 			Set<ContentDescriptorI> reSet =((ContentManagementCI)outportCM).match(cd, matched ,hops -1	);
 			matched.addAll(reSet);
@@ -299,24 +299,17 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	
 					
 				}
-				/*
-				Thread.sleep(1000);
-				for (ContentNodeAddressI p: liste ) {
-						System.out.println("\ndisconnect: I am "+ adress.getNodeidentifier()+", I will disconnect with my neighber : "+p.getNodeidentifier());
-						//disconnect
-						outPortsNodeC.get(p).disconnecte(this.adress);
-				}
-				*/
 			}
 			
-			
-				
-			while ( ! outPortsNodeC.isEmpty())
-			{
-				//wait
+			Thread.sleep(5000);
+			for (ContentNodeAddressI p: liste ) {
+					//System.out.println("\ndisconnect: I am "+ adress.getNodeidentifier()+", I will disconnect with my neighber : "+p.getNodeidentifier());
+					//disconnect
+					outPortsNodeC.get(p).disconnecte(this.adress);
 			}
+			Thread.sleep(6000);
 			//leave
-			//NMportOut.leave(this.adress);
+			this.NMportOut.leave(this.adress);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
