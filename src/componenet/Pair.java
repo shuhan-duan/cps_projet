@@ -138,9 +138,9 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	 * @Function: Pair.java
 	 * @Description:
 	 *
-	 * @param:
+	 * @param:ContentNodeAddressI
 	 * @return：
-	 * @throws：
+	 * @throws：Exception
 	 *
 	 * @version: v1.0.0
 	 * @author: lyna & shuhan
@@ -329,6 +329,20 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		super.shutdown();
 	}
 	
+	/**   
+	* @Function: Pair.java
+	* @Description: 
+	*
+	* @param: 
+	* @return：
+	* @throws：Exception
+	*
+	* @version: v1.0.0
+	* @author: lyna & shuhan 
+	* @date: 10 Mars. 2023 20:34:57 
+	*
+	* 
+	*/
 	public void		action() throws Exception
 	{
 		liste = this.NMportOut.join(this.adress);
