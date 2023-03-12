@@ -55,7 +55,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	/**	counting service invocations.										*/
 	protected static int counter ;
 	protected ContentNodeAdress adress;
-	
+	Set<ContentNodeAddressI> liste;
 
 
 	//stock the pairs connected with this pair and the outportNodeC of me
@@ -311,6 +311,10 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	{
 		this.doPortDisconnection(this.csop.getPortURI());
 		this.doPortDisconnection(NMportOut.getPortURI());
+		//Disconecte
+		for (ContentNodeAddressI p: liste ) {
+					outPortsNodeC.get(p).disconnecte(this.adress);
+				}
 		super.finalise();
 	}
 	@Override
@@ -327,7 +331,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	
 	public void		action() throws Exception
 	{
-		Set<ContentNodeAddressI> liste = this.NMportOut.join(this.adress);
+		liste = this.NMportOut.join(this.adress);
 		if(liste.size() == 0) {
 			System.out.println("\n"+adress.getNodeidentifier() +" says : I don't have neigber yet!");
 		}else{
@@ -352,13 +356,9 @@ public class Pair  extends AbstractComponent implements MyCMI {
 				NportOut.connecte(this.adress);		
 			}  
 	}
-		//disconecte
-		for (ContentNodeAddressI p: liste ) {
-//		/	System.out.println("\ndisconnect: I am "+ adress.getNodeidentifier()+", I will disconnect with my neighber : "+p.getNodeidentifier());
-			//disconnect
-		//	outPortsNodeC.get(p).disconnecte(this.adress);
+		
 	}
 
 }
 	
-}
+
