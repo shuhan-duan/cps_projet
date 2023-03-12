@@ -167,12 +167,12 @@ public class Client extends AbstractComponent {
 	*/
     public void		action() throws Exception
 	{
-    	 //choose template
+    	//choose template
         ContentTemplateI temp = createTemplate(ID_TEMP);
         //find
-      doFind(temp);
+        // doFind(temp);
         //match
-       // doMatch(temp);
+        doMatch(temp);
 	}
     
     

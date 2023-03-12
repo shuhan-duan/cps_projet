@@ -151,17 +151,16 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	public void disconnectePair (ContentNodeAddressI p ) throws Exception
 	{   	//get the outportNodeCI of this , which is connected with p
 		    NodeCOutboundPort voisin= outPortsNodeC.get(p);
-			voisin.unpublishPort();
 			this.doPortDisconnection(voisin.getPortURI());
+			voisin.unpublishPort();
 			outPortsNodeC.remove(p);
 			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en NodeCI");
 			//get the outportContentManagementCI of this , which is connected with p
 			ContentManagementCIOutbound voisin2= outPortsCM.get(p);
-			voisin2.unpublishPort();
 			this.doPortDisconnection(voisin2.getPortURI());
+			voisin2.unpublishPort();
 			outPortsCM.remove(p);
-			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en ContentManagementCI");
-			
+			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en ContentManagementCI");	
 	}
 	
 	@Override
@@ -357,8 +356,8 @@ public class Pair  extends AbstractComponent implements MyCMI {
 				String outportN = "myOutPortNodeCIpair"+ cpt;
 				NodeCOutboundPort NportOut = new NodeCOutboundPort(outportN, this);
 				NportOut.publishPort();
-				outPortsNodeC.put(p, NportOut);
 				doPortConnection(NportOut.getPortURI(),	p.getNodeUri(),NodeConnector.class.getCanonicalName());
+				outPortsNodeC.put(p, NportOut);
 				//System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier() +" en "+ outPortsNodeC.get(p).getPortURI()+" en NodeCI" );
 				
 				String outportCM = "myOutportCMpair" + cpt ;
