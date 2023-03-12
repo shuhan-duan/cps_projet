@@ -2,12 +2,16 @@ package componenet;
 
 
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.sound.midi.Soundbank;
 
@@ -17,22 +21,30 @@ import connector.ContentManagementConector;
 import connector.NodeManagementConnector;
 import connector.NodeConnector;
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.annotations.RequiredInterfaces;
+import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import interfaces.ContentDescriptorI;
 import interfaces.ContentManagementCI;
 import interfaces.ContentNodeAddressI;
 import interfaces.ContentTemplateI;
 import interfaces.MyCMI;
+import interfaces.NodeManagementCI;
 import ports.*;
+import tests.CVM;
 import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
-
+import fr.sorbonne_u.utils.aclocks.AcceleratedClock;
+import fr.sorbonne_u.utils.aclocks.ClocksServer;
+import fr.sorbonne_u.utils.aclocks.ClocksServerCI;
+import fr.sorbonne_u.utils.aclocks.ClocksServerConnector;
+import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 /**
  * @author lyna & shuhan 
  *
  */
-
+@RequiredInterfaces(required={ClocksServerCI.class}) 
 public class Pair  extends AbstractComponent implements MyCMI {
-
+	protected ClocksServerOutboundPort csop; 
 	public static int cpt = 0;
 
 	/**	the outbound port used to call the service.							*/
@@ -58,7 +70,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	 * @throws Exception		<i>todo.</i>
 	 */
 	protected Pair( String NMoutportUri ,String NMPortIn_facade, int DescriptorID)throws Exception {
-		super(NMoutportUri, 10, 0);
+		super(NMoutportUri, 10, 1);
 		
 		cpt++;
 		this.adress = new ContentNodeAdress("Pair" + cpt,"CMuriIn"+ cpt, "NodeCuriIn"+ cpt);
@@ -75,6 +87,9 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		this.contents = new ArrayList<ContentDescriptorI>();
 		//add descriptor
 		addDescriptor(DescriptorID);
+		//Create Clock
+		this.csop = new ClocksServerOutboundPort(this);
+		this.csop.publishPort();
 		
 	}
 
@@ -247,7 +262,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		for (HashMap<String, Object> hashMap : result) {
 			ContentDescriptorI descriptor = new ContentDescriptor(hashMap);
 			contents.add(descriptor);
-		}
+		}  
 		
 		for (ContentDescriptorI c : this.contents) {
 			System.out.println("\nI am "+ this.adress.getNodeidentifier()+"\n"+c.toString());
@@ -269,64 +284,81 @@ public class Pair  extends AbstractComponent implements MyCMI {
 
 	@Override
 	public void			execute() throws Exception
-	{   
-		this.logMessage("executing consumer component.") ;
-		try {
+	{ 
+		this.doPortConnection(
+				this.csop.getPortURI(),
+				ClocksServer.STANDARD_INBOUNDPORT_URI,
+				ClocksServerConnector.class.getCanonicalName());
+		AcceleratedClock clock = this.csop.getClock(CVM.CLOCK_URI);
+		Instant startInstant = clock.getStartInstant();
+		clock.waitUntilStart();
+		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(150));
 			//do join
-			Set<ContentNodeAddressI> liste = this.NMportOut.join(this.adress);
-			if(liste.size() == 0) {
-				//System.out.println("\n"+adress.getNodeidentifier() +" says : I don't have neigber yet!");
-			}else{
-				//do connection entre pair et pair en NodeCI
-				for (ContentNodeAddressI p: liste ) {
-					//System.out.println("\nI am "+ adress.getNodeidentifier()+", I will connect with my neighber : "+p.getNodeidentifier());
-
-					cpt++;
-					String outportN = "myOutPortNodeCIpair"+ cpt;
-					NodeCOutboundPort NportOut = new NodeCOutboundPort(outportN, this);
-					NportOut.publishPort();
-					outPortsNodeC.put(p, NportOut);
-					doPortConnection(NportOut.getPortURI(),	p.getNodeUri(),NodeConnector.class.getCanonicalName());
-					//System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier() +" en "+ outPortsNodeC.get(p).getPortURI()+" en NodeCI" );
-					
-					String outportCM = "myOutportCMpair" + cpt ;
-					ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM,this );
-					CMportOut.publishPort();
-					outPortsCM.put(p, CMportOut);
-					doPortConnection(outportCM,	p.getContentManagementURI(),ContentManagementConector.class.getCanonicalName());
-					//System.out.println("\nc'est ok "+ p.getNodeidentifier() +" connect  avec " +this.adress.getNodeidentifier() +" en "+ CMportOut.getPortURI() +" en ContentManagement");
-					NportOut.connecte(this.adress);
-	
-					
-				}
-				/*
-				Thread.sleep(1000);
-				for (ContentNodeAddressI p: liste ) {
-						System.out.println("\ndisconnect: I am "+ adress.getNodeidentifier()+", I will disconnect with my neighber : "+p.getNodeidentifier());
-						//disconnect
-						outPortsNodeC.get(p).disconnecte(this.adress);
-				}
-				*/
-			}
-			
-			
-				
-			while ( ! outPortsNodeC.isEmpty())
-			{
-				//wait
-			}
-			//leave
-			//NMportOut.leave(this.adress);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+				this.scheduleTask(
+						o -> {
+							try {
+								((Pair)o).action();
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						},
+						delayInNanos,
+						TimeUnit.NANOSECONDS);
+}
 
 	@Override
 	public void	finalise() throws Exception
 	{
+		this.doPortDisconnection(this.csop.getPortURI());
 		this.doPortDisconnection(NMportOut.getPortURI());
 		super.finalise();
 	}
+	@Override
+	public synchronized void	shutdown() throws ComponentShutdownException
+	{
+		try {
+			
+			this.csop.unpublishPort();
+		} catch (Exception e) {
+			throw new ComponentShutdownException(e) ;
+		}
+		super.shutdown();
+	}
+	
+	public void		action() throws Exception
+	{
+		Set<ContentNodeAddressI> liste = this.NMportOut.join(this.adress);
+		if(liste.size() == 0) {
+			System.out.println("\n"+adress.getNodeidentifier() +" says : I don't have neigber yet!");
+		}else{
+			//do connection entre pair et pair en NodeCI
+			for (ContentNodeAddressI p: liste ) {
+				//System.out.println("\nI am "+ adress.getNodeidentifier()+", I will connect with my neighber : "+p.getNodeidentifier());
 
+				cpt++;
+				String outportN = "myOutPortNodeCIpair"+ cpt;
+				NodeCOutboundPort NportOut = new NodeCOutboundPort(outportN, this);
+				NportOut.publishPort();
+				outPortsNodeC.put(p, NportOut);
+				doPortConnection(NportOut.getPortURI(),	p.getNodeUri(),NodeConnector.class.getCanonicalName());
+				//System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier() +" en "+ outPortsNodeC.get(p).getPortURI()+" en NodeCI" );
+				
+				String outportCM = "myOutportCMpair" + cpt ;
+				ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM,this );
+				CMportOut.publishPort();
+				outPortsCM.put(p, CMportOut);
+				doPortConnection(outportCM,	p.getContentManagementURI(),ContentManagementConector.class.getCanonicalName());
+				//System.out.println("\nc'est ok "+ p.getNodeidentifier() +" connect  avec " +this.adress.getNodeidentifier() +" en "+ CMportOut.getPortURI() +" en ContentManagement");
+				NportOut.connecte(this.adress);		
+			}  
+	}
+		//disconecte
+		for (ContentNodeAddressI p: liste ) {
+//		/	System.out.println("\ndisconnect: I am "+ adress.getNodeidentifier()+", I will disconnect with my neighber : "+p.getNodeidentifier());
+			//disconnect
+		//	outPortsNodeC.get(p).disconnecte(this.adress);
+	}
+
+}
+	
 }

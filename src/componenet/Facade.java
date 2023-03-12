@@ -64,6 +64,7 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			CMportIn = new ContentManagementCIIntbound(this.adress.getContentManagementURI(), this);
 			CMportIn.publishPort();
 			
+			
 
 
 		}
@@ -134,7 +135,7 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			else {
 				System.out.println(" il y a plus de pair racine connecte avec facade ");
 			}
-		}
+		}  
 	}
 	@Override
 	public ContentDescriptorI find (ContentTemplateI  ct , int hops ) throws Exception{

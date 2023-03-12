@@ -2,37 +2,55 @@ package componenet;
 
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-
+import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.annotations.RequiredInterfaces;
+import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
+import fr.sorbonne_u.utils.aclocks.AcceleratedClock;
+import fr.sorbonne_u.utils.aclocks.ClocksServer;
+import fr.sorbonne_u.utils.aclocks.ClocksServerCI;
+import fr.sorbonne_u.utils.aclocks.ClocksServerConnector;
+import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import classes.ContentTemplate;
 import connector.ContentManagementConector;
-import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import interfaces.ContentDescriptorI;
 import interfaces.ContentTemplateI;
 import ports.ContentManagementCIOutbound;
+import tests.CVM;
+@RequiredInterfaces(required={ClocksServerCI.class}) 
 
 public class Client extends AbstractComponent {
     protected ContentManagementCIOutbound outportCM_client;
+	protected ClocksServerOutboundPort csop; 
+
     protected String inportCM_facade;
     protected final int ID_TEMP = 0;
 
     protected Client(String ContentManagementInboudPort, String ContentManagementOutboudPort) throws Exception {
-        super(1,0);
+        super(1,1);
         outportCM_client = new ContentManagementCIOutbound(ContentManagementOutboudPort,this);
         outportCM_client.publishPort();
-        inportCM_facade = ContentManagementInboudPort;
+        inportCM_facade = ContentManagementInboudPort;  
+      //Create Clock
+     this.csop = new ClocksServerOutboundPort(this);  
+      this.csop.publishPort();
     }
     
     public ContentTemplate createTemplate(int numbre) throws ClassNotFoundException, IOException{
         ContentDataManager.DATA_DIR_NAME = "src/data";
         ArrayList<HashMap<String, Object>> result = ContentDataManager.readTemplates(numbre);
-        HashMap<String, Object> res = result.get(0);
+        Random rn = new Random ();
+        int randomindex = rn.nextInt(result.size());
+        HashMap<String, Object> res = result.get(randomindex);
         ContentTemplate temp = new ContentTemplate(res);
         return temp;
     }
@@ -70,6 +88,7 @@ public class Client extends AbstractComponent {
       try {
         super.start();
         this.doPortConnection(outportCM_client.getPortURI(), inportCM_facade, ContentManagementConector.class.getCanonicalName());
+		
       } catch (Exception e) {
         throw new ComponentStartException(e);
       }
@@ -78,14 +97,41 @@ public class Client extends AbstractComponent {
     @Override
     public void execute() throws Exception {
       super.execute();
-      Thread.sleep(2000);
-      //choose template
-      ContentTemplateI temp = createTemplate(ID_TEMP);
-      //find
-      //doFind(temp);
-      //match
-      doMatch(temp);
-      
+      this.doPortConnection(
+				this.csop.getPortURI(),
+				ClocksServer.STANDARD_INBOUNDPORT_URI,
+				ClocksServerConnector.class.getCanonicalName());
+		AcceleratedClock clock = this.csop.getClock(CVM.CLOCK_URI);
+		Instant startInstant = clock.getStartInstant();
+		clock.waitUntilStart();
+		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(	startInstant.plusSeconds(400));
+		this.scheduleTask(
+				o -> {
+					try {
+						((Client)o).action();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				},
+				delayInNanos,
+				TimeUnit.NANOSECONDS);     
     }
+    
+    
+    
+    public void		action() throws Exception
+	{
+    	 //choose template
+        ContentTemplateI temp = createTemplate(ID_TEMP);
+        //find
+      doFind(temp);
+        //match
+       // doMatch(temp);
+	}
+    
+    
+    
+    
+    
 
 }

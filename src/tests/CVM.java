@@ -1,6 +1,9 @@
 package tests;
 
 
+import java.time.Instant;
+import java.util.concurrent.TimeUnit;
+
 import componenet.Client;
 import componenet.Facade;
 import componenet.Pair;
@@ -9,6 +12,7 @@ import connector.NodeConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.components.helpers.CVMDebugModes;
+import fr.sorbonne_u.utils.aclocks.ClocksServer;
 
 
 /**
@@ -26,7 +30,9 @@ public class CVM extends AbstractCVM{
 
 	/** URI of the consumer inbound port (simplifies the connection).		*/
 	protected static final String	NodeManagemenInboundPort = "inportNMfacade";
-	protected final int NB_PEER = 10;
+	protected final int NB_PEER = 10;  
+	protected static final long		DELAY_TO_START_IN_NANOS =	TimeUnit.SECONDS.toNanos(5);
+   public static final String		CLOCK_URI = "my-clock";
 
 	/**   
 	* @Function: CVM.java
@@ -41,19 +47,22 @@ public class CVM extends AbstractCVM{
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
+  
 	@Override
 	public void			deploy() throws Exception
 	{
 		assert	!this.deploymentDone() ;
-
+		long unixEpochStartTimeInNanos =	TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis())	+ CVM.DELAY_TO_START_IN_NANOS;
+		Instant	startInstant = Instant.parse("2023-02-07T08:00:00Z");
+		double accelerationFactor = 60.0;
+		AbstractComponent.createComponent(ClocksServer.class.getCanonicalName(),
+				new Object[]{CVM.CLOCK_URI, unixEpochStartTimeInNanos,
+							 startInstant, accelerationFactor});
 		// ---------------------------------------------------------------------
 		// Creation phase
 		// ---------------------------------------------------------------------
 
-		
-
-		
+		    
 		// create the component pairs
 		for (int i = 0; i < NB_PEER  ; i++) {
 			AbstractComponent.createComponent(
@@ -77,10 +86,6 @@ public class CVM extends AbstractCVM{
 				new Object[]{ContentManagementInboudPort,
 						ContentManagementOutboudPort});
 		System.out.println("\nCreate Composant client OK ");
-
-
-		
-		
 
 		super.deploy();
 		assert	this.deploymentDone();
