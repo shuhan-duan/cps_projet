@@ -1,5 +1,5 @@
 # cps_projet 
-Implementation d'un sytem Pzir-Pair 
+Implementation d'un sytem Pair-Pair 
 
   @author lyna & shuhan  
 
