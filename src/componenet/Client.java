@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import CVM.CVM;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
@@ -25,7 +26,6 @@ import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import interfaces.ContentDescriptorI;
 import interfaces.ContentTemplateI;
 import ports.ContentManagementCIOutbound;
-import tests.CVM;
 @RequiredInterfaces(required={ClocksServerCI.class}) 
 
 /**

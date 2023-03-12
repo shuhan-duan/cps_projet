@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sound.midi.Soundbank;
 
+import CVM.CVM;
 import classes.ContentDescriptor;
 import classes.ContentNodeAdress;
 import connector.ContentManagementConector;
@@ -31,7 +32,6 @@ import interfaces.ContentTemplateI;
 import interfaces.MyCMI;
 import interfaces.NodeManagementCI;
 import ports.*;
-import tests.CVM;
 import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import fr.sorbonne_u.utils.aclocks.AcceleratedClock;
 import fr.sorbonne_u.utils.aclocks.ClocksServer;
