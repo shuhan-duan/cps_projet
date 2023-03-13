@@ -43,12 +43,13 @@ public class Facade  extends AbstractComponent implements MyCMI {
 	protected ApplicationNodeAdress		adress;
 	protected Set<ContentNodeAddressI>   peerNodeList ;
 	//stock the outports of facade and the racine pair connected with it
+	//On Stock "ContentManagementCIOutbound" pour chaque pair pour faire appel a find et match sur pair 
 	private ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound> outPortsCM;
 	protected NodeManagementInBoundPort  NMportIn;
 	protected ContentManagementCIIntbound CMportIn;
 
 
-
+ 
 	protected	Facade(	String ContentManagementInboudPort,	String 	NodeManagemenInboundPort) throws Exception
 		{
 			// the reflection inbound port URI is the URI of the component
@@ -80,18 +81,20 @@ public class Facade  extends AbstractComponent implements MyCMI {
 	*
 	* 
 	*/
-	//Il faut coder la fonction Join 
+	//Join retourne tout les noeud deja conecte a la facade 
 	public synchronized Set<ContentNodeAddressI> joinPair(ContentNodeAddressI p)
 	throws Exception{
+		//les pair qui sont deja conecte 
 		peerNodeList.add(p);
 		 
 		Set<ContentNodeAddressI> result = new HashSet<>(peerNodeList);
+		//on doit suprmer le pair courant psk il ne peut pas faire partie de ses voisins (sinon on aura une boucle ) 
     	result.remove(p);
     	
     	//build connection entre facade and pair in ContentManagementCI
     	if (peerNodeList.size() < NB_RACINE +1 ){ 
 			cpt++; 
-			//do connect entre facade et racine en ContentManagementCI 
+			//do connect entre facade et racine en "ContentManagementCI" 
 			String outportCM_Facade = "myOutportCMfacade" + cpt; 
 			ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM_Facade,this);
 			CMportOut.publishPort(); 
@@ -135,19 +138,21 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			}
 		}  
 	}
+	
 	@Override
 	public ContentDescriptorI find (ContentTemplateI  ct , int hops ) throws Exception{
 		//System.out.println("\nc'est find in facade");
-
-		if (hops == 0) {
+		if (hops <= 0) {
 			return null;
 		}
+		//verifie si il a des racines 
 		Set<ContentNodeAddressI> neighbors = outPortsCM.keySet();
-		
+		//si pas de voisoin retrourn null
 		if (neighbors == null) {
 			System.out.println("\n	on a pas de neighbors");
 			return null;
 		}else {
+			//sinon choison un element racine (pair ) au hasard puis fait un appel find (sur cette element pair la )
 			ContentNodeAddressI[] array = neighbors .toArray(new ContentNodeAddressI[0]);
 			Random rand = new Random();
 			int randomIndex = rand.nextInt(neighbors.size());
@@ -159,10 +164,10 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			if (content != null) {
 				return content;
 			}
-		
 		}
 		return null;
 	}
+	//matched ==est vide au debut 
 	@Override
 	public Set<ContentDescriptorI> match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops) throws Exception{
 		//System.out.println("\nc'est  match in facade");

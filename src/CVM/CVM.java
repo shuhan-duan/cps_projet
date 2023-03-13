@@ -34,7 +34,7 @@ public class CVM extends AbstractCVM{
 	protected static final long		DELAY_TO_START_IN_NANOS =	TimeUnit.SECONDS.toNanos(5);
    public static final String		CLOCK_URI = "my-clock";
 
-	/**   
+	/**    
 	* @Function: CVM.java
 	* @Description: 
 	*
@@ -74,7 +74,7 @@ public class CVM extends AbstractCVM{
 		System.out.println("\nCreate Composant pairs OK ");
 
 		// create the component facade
-			AbstractComponent.createComponent(
+		AbstractComponent.createComponent(
 					Facade.class.getCanonicalName(),
 					new Object[]{ContentManagementInboudPort,
 							NodeManagemenInboundPort});

@@ -123,6 +123,7 @@ public class Client extends AbstractComponent {
     public void start() throws ComponentStartException {
       try {
         super.start();
+        //conexionc avec facade 
         this.doPortConnection(outportCM_client.getPortURI(), inportCM_facade, ContentManagementConector.class.getCanonicalName());
 		
       } catch (Exception e) {
@@ -140,6 +141,7 @@ public class Client extends AbstractComponent {
 		AcceleratedClock clock = this.csop.getClock(CVM.CLOCK_URI);
 		Instant startInstant = clock.getStartInstant();
 		clock.waitUntilStart();
+		
 		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(20));
 
 		this.scheduleTask(
@@ -148,7 +150,7 @@ public class Client extends AbstractComponent {
 						((Client)o).action();
 					} catch (Exception e) {
 						e.printStackTrace();
-					}
+					} 
 				},
 				delayInNanos,
 				TimeUnit.NANOSECONDS);     

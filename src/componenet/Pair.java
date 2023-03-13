@@ -59,8 +59,10 @@ public class Pair  extends AbstractComponent implements MyCMI {
 
 
 	//stock the pairs connected with this pair and the outportNodeC of me
-	private ConcurrentHashMap<ContentNodeAddressI,NodeCOutboundPort> outPortsNodeC;
+	//adresse conecte avec le pair courant 
+	private ConcurrentHashMap<ContentNodeAddressI,NodeCOutboundPort> outPortsNodeC;  //stock les voiins 
 	//stock the neighber pairs connected with this pair and the outportCMpair of me
+	//cntentMangement 
 	private ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound> outPortsCM;
 	private ArrayList<ContentDescriptorI> contents;
 
@@ -169,8 +171,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 				voisin2.unpublishPort();
 				outPortsCM.remove(p);
 				System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier());
-			
-			
+		
 	}
 	
 	@Override
@@ -182,11 +183,12 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		}
 		// Cherche parmi ses propres contenus
 		for (ContentDescriptorI content : this.contents) {
-			if (content.match(ct)) {
+			if (content.match(ct)) {  //pour march le patron avec le contenue 
 				System.out.println("found in " + this.adress.getNodeidentifier());
 				return content;
 			}
 		}
+		//sinon il cherche dans les voisin 
 		System.out.println(this.adress.getNodeidentifier() + " n'a pas touve");
 		// Si le contenu n'est pas dans le nœud courant, demande à un autre pair
 		Set<ContentNodeAddressI> neighbors = outPortsCM.keySet();
@@ -286,6 +288,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	public void start() throws ComponentStartException {
 		super.start();
 		try {
+			//conexion avec la facade 
 			this.doPortConnection(NMportOut.getPortURI(), NMPortIn_facade,NodeManagementConnector.class.getCanonicalName());
 		} catch (Exception e) {
 			throw new ComponentStartException(e);
@@ -319,7 +322,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		// disconntec  
 		long delayInNanos2 = clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(80));
 		//System.out.println("pair disconntc -----" + delayInNanos2 );
-		// disconntec  
+		// disconnect  
 		this.scheduleTask(o ->{
 			try {
 				((Pair)o).action2();
@@ -377,7 +380,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	public void		action1() throws Exception
 	{
 		liste = this.NMportOut.join(this.adress);
-		if(liste.size() == 0) {
+		if(liste.size() == 0) { // liste vide le 1er pair n'a pas de voisins 
 			System.out.println("\n"+adress.getNodeidentifier() +" says : I don't have neigber yet!");
 		}else{
 			//do connection entre pair et pair en NodeCI
@@ -396,6 +399,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 				ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM,this );
 				CMportOut.publishPort();
 				outPortsCM.put(p, CMportOut);
+				
 				doPortConnection(outportCM,	p.getContentManagementURI(),ContentManagementConector.class.getCanonicalName());
 				//System.out.println("\nc'est ok "+ p.getNodeidentifier() +" connect  avec " +this.adress.getNodeidentifier() +" en "+ CMportOut.getPortURI() +" en ContentManagement");
 				NportOut.connecte(this.adress);		
@@ -426,7 +430,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 			NportOut.disconnecte(this.adress);
 		}
 		
-	}
+	} 
 	/**   
 	* @Function: Pair.java
 	* @Description: 
