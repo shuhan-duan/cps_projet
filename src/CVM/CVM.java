@@ -30,7 +30,9 @@ public class CVM extends AbstractCVM{
 
 	/** URI of the consumer inbound port (simplifies the connection).		*/
 	protected static final String	NodeManagemenInboundPort = "inportNMfacade";
-	protected final int NB_PEER = 10;  
+	protected final int NB_PEER = 4;  
+	//protected final int NB_FACADE = 3;
+	
 	protected static final long		DELAY_TO_START_IN_NANOS =	TimeUnit.SECONDS.toNanos(5);
    public static final String		CLOCK_URI = "my-clock";
 

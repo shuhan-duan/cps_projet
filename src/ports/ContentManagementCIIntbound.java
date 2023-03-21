@@ -17,11 +17,11 @@ import interfaces.NodeCI;
 
 public class ContentManagementCIIntbound  extends AbstractInboundPort  implements  ContentManagementCI {
 
-	public ContentManagementCIIntbound (ComponentI owner , String pluginURI) throws Exception {
-		super(ContentManagementCI.class, owner ,pluginURI ,null);
-		assert	uri != null && owner instanceof ContentManagementCI ;
+	public ContentManagementCIIntbound(ComponentI owner ,String uri)
+			throws Exception {
+				super(uri, ContentManagementCI.class, owner);
+		
 	}
-
 	/**
 	 * 
 	 */

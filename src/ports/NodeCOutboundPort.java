@@ -19,12 +19,6 @@ public class NodeCOutboundPort   extends AbstractOutboundPort implements  NodeCI
 			// Constructors
 			// -------------------------------------------------------------------------
 
-			public				NodeCOutboundPort(ComponentI owner)
-			throws Exception
-			{
-				super(NodeCI.class, owner);
-			}
-
 			public				NodeCOutboundPort(
 				String uri,
 				ComponentI owner

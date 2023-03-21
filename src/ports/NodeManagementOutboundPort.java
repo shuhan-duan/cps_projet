@@ -6,9 +6,8 @@ import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentNodeAddressI;
-import interfaces.NodeCI;
 import interfaces.NodeManagementCI;
-import interfaces.PeerNodeAddressI;
+
 
 /**
  * @author lyna & shuhan 
@@ -19,19 +18,21 @@ public class NodeManagementOutboundPort extends AbstractOutboundPort implements 
 	// -------------------------------------------------------------------------
 	// Constructors
 	// -------------------------------------------------------------------------
-
-	public				NodeManagementOutboundPort(ComponentI owner)
-	throws Exception
-	{
-		super(NodeManagementCI.class, owner);
-	}
-
-	public				NodeManagementOutboundPort(
-		String uri,
-		ComponentI owner
-		) throws Exception
-	{
-		super(uri, NodeManagementCI.class, owner);
+	
+	/**   
+	* @Function: NodeManagementOutboundPort.java
+	* @Description: 
+	*
+	* @param: uri
+	* @param: owner
+	* @version: 
+	* @author: lyna & shuhan
+	* @date: 30 janv. 2023 21:08:00 
+	*/
+	public NodeManagementOutboundPort(String uri, ComponentI owner)
+			throws Exception {
+		super(uri,   NodeManagementCI.class, owner);
+		assert	uri != null && owner != null ;
 	}
 	// -------------------------------------------------------------------------
 		// Methods

@@ -21,11 +21,7 @@ public class ContentManagementCIOutbound   extends AbstractOutboundPort  impleme
 		// Constructors
 		// -------------------------------------------------------------------------
 
-		public				ContentManagementCIOutbound(ComponentI owner)
-		throws Exception
-		{
-			super(ContentManagementCI.class, owner);
-		}
+
 
 		public				ContentManagementCIOutbound(
 			String uri,

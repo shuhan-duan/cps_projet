@@ -133,7 +133,7 @@ public class Client extends AbstractComponent {
 		clock.waitUntilStart();
 		
 		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(20));
-
+		/*
 		this.scheduleTask(
 				o -> {
 					try {
@@ -143,7 +143,9 @@ public class Client extends AbstractComponent {
 					} 
 				},
 				delayInNanos,
-				TimeUnit.NANOSECONDS);     
+				TimeUnit.NANOSECONDS);  
+				
+				   */
     }
     
     

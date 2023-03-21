@@ -11,9 +11,21 @@ import interfaces.NodeManagementCI;
 
 public class NodeManagementInBoundPort extends AbstractInboundPort implements NodeManagementCI{
 
-	public NodeManagementInBoundPort (ComponentI owner , String pluginURI) throws Exception {
-		super(NodeManagementCI.class, owner ,pluginURI ,null);
+	/**   
+	* @Function: NodeManagementInBoundPort.java
+	* @Description: 
+	*
+	* @param:uri
+	* @param:owner
+	* @version: 
+	* @author: lyna & shuhan
+	* @date: 30 janv. 2023 21:04:56 
+	*/
+	public NodeManagementInBoundPort( ComponentI owner,String uri )
+			throws Exception {
+		super(uri ,  NodeManagementCI.class, owner);
 		assert	uri != null && owner instanceof NodeManagementCI ;
+
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -32,6 +44,7 @@ public class NodeManagementInBoundPort extends AbstractInboundPort implements No
 
 	@Override
 	public void join(ContentNodeAddressI p) throws Exception {
+		
 		this.getOwner().runTask(
 				owner -> {
 					try {

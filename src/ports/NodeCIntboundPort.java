@@ -22,9 +22,9 @@ public class NodeCIntboundPort  extends AbstractInboundPort  implements NodeCI  
 
 private static final long serialVersionUID = 1L;
 	
-	public NodeCIntboundPort (ComponentI owner , String pluginURI) throws Exception {
-		super(NodeCI.class, owner ,pluginURI ,null);
-		assert	uri != null && owner instanceof NodeCI ;
+	public NodeCIntboundPort( ComponentI owner ,String uri)
+			throws Exception {
+		super(uri ,  NodeCI.class, owner);
 	}
 
 	@Override

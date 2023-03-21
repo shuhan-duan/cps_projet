@@ -1,5 +1,6 @@
 package componenet;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -10,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import classes.ApplicationNodeAdress;
 import classes.FacadeNodeAdress;
 import connector.ContentManagementConector;
+import connector.NodeConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
@@ -17,6 +19,7 @@ import fr.sorbonne_u.exceptions.PreconditionException;
 import interfaces.*;
 import ports.ContentManagementCIIntbound;
 import ports.ContentManagementCIOutbound;
+import ports.NodeCOutboundPort;
 import ports.NodeManagementInBoundPort;
 
 /**
@@ -27,7 +30,7 @@ import ports.NodeManagementInBoundPort;
 public class Facade  extends AbstractComponent implements MyCMI {
 	public static int cpt = 0;//current racine nb
 	public static int cpt_facade = 0;
-	protected final int NB_RACINE = 3;
+	protected final int NB_RACINE = 1;
 	protected final int NB_PROBE = 3;
 	
 
@@ -44,10 +47,15 @@ public class Facade  extends AbstractComponent implements MyCMI {
 	* @date: 30 janv. 2023 20:29:55 
 	*/
 	protected ApplicationNodeAdress		adress;
-	//protected Set<ContentNodeAddressI>   peerNodeList ;
+	protected Set<ContentNodeAddressI>   liste ;
+	
 	//stock the outports of facade and the racine pair connected with it
 	//On Stock "ContentManagementCIOutbound" pour chaque pair pour faire appel a find et match sur pair 
 	private ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound> outPortsCM;
+	
+	
+	private ConcurrentHashMap<ContentNodeAddressI,NodeCOutboundPort> outPortsNodeC;
+	
 	protected NodeManagementInBoundPort  NMportIn;
 	protected ContentManagementCIIntbound CMportIn;
 
@@ -58,8 +66,9 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			// the reflection inbound port URI is the URI of the component
 			super(NodeManagemenInboundPort, 2, 0) ;
 			this.adress = new ApplicationNodeAdress("Facade",ContentManagementInboudPort,NodeManagemenInboundPort) ;
-			//this.peerNodeList = new HashSet<ContentNodeAddressI>();
+			this.liste = new HashSet<ContentNodeAddressI>();
 			this.outPortsCM =  new ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound>();
+			this.outPortsNodeC = new ConcurrentHashMap<ContentNodeAddressI, NodeCOutboundPort>();
 
 			// create the port that exposes the offered interface with the
 			// given URI to ease the connection from client components.
@@ -170,13 +179,14 @@ public class Facade  extends AbstractComponent implements MyCMI {
 		}
 	}
 */
-	public void acceptProbed(ContentNodeAddressI p, String requsetURI) {
-		// TODO Auto-generated method stub
-		
+	//facade recoit le result de probe , p est le result , requestURI est le demander
+	public void acceptProbed(ContentNodeAddressI p, String requsetURI) throws Exception {
+		liste.add(p);
+		System.out.println("dans acceptProbed : recu voisin de "+ requsetURI+" : "+p.getNodeidentifier());
 	}
 
-	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI) {
-		// TODO Auto-generated method stub
+	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI) throws Exception {
+		
 		
 	}
 
@@ -192,20 +202,67 @@ public class Facade  extends AbstractComponent implements MyCMI {
 		// TODO Auto-generated method stub
 		
 	}
-	public void joinPair(ContentNodeAddressI p) throws Exception {
-		//
-		
-		//
-		Set<ContentNodeAddressI>   liste =  new HashSet<ContentNodeAddressI>();
-		 for (int i = 0; i < NB_PROBE; i++) {
-			 probe(adress, i, p.getNodeidentifier());
+	public synchronized void joinPair(ContentNodeAddressI p) throws Exception {
+		//quand on a encore besoin de racine
+		if (cpt < NB_RACINE  ) {
 			
+			//do connect entre facade et racine en "ContentManagementCI" 
+			String outportCM_Facade = "myOutportCMfacade" + cpt; 
+			ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM_Facade,this);
+			CMportOut.publishPort(); 
+			outPortsCM.put(p, CMportOut); 
+			String inportCM_Pair = p.getContentManagementURI();
+			doPortConnection(outportCM_Facade,
+					  			inportCM_Pair, 
+					  			ContentManagementConector.class.getCanonicalName());
+			 
+			outPortsCM.put(p,CMportOut); 
+			
+			//do connect entre facade et racine en "NodeCI" 
+			String outportNodeC_Facade = "myOutportNodeCfacade" + cpt; 
+			NodeCOutboundPort NodeCportOut = new NodeCOutboundPort(outportNodeC_Facade, this);
+			NodeCportOut.publishPort(); 
+			outPortsNodeC.put(p, NodeCportOut); 
+			String inportNodeC_pair = p.getNodeUri();
+			doPortConnection(outportNodeC_Facade,
+					inportNodeC_pair, 
+					  			NodeConnector.class.getCanonicalName());
+			System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+outportCM_Facade +" en ContentManagementCI et NodeCI" ); 
+			cpt++;
+		}else {
+			//do connect entre facade et pair en "NodeCI" 
+			String outportNodeC_Facade = "myOutportNodeCfacade" + cpt; 
+			NodeCOutboundPort NodeCportOut = new NodeCOutboundPort(outportNodeC_Facade, this);
+			NodeCportOut.publishPort(); 
+			outPortsNodeC.put(p, NodeCportOut); 
+			String inportNodeC_pair = p.getNodeUri();
+			doPortConnection(outportNodeC_Facade,
+					inportNodeC_pair, 
+					  			NodeConnector.class.getCanonicalName());
+			System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+outportNodeC_Facade +" en NodeCI" ); 
+			
+			//get the neighbors by doing probe with roots
+			//appeler probe sur racines
+			Set<ContentNodeAddressI> roots = outPortsCM.keySet();
+			ContentNodeAddressI[] array = roots .toArray(new ContentNodeAddressI[0]);
+			for (int i = 0; i < NB_PROBE; i++) {
+				Random rand = new Random();
+				int randomIndex = rand.nextInt(roots.size());
+				ContentNodeAddressI root = array[randomIndex];
+				NodeCOutboundPort nodeCPort = outPortsNodeC.get(root);
+				//System.out.println("will do prob in " + root.getNodeidentifier()+ "  by " + nodeCPort.getPortURI());
+				nodeCPort.probe(adress, 2, p.getNodeidentifier());
+			}
+			
+			//return neighbors to pair
+			NodeCportOut.acceptNeighbours(liste);
+			//vide liste 
+			liste.clear();
+				 
 		}
-		
-		 
 		 
 		
-	}
+}
 	public void leavePair(ContentNodeAddressI p) {
 		// TODO Auto-generated method stub
 		

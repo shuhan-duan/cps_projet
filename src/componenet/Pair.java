@@ -5,6 +5,7 @@ package componenet;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
@@ -47,6 +48,7 @@ import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 public class Pair  extends AbstractComponent implements MyCMI {
 	protected ClocksServerOutboundPort csop; 
 	public static int cpt = 0;
+	public final int NB_PROB = 4;
 
 	/**	the outbound port used to call the service.							*/
 	protected NodeManagementOutboundPort	NMportOut ;
@@ -56,7 +58,8 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	/**	counting service invocations.										*/
 	protected static int counter ;
 	protected ContentNodeAdress adress;
-	protected Set<ContentNodeAddressI> liste; //neighbours 
+	private ArrayList<ContentDescriptorI> contents;
+	protected Set<ContentNodeAddressI> neighbors; //neighbours 
 
 
 	//stock the pairs connected with this pair and the outportNodeC of me
@@ -65,7 +68,8 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	//stock the neighber pairs connected with this pair and the outportCMpair of me
 	//cntentMangement 
 	private ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound> outPortsCM;
-	private ArrayList<ContentDescriptorI> contents;
+	
+	
 
 
 	
@@ -74,17 +78,22 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		
 		cpt++;
 		this.adress = new ContentNodeAdress("Pair" + cpt,"CMuriIn"+ cpt, "NodeCuriIn"+ cpt);
+		
 		this.NMportOut =new NodeManagementOutboundPort(NMoutportUri, this) ;
 		NMportOut.publishPort() ;
 		this.NodePortIn = new NodeCIntboundPort(this ,adress.getNodeUri());
 		NodePortIn.publishPort();
 		this.CMportIn = new ContentManagementCIIntbound(this, adress.getContentManagementURI());
 		CMportIn.publishPort();
-		this.counter = 0 ;
-		counter++;
+		
+		this.counter = DescriptorID ;
+		
+		
 		this.NMPortIn_facade = NMPortIn_facade;
+		
 		this.outPortsNodeC = new ConcurrentHashMap<ContentNodeAddressI,NodeCOutboundPort>();
 		this.outPortsCM = new ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound>();
+		this.neighbors = new HashSet<ContentNodeAddressI>();
 		this.contents = new ArrayList<ContentDescriptorI>();
 		//add descriptor
 		addDescriptor(DescriptorID);
@@ -280,18 +289,8 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		Instant startInstant = clock.getStartInstant();
 		clock.waitUntilStart();
 		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(10));
-		this.scheduleTask(
-				o -> {
-					try {
-						((Pair)o).action1();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				},
-				delayInNanos,
-				TimeUnit.NANOSECONDS);
-		/*
-		//System.out.println("pair connect  " + delayInNanos);
+		
+		
 			//do join et connect 
 				this.scheduleTask(
 						o -> {
@@ -304,7 +303,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 						delayInNanos,
 						TimeUnit.NANOSECONDS);
 				
-		// disconntec  
+		// conntec  
 		long delayInNanos2 = clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(80));
 		//System.out.println("pair disconntc -----" + delayInNanos2 );
 		// disconnect  
@@ -316,7 +315,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 			}
 		}, delayInNanos2,
 				TimeUnit.NANOSECONDS);
-		
+		/*
 		long delayInNanos3 = clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(100));
 		//leave
 		this.scheduleTask(o ->{
@@ -352,9 +351,6 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	public void		action1() throws Exception
 	{
 		this.NMportOut.join(this.adress);
-		if(liste.size() == 0) { // liste vide le 1er pair n'a pas de voisins 
-			System.out.println("\n"+adress.getNodeidentifier() +" says : I don't have neigber yet!");
-		}else{
 			/*
 			//do connection entre pair et pair en NodeCI
 			for (ContentNodeAddressI p: liste ) {
@@ -377,34 +373,57 @@ public class Pair  extends AbstractComponent implements MyCMI {
 				//System.out.println("\nc'est ok "+ p.getNodeidentifier() +" connect  avec " +this.adress.getNodeidentifier() +" en "+ CMportOut.getPortURI() +" en ContentManagement");
 				NportOut.connecte(this.adress);		
 			}  */
-		}
+
 		
 	}
-	/*
+	
 
-	// disconnect  
+	//connect  
 	public void action2() throws Exception {
-		//Disconecte
+		if(neighbors.size() == 0) { // liste vide le 1er pair n'a pas de voisins 
+			System.out.println("\n"+adress.getNodeidentifier() +" says : I don't have neigber yet!");
+		}else{
+			for (ContentNodeAddressI p : neighbors) {
+				System.out.println("je suis " + this.adress.getNodeidentifier()+ " j'ai voisin: " + p.getNodeidentifier());
+			}		
+	}
+}
+	/*
+	public void action3() throws Exception {
+	//Disconecte
 		for (ContentNodeAddressI p: liste ) {
 			NodeCOutboundPort NportOut = outPortsNodeC.get(p);
 			NportOut.disconnecte(this.adress);
 		}
-		
-	} 
-	
-	public void action3() throws Exception {
 		//leave 
 		this.NMportOut.leave(adress);
 	}
 */
 	
-	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI) {
-		// TODO Auto-generated method stub
+	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI) throws Exception {
+		System.out.println("do prob in "+ this.adress.getNodeidentifier()+ " demander : "+requestURI + " hops "+ remainghops);
+		if (remainghops <= 0) {
+			//il retourne sa propre adresse à la façade ayant initié le sondage 
+			this.NMportOut.acceptProbed(adress, requestURI);
+		}else {
+			//à un de ses voisins choisi aléatoirement
+			ContentNodeAddressI[] array = neighbors .toArray(new ContentNodeAddressI[0]);
+			if (neighbors.size() == 0 ) {
+				this.NMportOut.acceptProbed(adress, requestURI);
+			}else {
+				Random rand = new Random();
+				int randomIndex = rand.nextInt(neighbors.size());
+				ContentNodeAddressI neighbor = array[randomIndex];
+				NodeCOutboundPort nodeCout = outPortsNodeC.get(neighbor);
+				nodeCout.probe(facade, remainghops-1, requestURI);	
+			}					
+		}
 		
 	}
 
-	public void acceptNeighbours(Set<ContentNodeAddressI> neighbours) {
-		// TODO Auto-generated method stub
+	public void acceptNeighbours(Set<ContentNodeAddressI> neighbours) throws Exception {
+		this.neighbors.addAll(neighbours);
+		System.out.println(this.adress.getNodeidentifier()+" bien recu la liste de voisins");
 		
 	}
 
