@@ -1,76 +1,49 @@
 package ports;
-import java.util.Set;
 
-import componenet.*;
+
+
+import componenet.Facade;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
+import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentNodeAddressI;
-import interfaces.FacadeNodeAdressI;
 import interfaces.NodeManagementCI;
-import interfaces.PeerNodeAddressI;
 
-/**
- * @author lyna & shuhan 
- *
- */
-public class NodeManagementInBoundPort extends AbstractInboundPort  implements NodeManagementCI  {
+public class NodeManagementInBoundPort extends AbstractInboundPort implements NodeManagementCI{
+
+	public NodeManagementInBoundPort (ComponentI owner , String pluginURI) throws Exception {
+		super(NodeManagementCI.class, owner ,pluginURI ,null);
+		assert	uri != null && owner instanceof NodeManagementCI ;
+	}
 
 	private static final long serialVersionUID = 1L;
 
-	/**   
-	* @Function: NodeManagementInBoundPort.java
-	* @Description: 
-	*
-	* @param:uri
-	* @param:owner
-	* @version: 
-	* @author: lyna & shuhan
-	* @date: 30 janv. 2023 21:04:56 
-	*/
-	public NodeManagementInBoundPort(String uri , ComponentI owner)
-			throws Exception {
-		super(uri ,  NodeManagementCI.class, owner);
-		assert	uri != null && owner instanceof NodeManagementCI ;
-
+	@Override
+	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI) throws Exception{
+		this.getOwner().runTask(
+				owner -> {
+					try {
+						((Facade) owner).probe(facade , remainghops ,requestURI);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				});
 	}
 
- 
-	/** 
-	* @see interfaces.NodeManagementCI#join(interfaces.PeerNodeAddressI)
-	* @Function: NodeManagementInBoundPort.java
-	* @Description: 
-	*
-	* @param: PeerNodeAddressI p
-	* @return：Set<PeerNodeAddressI>
-	* @throws：Exception
-	*
-	* @version: v1.0.0
-	* @author: lyna & shuhan
-	* @date: 30 janv. 2023 21:05:34 
-	*          
-	*/
-	
-	public Set<ContentNodeAddressI> join(ContentNodeAddressI p) throws Exception {
-	
-		return this.getOwner().handleRequest(
-				owner ->(((Facade) owner).joinPair(p))
-					);
+	@Override
+	public void join(ContentNodeAddressI p) throws Exception {
+		this.getOwner().runTask(
+				owner -> {
+					try {
+						((Facade) owner).joinPair(p);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				});
+		
 	}
-	
-	/**   
-	* @Function: ManagementInBoundPort.java
-	* @Description: 
-	*
-	* @param:PeerNodeAddressI p
-	* @return：void
-	* @throws：Exception
-	*
-	* @version: v1.0.0
-	* @author: lyna & shuhan 
-	* @date: 6 févr. 2023 14:04:42 
-	*
-	* 
-	*/
+
+	@Override
 	public void leave(ContentNodeAddressI p) throws Exception {
 		this.getOwner().runTask(
 				owner -> {
@@ -80,6 +53,20 @@ public class NodeManagementInBoundPort extends AbstractInboundPort  implements N
 						throw new RuntimeException(e);
 					}
 				});
+		
+	}
+
+	@Override
+	public void acceptProbed(ContentNodeAddressI p, String requsetURI) throws Exception {
+		this.getOwner().runTask(
+				owner -> {
+					try {
+						((Facade) owner).acceptProbed(p , requsetURI);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				});
+		
 	}
 
 }

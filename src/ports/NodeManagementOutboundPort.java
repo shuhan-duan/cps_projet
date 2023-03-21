@@ -4,7 +4,9 @@ import java.util.Set;
 
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentNodeAddressI;
+import interfaces.NodeCI;
 import interfaces.NodeManagementCI;
 import interfaces.PeerNodeAddressI;
 
@@ -14,56 +16,57 @@ import interfaces.PeerNodeAddressI;
  */
 public class NodeManagementOutboundPort extends AbstractOutboundPort implements  NodeManagementCI{
 
-	/**   
-	* @Function: NodeManagementOutboundPort.java
-	* @Description: 
-	*
-	* @param: uri
-	* @param: owner
-	* @version: 
-	* @author: lyna & shuhan
-	* @date: 30 janv. 2023 21:08:00 
-	*/
-	public NodeManagementOutboundPort(String uri, ComponentI owner)
-			throws Exception {
-		super(uri,   NodeManagementCI.class, owner);
-		assert	uri != null && owner != null ;
+	// -------------------------------------------------------------------------
+	// Constructors
+	// -------------------------------------------------------------------------
+
+	public				NodeManagementOutboundPort(ComponentI owner)
+	throws Exception
+	{
+		super(NodeManagementCI.class, owner);
 	}
 
+	public				NodeManagementOutboundPort(
+		String uri,
+		ComponentI owner
+		) throws Exception
+	{
+		super(uri, NodeManagementCI.class, owner);
+	}
+	// -------------------------------------------------------------------------
+		// Methods
+		// -------------------------------------------------------------------------	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-
-	/** 
-	* @see interfaces.NodeAdresseI#getNodeidentifier()  
-	* @Function: ManagementOutboundPort.java
-	* @Description: 
-	*
-	* @param:
-	* @return：String
-	* @throws：Exception
-	*
-	* @version: v1.0.0 
-	* @author: lyna & shuhan
-	* @date: 6 févr. 2023 14:09:26 
-	*
-	* 
-	*/
-	
 	@Override
-	public Set<ContentNodeAddressI> join(ContentNodeAddressI p) throws Exception {
-		return ((NodeManagementCI)this.getConnector()).join(p);
+	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI) throws Exception {
+		((NodeManagementCI)this.getConnector()).probe(facade ,remainghops ,requestURI);
+		
 	}
+
+	@Override
+	public void join(ContentNodeAddressI p) throws Exception {
+		((NodeManagementCI)this.getConnector()).join(p);
+		
+	}
+
 	@Override
 	public void leave(ContentNodeAddressI p) throws Exception {
-		//System.out.println("-----------leave-------------------");
-		//System.out.println(this.getPortURI() + " " + this.getConnector());
 		((NodeManagementCI)this.getConnector()).leave(p);
 		
 	}
 
+	@Override
+	public void acceptProbed(ContentNodeAddressI p, String requsetURI) throws Exception {
+		((NodeManagementCI)this.getConnector()).acceptProbed(p, requsetURI);
+		
+	}
+
+	
+	
 	
 
 }

@@ -2,6 +2,7 @@ package componenet;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,6 +28,8 @@ public class Facade  extends AbstractComponent implements MyCMI {
 	public static int cpt = 0;//current racine nb
 	public static int cpt_facade = 0;
 	protected final int NB_RACINE = 3;
+	protected final int NB_PROBE = 3;
+	
 
 	/**   
 	* @Function: Facade.java
@@ -41,7 +44,7 @@ public class Facade  extends AbstractComponent implements MyCMI {
 	* @date: 30 janv. 2023 20:29:55 
 	*/
 	protected ApplicationNodeAdress		adress;
-	protected Set<ContentNodeAddressI>   peerNodeList ;
+	//protected Set<ContentNodeAddressI>   peerNodeList ;
 	//stock the outports of facade and the racine pair connected with it
 	//On Stock "ContentManagementCIOutbound" pour chaque pair pour faire appel a find et match sur pair 
 	private ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound> outPortsCM;
@@ -55,32 +58,19 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			// the reflection inbound port URI is the URI of the component
 			super(NodeManagemenInboundPort, 2, 0) ;
 			this.adress = new ApplicationNodeAdress("Facade",ContentManagementInboudPort,NodeManagemenInboundPort) ;
-			this.peerNodeList = new HashSet<ContentNodeAddressI>();
+			//this.peerNodeList = new HashSet<ContentNodeAddressI>();
 			this.outPortsCM =  new ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound>();
 
 			// create the port that exposes the offered interface with the
 			// given URI to ease the connection from client components.
-			NMportIn = new NodeManagementInBoundPort(this.adress.getNodeManagementUri(), this);
+			NMportIn = new NodeManagementInBoundPort(this, this.adress.getNodeManagementUri());
 			NMportIn.publishPort();
-			CMportIn = new ContentManagementCIIntbound(this.adress.getContentManagementURI(), this);
+			CMportIn = new ContentManagementCIIntbound(this, this.adress.getContentManagementURI());
 			CMportIn.publishPort();
 
 		}
-
-	/**   
-	* @Function: Pair.java
-	* @Description: 
-	*
-	* @param: ContentNodeAddressI p
-	* @return：Set<ContentNodeAddressI>
-	* @throws：Exception
-	*
-	* @version: v1.0.0
-	* @author: lyna & shuhan 
-	* @date: 30 janv. 2023 20:34:57 
-	*
-	* 
-	*/
+/*
+	
 	//Join retourne tout les noeud deja conecte a la facade 
 	public synchronized Set<ContentNodeAddressI> joinPair(ContentNodeAddressI p)
 	throws Exception{
@@ -110,20 +100,7 @@ public class Facade  extends AbstractComponent implements MyCMI {
     	return result;
 	}
 	
-	/**   
-	* @Function: Pair.java
-	* @Description: 
-	*
-	* @param: ContentNodeAddressI p
-	* @return：void
-	* @throws：Exception
-	*
-	* @version: v1.0.0
-	* @author: lyna & shuhan 
-	* @date: 30 janv. 2023 20:35:22 
-	*
-	* 
-	*/
+	
 	public void leavePair (ContentNodeAddressI p)
 	throws Exception{
 		// leave pair from facade with CM
@@ -191,6 +168,47 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			return matched;
 		
 		}
+	}
+*/
+	public void acceptProbed(ContentNodeAddressI p, String requsetURI) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void find(ContentTemplateI cd, int hops, NodeAdresseI requester, String requestURI) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, NodeAdresseI requester,
+			String requestURI) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+	public void joinPair(ContentNodeAddressI p) throws Exception {
+		//
+		
+		//
+		Set<ContentNodeAddressI>   liste =  new HashSet<ContentNodeAddressI>();
+		 for (int i = 0; i < NB_PROBE; i++) {
+			 probe(adress, i, p.getNodeidentifier());
+			
+		}
+		
+		 
+		 
+		
+	}
+	public void leavePair(ContentNodeAddressI p) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

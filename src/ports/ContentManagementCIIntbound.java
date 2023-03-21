@@ -12,13 +12,14 @@ import interfaces.ContentDescriptorI;
 import interfaces.ContentManagementCI;
 import interfaces.ContentTemplateI;
 import interfaces.MyCMI;
+import interfaces.NodeAdresseI;
+import interfaces.NodeCI;
 
-public class ContentManagementCIIntbound  extends AbstractInboundPort  implements     ContentManagementCI {
+public class ContentManagementCIIntbound  extends AbstractInboundPort  implements  ContentManagementCI {
 
-	public ContentManagementCIIntbound(String uri, ComponentI owner)
-			throws Exception {
-				super(uri, ContentManagementCI.class, owner);
-		
+	public ContentManagementCIIntbound (ComponentI owner , String pluginURI) throws Exception {
+		super(ContentManagementCI.class, owner ,pluginURI ,null);
+		assert	uri != null && owner instanceof ContentManagementCI ;
 	}
 
 	/**
@@ -27,20 +28,30 @@ public class ContentManagementCIIntbound  extends AbstractInboundPort  implement
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public ContentDescriptorI find(ContentTemplateI cd, int hops) throws Exception {
-		return this.getOwner().handleRequest(
-                owner -> {
-                    return ((MyCMI) owner).find(cd, hops);
-                });
+	public void find(ContentTemplateI cd, int hops, NodeAdresseI requester, String requestURI) throws Exception {
+		this.getOwner().runTask(
+				owner -> {
+					try {
+						((MyCMI) owner).find(cd ,hops ,requester,requestURI);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				});
+		
 	}
 
 	@Override
-	public Set<ContentDescriptorI> match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops)
-			throws Exception {
-		return this.getOwner().handleRequest(
-                owner -> {
-                    return ((MyCMI) owner).match(cd, matched, hops);
-                });
+	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, NodeAdresseI requester,
+			String requestURI) throws Exception {
+		this.getOwner().runTask(
+				owner -> {
+					try {
+						((MyCMI) owner).match(cd ,matched ,hops ,requester,requestURI);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				});
+		
 	}
 
 	
