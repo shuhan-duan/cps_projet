@@ -26,7 +26,8 @@ import ports.NodeManagementInBoundPort;
  * @author lyna & shuhan 
  *
  */
-
+@RequiredInterfaces(required = { NodeCI.class, ContentManagementCI.class })
+@OfferedInterfaces(offered = { NodeManagementCI.class, ContentManagementCI.class, FacadeContentManagementCI.class})
 public class Facade  extends AbstractComponent implements MyCMI {
 	public static int cpt = 0;//current racine nb
 	public static int cpt_facade = 0;
@@ -192,7 +193,14 @@ public class Facade  extends AbstractComponent implements MyCMI {
 
 	@Override
 	public void find(ContentTemplateI cd, int hops, NodeAdresseI requester, String requestURI) throws Exception {
-		// TODO Auto-generated method stub
+		
+		Set<ContentNodeAddressI> roots = outPortsCM.keySet();
+		ContentNodeAddressI[] array = roots .toArray(new ContentNodeAddressI[0]);
+		Random rand = new Random();
+		int randomIndex = rand.nextInt(roots.size());
+		ContentNodeAddressI root = array[randomIndex];
+		ContentManagementCIOutbound nodeCPort = outPortsCM.get(root);
+		nodeCPort.find(cd ,hops-1,requester,requestURI );
 		
 	}
 

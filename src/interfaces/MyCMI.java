@@ -8,5 +8,6 @@ public interface MyCMI {
 
 	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, NodeAdresseI requester,
 			String requestURI) throws Exception;
+
 }
 

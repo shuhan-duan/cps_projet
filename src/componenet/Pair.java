@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -351,9 +352,16 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	public void		action1() throws Exception
 	{
 		this.NMportOut.join(this.adress);
-			/*
-			//do connection entre pair et pair en NodeCI
-			for (ContentNodeAddressI p: liste ) {
+		
+	}
+	
+
+	//connect  
+	public void action2() throws Exception {
+		if(neighbors.size() == 0) { // liste vide le 1er pair n'a pas de voisins 
+			System.out.println("\n"+adress.getNodeidentifier() +" says : I don't have neigber yet!");
+		}else{
+			for (ContentNodeAddressI p: neighbors ) {
 				//System.out.println("\nI am "+ adress.getNodeidentifier()+", I will connect with my neighber : "+p.getNodeidentifier());
 
 				cpt++;
@@ -372,20 +380,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 				doPortConnection(outportCM,	p.getContentManagementURI(),ContentManagementConector.class.getCanonicalName());
 				//System.out.println("\nc'est ok "+ p.getNodeidentifier() +" connect  avec " +this.adress.getNodeidentifier() +" en "+ CMportOut.getPortURI() +" en ContentManagement");
 				NportOut.connecte(this.adress);		
-			}  */
-
-		
-	}
-	
-
-	//connect  
-	public void action2() throws Exception {
-		if(neighbors.size() == 0) { // liste vide le 1er pair n'a pas de voisins 
-			System.out.println("\n"+adress.getNodeidentifier() +" says : I don't have neigber yet!");
-		}else{
-			for (ContentNodeAddressI p : neighbors) {
-				System.out.println("je suis " + this.adress.getNodeidentifier()+ " j'ai voisin: " + p.getNodeidentifier());
-			}		
+			}  	
 	}
 }
 	/*
@@ -427,15 +422,21 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		
 	}
 
-	public void acceptConnected(ContentNodeAddressI p) {
-		// TODO Auto-generated method stub
-		
+	public void acceptConnected(ContentNodeAddressI p) throws Exception {
+     System.out.println("accept conected "+ p.getNodeidentifier())	;	
 	}
 
 	@Override
 	public void find(ContentTemplateI cd, int hops, NodeAdresseI requester, String requestURI) throws Exception {
-		// TODO Auto-generated method stub
+		if(hops==0) {
+		}
 		
+		hops--;
+		if(hops !=0 && !(outPortsCM.isEmpty())) {
+			for (Entry<ContentNodeAddressI,ContentManagementCIOutbound> e : outPortsCM.entrySet()) {
+				  e.getValue().find(cd,hops,requester,requestURI);
+			}
+		}		
 	}
 
 	@Override
@@ -445,8 +446,30 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		
 	}
 
-	public void connecte(ContentNodeAddressI p) {
-		// TODO Auto-generated method stub
+	public void connecte(ContentNodeAddressI p) throws Exception {
+		//connect pair et pair en NodeCI et CM
+		if (p == null) {
+			throw new Exception("Connection failed , pair is null");
+		} else {
+			//do connect entre pair et pair en NodeCI
+			//System.out.println("\nIn connect: me "+ adress.getNodeUri()+ " neiber: "+ p.getNodeUri());
+			counter++;
+			String outportN = "myOutPortNodeCIpair"+ counter;
+			NodeCOutboundPort NportOut = new NodeCOutboundPort(outportN, this);
+			NportOut.publishPort();
+			outPortsNodeC.put(p, NportOut);
+			doPortConnection(outPortsNodeC.get(p).getPortURI(), p.getNodeUri(), NodeConnector.class.getCanonicalName());
+			//System.out.println("\nreverse:c'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier() +" en "+ outPortsNodeC.get(p).getPortURI()+" en NodeCI" );
+
+			//do connect entre pair et pair en ContentManagementCI
+			String outportCM = "myOutportCMpair" + ++cpt ;
+			ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM,this );
+			CMportOut.publishPort();
+			outPortsCM.put(p, CMportOut);
+			doPortConnection(outPortsCM.get(p).getPortURI(), p.getContentManagementURI(), ContentManagementConector.class.getCanonicalName());
+			System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier());
+			NportOut.acceptConnected(p);
+		}
 		
 	}
 
