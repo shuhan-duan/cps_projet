@@ -20,6 +20,7 @@ import CVM.CVM;
 import classes.ContentDescriptor;
 import classes.ContentNodeAdress;
 import connector.ContentManagementConector;
+import connector.FacadeContentManagementConector;
 import connector.NodeManagementConnector;
 import connector.NodeConnector;
 import fr.sorbonne_u.components.AbstractComponent;
@@ -31,6 +32,7 @@ import interfaces.ContentDescriptorI;
 import interfaces.ContentManagementCI;
 import interfaces.ContentNodeAddressI;
 import interfaces.ContentTemplateI;
+import interfaces.FacadeContentManagementCI;
 import interfaces.MyCMI;
 import interfaces.NodeAdresseI;
 import ports.*;
@@ -59,7 +61,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	protected static int counter ;
 	protected ContentNodeAdress adress;
 	private ArrayList<ContentDescriptorI> contents;
-	protected Set<ContentNodeAddressI> neighbors; //neighbours 
+	protected Set<ContentNodeAddressI> voisinsAddressI; //neighbours 
 
 
 	//stock the pairs connected with this pair and the outportNodeC of me
@@ -93,7 +95,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		
 		this.outPortsNodeC = new ConcurrentHashMap<ContentNodeAddressI,NodeCOutboundPort>();
 		this.outPortsCM = new ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound>();
-		this.neighbors = new HashSet<ContentNodeAddressI>();
+		this.voisinsAddressI = new HashSet<ContentNodeAddressI>();
 		this.contents = new ArrayList<ContentDescriptorI>();
 		//add descriptor
 		addDescriptor(DescriptorID);
@@ -364,13 +366,13 @@ public class Pair  extends AbstractComponent implements MyCMI {
 			this.NMportOut.acceptProbed(adress, requestURI);
 		}else {
 			//à un de ses voisins choisi aléatoirement
-			ContentNodeAddressI[] array = neighbors .toArray(new ContentNodeAddressI[0]);
+			ContentNodeAddressI[] array = voisinsAddressI .toArray(new ContentNodeAddressI[0]);
 			//s'il a pas de voisin encore ,il retourne sa propre adress
-			if (neighbors.size() == 0 ) {
+			if (voisinsAddressI.size() == 0 ) {
 				this.NMportOut.acceptProbed(adress, requestURI);
 			}else {
 				Random rand = new Random();
-				int randomIndex = rand.nextInt(neighbors.size());
+				int randomIndex = rand.nextInt(voisinsAddressI.size());
 				ContentNodeAddressI neighbor = array[randomIndex];
 				NodeCOutboundPort nodeCout = outPortsNodeC.get(neighbor);
 				nodeCout.probe(facade, remainghops-1, requestURI);	
@@ -380,12 +382,12 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	}
 
 	public void acceptNeighbours(Set<ContentNodeAddressI> neighbours) throws Exception {
-		this.neighbors.addAll(neighbours);
-		System.out.println("when return liste to : "+this.adress.getNodeidentifier()+"  size:  " + neighbours.size());
-		if(neighbors.size() == 0) { // liste vide le 1er pair n'a pas de voisins 
+		//this.neighbors.addAll(neighbours);
+		System.out.println("\nwhen return liste to : "+this.adress.getNodeidentifier()+"  size:  " + neighbours.size());
+		if(neighbours.size() == 0) { // liste vide le 1er pair n'a pas de voisins 
 			System.out.println("\n"+adress.getNodeidentifier() +" says : I don't have neigber yet!");
 		}else{
-			for (ContentNodeAddressI p : neighbors) {
+			for (ContentNodeAddressI p : neighbours) {
 				System.out.println("je suis " + this.adress.getNodeidentifier()+ " j'ai voisin: " + p.getNodeidentifier());
 				//do connection entre pair et pair en NodeCI
 					//System.out.println("\nI am "+ adress.getNodeidentifier()+", I will connect with my neighber : "+p.getNodeidentifier());
@@ -412,49 +414,46 @@ public class Pair  extends AbstractComponent implements MyCMI {
 
 	public void acceptConnected(ContentNodeAddressI p) {
 		//si p est connecte ,ajoute p dans neighbors
-		neighbors.add(p);
+		voisinsAddressI.add(p);
 		
 	}
 
 	@Override
-	public void find(ContentTemplateI cd, int hops, NodeAdresseI requester, String requestURI) throws Exception {
+	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
+		requestURI = this.adress.getNodeidentifier();
 		if (hops <= 0) {
-			//System.out.println("c'est find in pair qui termine");
-			
+			System.out.println("c'est find in pair qui termine");
 		}
 		// Cherche parmi ses propres contenus
 		for (ContentDescriptorI content : this.contents) {
 			if (content.match(cd)) {  //pour march le patron avec le contenue 
 				System.out.println("found in " + this.adress.getNodeidentifier());
-				FacadeContentManagementCOutbound outCM = outPortsCM.get(requester) ;
-				
+				FacadeContentManagementCOutbound outCM = new FacadeContentManagementCOutbound("myPairFCMout", this);
+				doPortConnection(outCM.getPortURI(), requester.getContentManagementURI(), FacadeContentManagementConector.class.getCanonicalName());
+				outCM.acceptFound(content, requestURI);
 			}
 		}
  				
 		//sinon il cherche dans les voisin 
 		System.out.println(this.adress.getNodeidentifier() + " n'a pas touve");
 		// Si le contenu n'est pas dans le nœud courant, demande à un autre pair
-		Set<ContentNodeAddressI> neighbors = outPortsCM.keySet();
-		if (neighbors == null) {
+		if (voisinsAddressI == null) {
 				System.out.println("\npas de neighbor : "+ this.adress.getNodeidentifier());
 					
 		}else {
-				ContentNodeAddressI[] array = neighbors .toArray(new ContentNodeAddressI[0]);
+				ContentNodeAddressI[] array = voisinsAddressI .toArray(new ContentNodeAddressI[0]);
 					Random rand = new Random();
-					int randomIndex = rand.nextInt(neighbors.size());
+					int randomIndex = rand.nextInt(voisinsAddressI.size());
 					ContentNodeAddressI neighbor = array[randomIndex];
 					ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
+					outportCM.find(cd, hops-1, requester, requestURI);
 					//System.out.println("\nwill do find in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
-					//System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());
-					ContentDescriptorI content = ((ContentManagementCI)outportCM).find(ct, hops - 1);
-					if (content != null) {
-						
-					}	
+					//System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());					
 		}
 	}
 
 	@Override
-	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, NodeAdresseI requester,
+	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, ApplicationNodeAdressI requester,
 			String requestURI) throws Exception {
 		// TODO Auto-generated method stub
 		
@@ -496,7 +495,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 			outportCM.unpublishPort();
 			outPortsCM.remove(p);
 			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier());
-			neighbors.remove(p);
+			voisinsAddressI.remove(p);
 	    }		
 	}
 

@@ -102,7 +102,7 @@ public class Client extends AbstractComponent {
         System.out.println("\nplease match the template:\n"+ temp.toString());
         
         Set<ContentDescriptorI> matched = new HashSet<>();
-       this.outportCM_client.match(temp,matched, 15, null, inportCM_facade); 
+       //this.outportCM_client.match(temp,matched, 15, null, inportCM_facade); 
         System.out.println("\nwe have matched: ");
 		for (ContentDescriptorI contentDescriptorI : matched) {
 			System.out.println("we matched :" + contentDescriptorI.toString());
@@ -114,8 +114,9 @@ public class Client extends AbstractComponent {
       try {
         super.start();
         //conexionc avec facade 
-        this.doPortConnection(outportCM_client.getPortURI(), inportCM_facade, ContentManagementConector.class.getCanonicalName());
-		
+        System.out.println(outportCM_client.getPortURI()+"--------------");
+        String str = outportCM_client.getPortURI();
+        this.doPortConnection(str, inportCM_facade, ContentManagementConector.class.getCanonicalName());		
       } catch (Exception e) {
         throw new ComponentStartException(e);
       }
@@ -133,7 +134,7 @@ public class Client extends AbstractComponent {
 		clock.waitUntilStart();
 		
 		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(20));
-		/*
+		
 		this.scheduleTask(
 				o -> {
 					try {
@@ -145,7 +146,7 @@ public class Client extends AbstractComponent {
 				delayInNanos,
 				TimeUnit.NANOSECONDS);  
 				
-				   */
+
     }
     
     
@@ -157,7 +158,7 @@ public class Client extends AbstractComponent {
         //find
         doFind(temp);
         //match
-        doMatch(temp);
+        //doMatch(temp);
 	}
     
     

@@ -4,6 +4,7 @@ import java.util.Set;
 
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentDescriptorI;
 
 import interfaces.ContentTemplateI;
@@ -29,13 +30,13 @@ public class FacadeContentManagementCOutbound extends AbstractOutboundPort imple
 			}
 
 	@Override
-	public void find(ContentTemplateI cd, int hops, NodeAdresseI requester, String requestURI) throws Exception {
+	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
 		// TODO Auto-generated method stub
 		((MyCMI)this.getConnector()).find(cd ,hops ,requester,requestURI);
 	}
 
 	@Override
-	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, NodeAdresseI requester,
+	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, ApplicationNodeAdressI requester,
 			String requestURI) throws Exception {
 		((MyCMI)this.getConnector()).match(cd ,matched ,hops ,requester,requestURI);
 		

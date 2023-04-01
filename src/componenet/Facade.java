@@ -19,6 +19,7 @@ import fr.sorbonne_u.exceptions.PreconditionException;
 import interfaces.*;
 import ports.ContentManagementCIIntbound;
 import ports.ContentManagementCIOutbound;
+import ports.FacadeContentManagementCInbound;
 import ports.FacadeContentManagementCOutbound;
 import ports.NodeCOutboundPort;
 import ports.NodeManagementInBoundPort;
@@ -52,14 +53,14 @@ public class Facade  extends AbstractComponent implements MyCMI {
 	
 	//stock the outports of facade and the racine pair connected with it
 	//On Stock "ContentManagementCIOutbound" pour chaque pair pour faire appel a find et match sur pair 
-	private ConcurrentHashMap<ContentNodeAddressI,FacadeContentManagementCOutbound> outPortsCM;
+	private ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound> outPortsCM;
 	
 	
 	private ConcurrentHashMap<ContentNodeAddressI,NodeCOutboundPort> outPortsNodeC;
 	
 	protected NodeManagementInBoundPort  NMportIn;
 	protected ContentManagementCIIntbound CMportIn;
-
+	protected FacadeContentManagementCInbound fCMportIn;
 
  
 	protected	Facade(	String ContentManagementInboudPort,	String 	NodeManagemenInboundPort) throws Exception
@@ -68,13 +69,14 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			super(NodeManagemenInboundPort, 2, 0) ;
 			this.adress = new ApplicationNodeAdress("Facade",ContentManagementInboudPort,NodeManagemenInboundPort) ;
 			this.liste = new HashSet<ContentNodeAddressI>();
-			this.outPortsCM =  new ConcurrentHashMap<ContentNodeAddressI,FacadeContentManagementCOutbound>();
+			this.outPortsCM =  new ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound>();
 			this.outPortsNodeC = new ConcurrentHashMap<ContentNodeAddressI, NodeCOutboundPort>();
 
 			// create the port that exposes the offered interface with the
 			// given URI to ease the connection from client components.
 			NMportIn = new NodeManagementInBoundPort(this, this.adress.getNodeManagementUri());
 			NMportIn.publishPort();
+			fCMportIn = new FacadeContentManagementCInbound(this,this.adress.getContentManagementURI());
 			CMportIn = new ContentManagementCIIntbound(this, this.adress.getContentManagementURI());
 			CMportIn.publishPort();
 
@@ -193,13 +195,18 @@ public class Facade  extends AbstractComponent implements MyCMI {
 	}
 
 	@Override
-	public void find(ContentTemplateI cd, int hops, NodeAdresseI requester, String requestURI) throws Exception {
-		// TODO Auto-generated method stub
+	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
+		Set<ContentNodeAddressI> racineSet = outPortsCM.keySet();
+		requester =this.adress;
+		for (ContentNodeAddressI root : racineSet) {
+			requestURI = root.getNodeidentifier();
+			outPortsCM.get(root).find(cd, hops, requester, requestURI);
+		}
 		
 	}
 
 	@Override
-	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, NodeAdresseI requester,
+	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, ApplicationNodeAdressI requester,
 			String requestURI) throws Exception {
 		// TODO Auto-generated method stub
 		
@@ -212,7 +219,7 @@ public class Facade  extends AbstractComponent implements MyCMI {
 			
 			//do connect entre facade et racine en "ContentManagementCI" 
 			String outportCM_Facade = "myOutportCMfacade" + cpt; 
-			FacadeContentManagementCOutbound CMportOut = new FacadeContentManagementCOutbound(outportCM_Facade,this);
+			ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM_Facade,this);
 			CMportOut.publishPort(); 
 			outPortsCM.put(p, CMportOut); 
 			String inportCM_Pair = p.getContentManagementURI();
@@ -268,6 +275,16 @@ public class Facade  extends AbstractComponent implements MyCMI {
 }
 	public void leavePair(ContentNodeAddressI p) {
 		// TODO Auto-generated method stub
+		
+	}
+	
+	public void acceptFound(ContentDescriptorI found, String requsetURI) throws Exception {
+		if (found != null) {
+			System.out.println("dans "+requsetURI +" on a trouve : "+ found.toString());
+		}		
+	}
+	
+	public void acceptMatched(Set<ContentDescriptorI> matched ,String requsetURI) throws Exception {
 		
 	}
 

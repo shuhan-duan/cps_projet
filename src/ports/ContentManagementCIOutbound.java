@@ -5,6 +5,7 @@ import java.util.Set;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.interfaces.RequiredCI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentDescriptorI;
 import interfaces.ContentManagementCI;
 import interfaces.ContentTemplateI;
@@ -37,13 +38,13 @@ public class ContentManagementCIOutbound   extends AbstractOutboundPort  impleme
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void find(ContentTemplateI cd, int hops, NodeAdresseI requester, String requestURI) throws Exception {
+	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
 		((MyCMI)this.getConnector()).find(cd ,hops ,requester,requestURI);
 		
 	}
 
 	@Override
-	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, NodeAdresseI requester,
+	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, ApplicationNodeAdressI requester,
 			String requestURI) throws Exception {
 		((MyCMI)this.getConnector()).match(cd ,matched ,hops ,requester,requestURI);
 		
