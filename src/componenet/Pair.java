@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -135,24 +134,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	
 	public void disconnectePair (ContentNodeAddressI p ) throws Exception
 	{   	
-		//disconnect pair et pair en NodeC et CM
-			//get the outportNodeCI of this , which is connected with p
-		    NodeCOutboundPort voisin= outPortsNodeC.get(p);
-		    if (voisin!=null) { 
-		    	//System.out.println(voisin.connected()+"  1 "+ voisin.getConnector());
-				this.doPortDisconnection(voisin.getPortURI());
-				voisin.unpublishPort();
-				outPortsNodeC.remove(p);
-				//System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en NodeCI");
-				//get the outportContentManagementCI of this , which is connected with p
-				
-				ContentManagementCIOutbound voisin2= outPortsCM.get(p);
-				this.doPortDisconnection(voisin2.getPortURI());
-				voisin2.unpublishPort();
-				outPortsCM.remove(p);
-				System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier());
-				liste.remove(p);
-		    }
+		
 		    
 			
 		
@@ -304,8 +286,8 @@ public class Pair  extends AbstractComponent implements MyCMI {
 						delayInNanos,
 						TimeUnit.NANOSECONDS);
 				
-		// conntec  
-		long delayInNanos2 = clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(80));
+				/*
+		long delayInNanos2 = clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(100));
 		//System.out.println("pair disconntc -----" + delayInNanos2 );
 		// disconnect  
 		this.scheduleTask(o ->{
@@ -316,7 +298,7 @@ public class Pair  extends AbstractComponent implements MyCMI {
 			}
 		}, delayInNanos2,
 				TimeUnit.NANOSECONDS);
-		/*
+		
 		long delayInNanos3 = clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(100));
 		//leave
 		this.scheduleTask(o ->{
@@ -352,36 +334,16 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	public void		action1() throws Exception
 	{
 		this.NMportOut.join(this.adress);
+			/*
+			 */
+
 		
 	}
 	
 
 	//connect  
 	public void action2() throws Exception {
-		if(neighbors.size() == 0) { // liste vide le 1er pair n'a pas de voisins 
-			System.out.println("\n"+adress.getNodeidentifier() +" says : I don't have neigber yet!");
-		}else{
-			for (ContentNodeAddressI p: neighbors ) {
-				//System.out.println("\nI am "+ adress.getNodeidentifier()+", I will connect with my neighber : "+p.getNodeidentifier());
-
-				cpt++;
-				String outportN = "myOutPortNodeCIpair"+ cpt;
-				NodeCOutboundPort NportOut = new NodeCOutboundPort(outportN, this);
-				NportOut.publishPort();
-				outPortsNodeC.put(p, NportOut);
-				doPortConnection(NportOut.getPortURI(),	p.getNodeUri(),NodeConnector.class.getCanonicalName());
-				//System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier() +" en "+ outPortsNodeC.get(p).getPortURI()+" en NodeCI" );
-				
-				String outportCM = "myOutportCMpair" + cpt ;
-				ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM,this );
-				CMportOut.publishPort();
-				outPortsCM.put(p, CMportOut);
-				
-				doPortConnection(outportCM,	p.getContentManagementURI(),ContentManagementConector.class.getCanonicalName());
-				//System.out.println("\nc'est ok "+ p.getNodeidentifier() +" connect  avec " +this.adress.getNodeidentifier() +" en "+ CMportOut.getPortURI() +" en ContentManagement");
-				NportOut.connecte(this.adress);		
-			}  	
-	}
+		
 }
 	/*
 	public void action3() throws Exception {
@@ -396,13 +358,14 @@ public class Pair  extends AbstractComponent implements MyCMI {
 */
 	
 	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI) throws Exception {
-		System.out.println("do prob in "+ this.adress.getNodeidentifier()+ " demander : "+requestURI + " hops "+ remainghops);
+		System.out.println(requestURI+ " demande do prob in "+ this.adress.getNodeidentifier() + " hops "+ remainghops);
 		if (remainghops <= 0) {
 			//il retourne sa propre adresse à la façade ayant initié le sondage 
 			this.NMportOut.acceptProbed(adress, requestURI);
 		}else {
 			//à un de ses voisins choisi aléatoirement
 			ContentNodeAddressI[] array = neighbors .toArray(new ContentNodeAddressI[0]);
+			//s'il a pas de voisin encore ,il retourne sa propre adress
 			if (neighbors.size() == 0 ) {
 				this.NMportOut.acceptProbed(adress, requestURI);
 			}else {
@@ -418,25 +381,76 @@ public class Pair  extends AbstractComponent implements MyCMI {
 
 	public void acceptNeighbours(Set<ContentNodeAddressI> neighbours) throws Exception {
 		this.neighbors.addAll(neighbours);
-		System.out.println(this.adress.getNodeidentifier()+" bien recu la liste de voisins");
+		System.out.println("when return liste to : "+this.adress.getNodeidentifier()+"  size:  " + neighbours.size());
+		if(neighbors.size() == 0) { // liste vide le 1er pair n'a pas de voisins 
+			System.out.println("\n"+adress.getNodeidentifier() +" says : I don't have neigber yet!");
+		}else{
+			for (ContentNodeAddressI p : neighbors) {
+				System.out.println("je suis " + this.adress.getNodeidentifier()+ " j'ai voisin: " + p.getNodeidentifier());
+				//do connection entre pair et pair en NodeCI
+					//System.out.println("\nI am "+ adress.getNodeidentifier()+", I will connect with my neighber : "+p.getNodeidentifier());
+
+					cpt++;
+					String outportN = "myOutPortNodeCIpair"+ cpt;
+					NodeCOutboundPort NportOut = new NodeCOutboundPort(outportN, this);
+					NportOut.publishPort();
+					outPortsNodeC.put(p, NportOut);
+					doPortConnection(NportOut.getPortURI(),	p.getNodeUri(),NodeConnector.class.getCanonicalName());
+					//System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier() +" en "+ outPortsNodeC.get(p).getPortURI()+" en NodeCI" );
+					
+					String outportCM = "myOutportCMpair" + cpt ;
+					ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM,this );
+					CMportOut.publishPort();
+					outPortsCM.put(p, CMportOut);
+					doPortConnection(outportCM,	p.getContentManagementURI(),ContentManagementConector.class.getCanonicalName());
+					System.out.println("\nc'est ok "+ p.getNodeidentifier() +" connect  avec " +this.adress.getNodeidentifier() +" en "+ CMportOut.getPortURI() +" en ContentManagement");
+					NportOut.connecte(this.adress);		
+			}		
+		}
 		
 	}
 
-	public void acceptConnected(ContentNodeAddressI p) throws Exception {
-     System.out.println("accept conected "+ p.getNodeidentifier())	;	
+	public void acceptConnected(ContentNodeAddressI p) {
+		//si p est connecte ,ajoute p dans neighbors
+		neighbors.add(p);
+		
 	}
 
 	@Override
 	public void find(ContentTemplateI cd, int hops, NodeAdresseI requester, String requestURI) throws Exception {
-		if(hops==0) {
+		if (hops <= 0) {
+			//System.out.println("c'est find in pair qui termine");
+			
 		}
-		
-		hops--;
-		if(hops !=0 && !(outPortsCM.isEmpty())) {
-			for (Entry<ContentNodeAddressI,ContentManagementCIOutbound> e : outPortsCM.entrySet()) {
-				  e.getValue().find(cd,hops,requester,requestURI);
+		// Cherche parmi ses propres contenus
+		for (ContentDescriptorI content : this.contents) {
+			if (content.match(cd)) {  //pour march le patron avec le contenue 
+				System.out.println("found in " + this.adress.getNodeidentifier());
+				FacadeContentManagementCOutbound outCM = outPortsCM.get(requester) ;
+				
 			}
-		}		
+		}
+ 				
+		//sinon il cherche dans les voisin 
+		System.out.println(this.adress.getNodeidentifier() + " n'a pas touve");
+		// Si le contenu n'est pas dans le nœud courant, demande à un autre pair
+		Set<ContentNodeAddressI> neighbors = outPortsCM.keySet();
+		if (neighbors == null) {
+				System.out.println("\npas de neighbor : "+ this.adress.getNodeidentifier());
+					
+		}else {
+				ContentNodeAddressI[] array = neighbors .toArray(new ContentNodeAddressI[0]);
+					Random rand = new Random();
+					int randomIndex = rand.nextInt(neighbors.size());
+					ContentNodeAddressI neighbor = array[randomIndex];
+					ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
+					//System.out.println("\nwill do find in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
+					//System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());
+					ContentDescriptorI content = ((ContentManagementCI)outportCM).find(ct, hops - 1);
+					if (content != null) {
+						
+					}	
+		}
 	}
 
 	@Override
@@ -447,35 +461,43 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	}
 
 	public void connecte(ContentNodeAddressI p) throws Exception {
-		//connect pair et pair en NodeCI et CM
-		if (p == null) {
-			throw new Exception("Connection failed , pair is null");
-		} else {
-			//do connect entre pair et pair en NodeCI
-			//System.out.println("\nIn connect: me "+ adress.getNodeUri()+ " neiber: "+ p.getNodeUri());
-			counter++;
-			String outportN = "myOutPortNodeCIpair"+ counter;
-			NodeCOutboundPort NportOut = new NodeCOutboundPort(outportN, this);
-			NportOut.publishPort();
-			outPortsNodeC.put(p, NportOut);
-			doPortConnection(outPortsNodeC.get(p).getPortURI(), p.getNodeUri(), NodeConnector.class.getCanonicalName());
-			//System.out.println("\nreverse:c'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier() +" en "+ outPortsNodeC.get(p).getPortURI()+" en NodeCI" );
-
-			//do connect entre pair et pair en ContentManagementCI
-			String outportCM = "myOutportCMpair" + ++cpt ;
-			ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM,this );
-			CMportOut.publishPort();
-			outPortsCM.put(p, CMportOut);
-			doPortConnection(outPortsCM.get(p).getPortURI(), p.getContentManagementURI(), ContentManagementConector.class.getCanonicalName());
-			System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier());
-			NportOut.acceptConnected(p);
-		}
+		cpt++;
+		String outportN = "myOutPortNodeCIpair"+ cpt;
+		NodeCOutboundPort NportOut = new NodeCOutboundPort(outportN, this);
+		NportOut.publishPort();
+		outPortsNodeC.put(p, NportOut);
+		doPortConnection(NportOut.getPortURI(),	p.getNodeUri(),NodeConnector.class.getCanonicalName());
+		//System.out.println("\nc'est ok " + p.getNodeidentifier() +" connecte avec "+ this.adress.getNodeidentifier() +" en "+ outPortsNodeC.get(p).getPortURI()+" en NodeCI" );
 		
+		String outportCM = "myOutportCMpair" + cpt ;
+		ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM,this );
+		CMportOut.publishPort();
+		outPortsCM.put(p, CMportOut);
+		doPortConnection(outportCM,	p.getContentManagementURI(),ContentManagementConector.class.getCanonicalName());
+		System.out.println("\nc'est ok "+ p.getNodeidentifier() +" connect  avec " +this.adress.getNodeidentifier() +" en "+ CMportOut.getPortURI() +" en ContentManagement");	
+		
+		NportOut.acceptConnected(p);
 	}
 
-	public void disconnectePair(ContentNodeAddressI p) {
-		// TODO Auto-generated method stub
-		
+	public void disconnectePair(ContentNodeAddressI p) throws Exception {
+		//disconnect pair et pair en NodeC et CM
+		//get the outportNodeCI of this , which is connected with p
+	    NodeCOutboundPort outportN= outPortsNodeC.get(p);
+	    if (outportN!=null) { 
+	    	//System.out.println(voisin.connected()+"  1 "+ voisin.getConnector());
+			this.doPortDisconnection(outportN.getPortURI());
+			outportN.unpublishPort();
+			outPortsNodeC.remove(p);
+			//System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier()+" en NodeCI");
+			//get the outportContentManagementCI of this , which is connected with p
+			
+			ContentManagementCIOutbound outportCM= outPortsCM.get(p);
+			this.doPortDisconnection(outportCM.getPortURI());
+			outportCM.unpublishPort();
+			outPortsCM.remove(p);
+			System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier());
+			neighbors.remove(p);
+	    }		
 	}
 
 	
