@@ -10,10 +10,11 @@ import interfaces.ContentDescriptorI;
 import interfaces.ContentTemplateI;
 import interfaces.FacadeContentManagementCI;
 import interfaces.MyCMI;
+import interfaces.MyFCMI;
 import interfaces.NodeAdresseI;
 
 public class FacadeContentManagementCInbound extends AbstractInboundPort implements  FacadeContentManagementCI {
-	public FacadeContentManagementCInbound(ComponentI owner ,String uri)
+	public FacadeContentManagementCInbound(String uri ,ComponentI owner)
 			throws Exception {
 				super(uri, FacadeContentManagementCI.class, owner);
 		
@@ -48,10 +49,11 @@ public class FacadeContentManagementCInbound extends AbstractInboundPort impleme
 	}
 	@Override
 	public void acceptFound(ContentDescriptorI found, String requsetURI) throws Exception {
+		
 		this.getOwner().runTask(
 				owner -> {
 					try {
-						((FacadeContentManagementCI)owner).acceptFound(found, requsetURI);
+						((MyFCMI)owner).acceptFound(found, requsetURI);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
@@ -63,7 +65,7 @@ public class FacadeContentManagementCInbound extends AbstractInboundPort impleme
 		this.getOwner().runTask(
 				owner -> {
 					try {
-						((FacadeContentManagementCI)owner).acceptMatched(matched, requsetURI);
+						((MyFCMI)owner).acceptMatched(matched, requsetURI);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}

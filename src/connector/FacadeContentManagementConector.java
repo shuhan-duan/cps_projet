@@ -8,6 +8,7 @@ import interfaces.ContentDescriptorI;
 import interfaces.ContentTemplateI;
 import interfaces.FacadeContentManagementCI;
 import interfaces.NodeAdresseI;
+import javassist.expr.Instanceof;
 
 public class FacadeContentManagementConector  extends  AbstractConnector implements  FacadeContentManagementCI{
 
@@ -26,6 +27,7 @@ public class FacadeContentManagementConector  extends  AbstractConnector impleme
 
 	@Override
 	public void acceptFound(ContentDescriptorI found, String requsetURI) throws Exception {
+		
 		((FacadeContentManagementCI)this.offering).acceptFound(found, requsetURI);
 	}
 

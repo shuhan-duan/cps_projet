@@ -30,8 +30,13 @@ public class CVM extends AbstractCVM{
 
 	/** URI of the consumer inbound port (simplifies the connection).		*/
 	protected static final String	NodeManagemenInboundPort = "inportNMfacade";
-	protected final int NB_PEER = 5;  
-	//protected final int NB_FACADE = 3;
+	
+	protected static final String	FacadeCMInPortClient = "inportFCMclient";
+	
+	protected static final String	FacadeCMInPortFacade = "inportFCMfacade";
+	
+	protected final int NB_PEER = 7;  
+	protected final int NB_FACADE = 1;
 	
 	protected static final long		DELAY_TO_START_IN_NANOS =	TimeUnit.SECONDS.toNanos(5);
    public static final String		CLOCK_URI = "my-clock";
@@ -64,7 +69,22 @@ public class CVM extends AbstractCVM{
 		// Creation phase
 		// ---------------------------------------------------------------------
 
-		    
+		// create the component client
+				AbstractComponent.createComponent(
+						Client.class.getCanonicalName(),
+						new Object[]{ContentManagementInboudPort,
+								ContentManagementOutboudPort,FacadeCMInPortClient});
+		System.out.println("\nCreate Composant client OK ");
+		
+		// create the component facade
+		for(int i = 0 ; i < NB_FACADE ; i++ ) {
+			AbstractComponent.createComponent(
+					Facade.class.getCanonicalName(),
+					new Object[]{ContentManagementInboudPort,
+							NodeManagemenInboundPort ,FacadeCMInPortClient,FacadeCMInPortFacade});
+		}				
+				System.out.println("\nCreate Composant Facade OK ");
+				
 		// create the component pairs
 		for (int i = 0; i < NB_PEER  ; i++) {
 			AbstractComponent.createComponent(
@@ -75,19 +95,9 @@ public class CVM extends AbstractCVM{
 		}
 		System.out.println("\nCreate Composant pairs OK ");
 
-		// create the component facade
-		AbstractComponent.createComponent(
-					Facade.class.getCanonicalName(),
-					new Object[]{ContentManagementInboudPort,
-							NodeManagemenInboundPort});
-		System.out.println("\nCreate Composant Facade OK ");
+		
 
-		// create the component client
-		AbstractComponent.createComponent(
-				Client.class.getCanonicalName(),
-				new Object[]{ContentManagementInboudPort,
-						ContentManagementOutboudPort});
-		System.out.println("\nCreate Composant client OK ");
+		
 
 		super.deploy();
 		assert	this.deploymentDone();
@@ -117,7 +127,7 @@ public class CVM extends AbstractCVM{
 			a.startStandardLifeCycle(40000L);
 
 			// Give some time to see the traces (convenience).
-			Thread.sleep(1000L);
+			Thread.sleep(5000L);
 
 			// Simplifies the termination (termination has yet to be treated
 			// properly in BCM).

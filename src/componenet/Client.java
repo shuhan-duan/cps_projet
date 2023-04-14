@@ -25,7 +25,9 @@ import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import interfaces.ContentDescriptorI;
 import interfaces.ContentTemplateI;
+import interfaces.MyFCMI;
 import ports.ContentManagementCIOutbound;
+import ports.FacadeContentManagementCInbound;
 @RequiredInterfaces(required={ClocksServerCI.class}) 
 
 /**
@@ -33,20 +35,24 @@ import ports.ContentManagementCIOutbound;
  *
  */
 
-public class Client extends AbstractComponent {
+public class Client extends AbstractComponent implements MyFCMI{
     protected ContentManagementCIOutbound outportCM_client;
+    protected FacadeContentManagementCInbound inportFCM_client;
 	protected ClocksServerOutboundPort csop; 
 
     protected String inportCM_facade;
     protected final int ID_TEMP = 0;
 
-    protected Client(String ContentManagementInboudPort, String ContentManagementOutboudPort) throws Exception {
-        super(1,1);
+    protected Client(String ContentManagementInboudPort, String ContentManagementOutboudPort,String FCMInbountPortClient) throws Exception {
+        super(2,1);
         outportCM_client = new ContentManagementCIOutbound(ContentManagementOutboudPort,this);
         outportCM_client.publishPort();
-        inportCM_facade = ContentManagementInboudPort;  
+        inportFCM_client = new FacadeContentManagementCInbound(FCMInbountPortClient, this);
+        inportFCM_client.publishPort();
+        inportCM_facade = ContentManagementInboudPort; 
+        
       //Create Clock
-     this.csop = new ClocksServerOutboundPort(this);  
+      this.csop = new ClocksServerOutboundPort(this);  
       this.csop.publishPort();
     }
     
@@ -102,19 +108,30 @@ public class Client extends AbstractComponent {
         System.out.println("\nplease match the template:\n"+ temp.toString());
         
         Set<ContentDescriptorI> matched = new HashSet<>();
-       //this.outportCM_client.match(temp,matched, 15, null, inportCM_facade); 
-        System.out.println("\nwe have matched: ");
+        this.outportCM_client.match(temp,matched, 5, null, inportCM_facade); 
+ 
+	}
+    
+    public void acceptFound(ContentDescriptorI found, String requsetURI) throws Exception {
+		if (found != null) {
+			System.out.println("dans "+requsetURI +" on a trouve : "+ found.toString());
+		}		
+	}
+	
+	public void acceptMatched(Set<ContentDescriptorI> matched ,String requsetURI) throws Exception {
+		System.out.println("\nIn " + requsetURI +"  we have matched: ");
 		for (ContentDescriptorI contentDescriptorI : matched) {
-			System.out.println("we matched :" + contentDescriptorI.toString());
+			System.out.println(contentDescriptorI.toString());
 		}
 	}
+
     
     @Override
     public void start() throws ComponentStartException {
       try {
         super.start();
         //conexionc avec facade 
-        System.out.println(outportCM_client.getPortURI()+"--------------");
+        
         String str = outportCM_client.getPortURI();
         this.doPortConnection(str, inportCM_facade, ContentManagementConector.class.getCanonicalName());		
       } catch (Exception e) {
@@ -133,7 +150,7 @@ public class Client extends AbstractComponent {
 		Instant startInstant = clock.getStartInstant();
 		clock.waitUntilStart();
 		
-		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(20));
+		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(150));
 		
 		this.scheduleTask(
 				o -> {
@@ -156,7 +173,7 @@ public class Client extends AbstractComponent {
     	 //choose template
         ContentTemplateI temp = createTemplate(ID_TEMP);
         //find
-        doFind(temp);
+        //doFind(temp);
         //match
         //doMatch(temp);
 	}

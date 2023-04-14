@@ -10,6 +10,7 @@ import interfaces.ContentDescriptorI;
 import interfaces.ContentTemplateI;
 import interfaces.FacadeContentManagementCI;
 import interfaces.MyCMI;
+import interfaces.MyFCMI;
 import interfaces.NodeAdresseI;
 
 public class FacadeContentManagementCOutbound extends AbstractOutboundPort implements  FacadeContentManagementCI{
@@ -45,12 +46,12 @@ public class FacadeContentManagementCOutbound extends AbstractOutboundPort imple
 	@Override
 	public void acceptFound(ContentDescriptorI found, String requsetURI) throws Exception {
 		
-		((FacadeContentManagementCI)this.getConnector()).acceptFound(found, requsetURI);
+		((MyFCMI)this.getConnector()).acceptFound(found, requsetURI);
 		
 	}
 	@Override
 	public void acceptMatched(Set<ContentDescriptorI> matched, String requsetURI) throws Exception {
-		((FacadeContentManagementCI)this.getConnector()).acceptMatched(matched, requsetURI);
+		((MyFCMI)this.getConnector()).acceptMatched(matched, requsetURI);
 		
 	}
 
