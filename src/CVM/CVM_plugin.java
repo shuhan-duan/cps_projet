@@ -3,9 +3,11 @@ package CVM;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
+import Plugin.Facade_plugin;
+import Plugin.Pair_plugin;
 import componenet.Client;
-import componenet_with_plugin.Facade_plugin;
-import componenet_with_plugin.Pair_plugin;
+import componenet.Facade;
+import componenet.Pair;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.utils.aclocks.ClocksServer;
@@ -51,16 +53,16 @@ public class CVM_plugin extends AbstractCVM {
 		// ---------------------------------------------------------------------
 
 		// create the component client
-				AbstractComponent.createComponent(
+			/*	AbstractComponent.createComponent(
 						Client.class.getCanonicalName(),
 						new Object[]{ContentManagementInboudPort_plugin,
 								ContentManagementOutboudPort,FacadeCMInPortClient});
-		System.out.println("\nCreate Composant client OK ");
+		System.out.println("\nCreate Composant client OK ");*/
 		
 		// create the component facade
 		for(int i = 0 ; i < NB_FACADE ; i++ ) {
 			AbstractComponent.createComponent(
-					Facade_plugin.class.getCanonicalName(),
+					Facade.class.getCanonicalName(),
 					new Object[]{ContentManagementInboudPort_plugin,
 							NodeManagemenInboundPort_plugin ,FacadeCMInPortClient,FacadeCMInPortFacade_plugin});
 		}				
@@ -69,7 +71,7 @@ public class CVM_plugin extends AbstractCVM {
 		// create the component pairs
 		for (int i = 0; i < NB_PEER  ; i++) {
 			AbstractComponent.createComponent(
-							Pair_plugin.class.getCanonicalName(),
+							Pair.class.getCanonicalName(),
 							new Object[]{
 									NodeManagementOutboundPort+i,
 									NodeManagemenInboundPort_plugin, i });

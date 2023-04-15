@@ -1,4 +1,4 @@
-package componenet_with_plugin;
+package Plugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,8 +12,10 @@ import classes.ContentNodeAdress;
 import connector.ContentManagementConector;
 import connector.FacadeContentManagementConector;
 import connector.NodeConnector;
+import connector.NodeManagementConnector;
 import fr.sorbonne_u.components.AbstractPlugin;
 import fr.sorbonne_u.components.AbstractPort;
+import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import interfaces.ApplicationNodeAdressI;
@@ -21,12 +23,15 @@ import interfaces.ContentDescriptorI;
 import interfaces.ContentNodeAddressI;
 import interfaces.ContentTemplateI;
 import interfaces.MyCMI;
+import interfaces.NodeCI;
+import interfaces.NodeManagementCI;
 import ports.ContentManagementCIOutbound;
 import ports.FacadeContentManagementCOutbound;
 import ports.NodeCIntboundPort;
 import ports.NodeCOutboundPort;
 import ports.NodeManagementOutboundPort;
 import ports_with_plugin.ContentManagementCIIntbound_plugin;
+import ports_with_plugin.NodeCIntboundPort_plugin;
 
 public class Pair_plugin  extends AbstractPlugin implements MyCMI{
 	protected ClocksServerOutboundPort csop; 
@@ -35,7 +40,7 @@ public class Pair_plugin  extends AbstractPlugin implements MyCMI{
 	/**	the outbound port used to call the service.							*/
 	protected NodeManagementOutboundPort	NMportOut ;
 	protected String NMPortIn_facade;
-	protected NodeCIntboundPort	NodePortIn ;
+	protected NodeCIntboundPort_plugin	NodePortIn ;
 	protected ContentManagementCIIntbound_plugin CMportIn;
 	/**	counting service invocations.										*/
 	protected int counter ;
@@ -51,18 +56,11 @@ public class Pair_plugin  extends AbstractPlugin implements MyCMI{
 	//cntentMangement 
 	private ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound> outPortsCM;
 	
-	protected Pair_plugin( String NMoutportUri ,String NMPortIn_facade, int DescriptorID)throws Exception {
+	private String NMoutportUri;
+	public  Pair_plugin( String NMoutportUri ,String NMPortIn_facade, int DescriptorID)throws Exception {
 		 super();
 		    setPluginURI(AbstractPort.generatePortURI());		
 		cpt++;
-		this.adress = new ContentNodeAdress("Pair" + cpt,"CMuriIn"+ cpt, "NodeCuriIn"+ cpt);
-		
-		this.NMportOut =new NodeManagementOutboundPort(NMoutportUri, this.getOwner()) ;
-		NMportOut.publishPort() ;
-		this.NodePortIn = new NodeCIntboundPort(this.getOwner() ,adress.getNodeUri());
-		NodePortIn.publishPort();
-		this.CMportIn = new ContentManagementCIIntbound_plugin(this.getOwner(), adress.getContentManagementURI());
-		CMportIn.publishPort();
 		
 		this.counter = DescriptorID ;
 		this.NMPortIn_facade = NMPortIn_facade;
@@ -70,12 +68,38 @@ public class Pair_plugin  extends AbstractPlugin implements MyCMI{
 		this.outPortsCM = new ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound>();
 		this.voisins = new HashSet<ContentNodeAddressI>();
 		this.contents = new ArrayList<ContentDescriptorI>();
+		
+		this.NMoutportUri= NMoutportUri;
+		 this.adress = new ContentNodeAdress("Pair" + cpt,"CMuriIn"+ cpt, "NodeCuriIn"+ cpt);
 		//add descriptor
-		addDescriptor(DescriptorID);
+			addDescriptor(DescriptorID);
+
+	}
+	
+	 @Override
+	  public void initialise() throws Exception {
+		 super.initialise();
+		 this.NMportOut =new NodeManagementOutboundPort(NMoutportUri, this.getOwner()) ;
+		NMportOut.publishPort() ;
+		this.NodePortIn = new NodeCIntboundPort_plugin(this.getOwner() ,adress.getNodeUri());
+		NodePortIn.publishPort();
+		this.CMportIn = new ContentManagementCIIntbound_plugin(this.getOwner(), adress.getContentManagementURI());
+		CMportIn.publishPort();
 		//Create Clock
 		this.csop = new ClocksServerOutboundPort(this.getOwner());
-		this.csop.publishPort();	
-	}
+		this.csop.publishPort();
+		this.getOwner().doPortConnection(NMportOut.getPortURI(), NMPortIn_facade,NodeManagementConnector.class.getCanonicalName());
+
+	  }
+
+	  @Override
+	  public void installOn(ComponentI owner) throws Exception {
+	    super.installOn(owner);
+	    this.addOfferedInterface(NodeCI.class);
+	    this.addRequiredInterface(NodeCI.class);
+	    this.addRequiredInterface(NodeManagementCI.class);
+
+	  }
 	
 	public void addDescriptor(int number)
 			throws Exception{

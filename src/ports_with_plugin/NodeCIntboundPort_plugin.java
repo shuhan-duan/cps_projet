@@ -11,7 +11,7 @@ import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentNodeAddressI;
 import interfaces.NodeCI;
 
-
+import Plugin.Pair_plugin;
 public class NodeCIntboundPort_plugin  extends AbstractInboundPort  implements NodeCI  {
 
 
@@ -29,7 +29,7 @@ private static final long serialVersionUID = 1L;
 			          @Override
 			          public void run() {
 			            try {
-			              ((Pair) this.getTaskProviderReference()).probe( facade, remainghops, requestURI);
+			              ((Pair_plugin) this.getTaskProviderReference()).probe( facade, remainghops, requestURI);
 			            } catch (Exception e) {
 			              throw new RuntimeException(e);
 			            }
@@ -45,7 +45,7 @@ private static final long serialVersionUID = 1L;
 			        @Override
 			        public void run() {
 			          try {
-			            ((Pair) this.getTaskProviderReference()).connecte(p);
+			            ((Pair_plugin) this.getTaskProviderReference()).connecte(p);
 			          } catch (Exception e) {
 			            throw new RuntimeException(e);
 			          }
@@ -61,7 +61,7 @@ private static final long serialVersionUID = 1L;
 			          @Override
 			          public void run() {
 			            try {
-			              ((Pair) this.getTaskProviderReference()).disconnectePair(p);
+			              ((Pair_plugin) this.getTaskProviderReference()).disconnectePair(p);
 			            } catch (Exception e) {
 			              throw new RuntimeException(e);
 			            }
@@ -77,7 +77,7 @@ private static final long serialVersionUID = 1L;
 			          @Override
 			          public void run() {
 			            try {
-			              ((Pair) this.getTaskProviderReference()).acceptNeighbours(neighbours);
+			              ((Pair_plugin) this.getTaskProviderReference()).acceptNeighbours(neighbours);
 			            } catch (Exception e) {
 			              throw new RuntimeException(e);
 			            }
@@ -93,7 +93,7 @@ private static final long serialVersionUID = 1L;
 		          @Override
 		          public void run() {
 		            try {
-		              ((Pair) this.getTaskProviderReference()).acceptConnected(p);
+		              ((Pair_plugin) this.getTaskProviderReference()).acceptConnected(p);
 		            } catch (Exception e) {
 		              throw new RuntimeException(e);
 		            }

@@ -1,4 +1,4 @@
-package componenet_with_plugin;
+package Plugin;
 
 import java.util.HashSet;
 import java.util.Random;
@@ -12,14 +12,15 @@ import connector.NodeConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.AbstractPlugin;
 import fr.sorbonne_u.components.AbstractPort;
+import fr.sorbonne_u.components.ComponentI;
 import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentDescriptorI;
 import interfaces.ContentNodeAddressI;
 import interfaces.ContentTemplateI;
 import interfaces.MyCMI;
 import interfaces.MyFCMI;
+import interfaces.NodeManagementCI;
 import ports.ContentManagementCIOutbound;
-import ports.FacadeContentManagementCInbound;
 import ports.FacadeContentManagementCOutbound;
 import ports.NodeCOutboundPort;
 import ports_with_plugin.ContentManagementCIIntbound_plugin;
@@ -62,19 +63,29 @@ public class Facade_plugin    extends AbstractPlugin  implements MyCMI ,MyFCMI{
 			this.cptAcceptProbed = new ConcurrentHashMap<String, Integer>();
 			// create the port that exposes the offered interface with the
 			// given URI to ease the connection from client components.
-			System.out.println("this.getowner()  =="+ this.getOwner());
-			NMportIn = new NodeManagementInBoundPort_plugin( this.getOwner(),this.getPluginURI());
-			NMportIn.publishPort();
+		    System.out.println("this.getowner()  =="+ this.getOwner());
+		
+			
+		  }
+	 
+	 @Override
+	  public void initialise() throws Exception {
+		     super.initialise();
+		     NMportIn = new NodeManagementInBoundPort_plugin( this.getOwner(),this.getPluginURI());
+			 NMportIn.publishPort();
 			fCMportIn = new FacadeContentManagementCInbound_plugin(this.getPluginURI(),this.getOwner());
 			fCMportIn.publishPort();
 			CMportIn = new ContentManagementCIIntbound_plugin(this.getOwner(), this.getPluginURI());
 			CMportIn.publishPort();
 			fCMportOutbound = new FacadeContentManagementCOutbound("myFCMfacade", this.getOwner());
 			fCMportOutbound.publishPort();
-			fCMInbountPortClient = FCMInbountPortClient;
-		  }
-	 
-	 
+	  }
+
+	  @Override
+	  public void installOn(ComponentI owner) throws Exception {
+	    super.installOn(owner);
+	    this.addOfferedInterface(NodeManagementCI.class);
+	  }
 	 
 	//facade recoit le result de probe , p est le result , requestURI est le demander
 		public void acceptProbed(ContentNodeAddressI p, String requsetURI) throws Exception {

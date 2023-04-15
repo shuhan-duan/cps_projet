@@ -9,7 +9,7 @@ import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentNodeAddressI;
 import interfaces.NodeManagementCI;
-
+import Plugin.*;
 public class NodeManagementInBoundPort_plugin extends AbstractInboundPort implements NodeManagementCI{
 
 	/**   
@@ -33,65 +33,58 @@ public class NodeManagementInBoundPort_plugin extends AbstractInboundPort implem
 
 	@Override
 	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI) throws Exception{
-		 this.getOwner().runTask(
-			        new AbstractComponent.AbstractTask(this.getPluginURI()) {
-			          @Override
-			          public void run() {
-			            try {
-			              ((Facade) this.getTaskProviderReference()).probe(facade, remainghops,requestURI);
-			            } catch (Exception e) {
-			              e.printStackTrace();
-			            }
-			          }
-			        });
+		this.getOwner().handleRequest(
+				new AbstractComponent.AbstractService<Void>(this.getPluginURI()) {
+					@SuppressWarnings("unchecked")
+					@Override
+					public Void call() throws Exception {
+						((Facade_plugin)this.getServiceProviderReference()).probe(facade ,remainghops,requestURI);
+						return null;
+					}
+				});
 	}
 
 	@Override
 	public void join(ContentNodeAddressI p) throws Exception {
 		
-		 this.getOwner().runTask(
-			      new AbstractComponent.AbstractTask(this.getPluginURI()) {
-			        @Override
-			        public void run() {
-			          try {
-			            ((Facade) this.getTaskProviderReference()).joinPair(p);
-			          } catch (Exception e) {
-			            e.printStackTrace();
-			          }
-			        }
-			      });
+		this.getOwner().handleRequest(
+				new AbstractComponent.AbstractService<Void>(this.getPluginURI()) {
+					@SuppressWarnings("unchecked")
+					@Override
+					public Void call() throws Exception {
+						((Facade_plugin)this.getServiceProviderReference()).joinPair(p);
+						return null;
+					}
+				});
 	}
 
 	@Override
 	public void leave(ContentNodeAddressI p) throws Exception {
-		this.getOwner().runTask(
-		        new AbstractComponent.AbstractTask(this.getPluginURI()) {
-		          @Override
-		          public void run() {
-		            try {
-		              ((Facade) this.getTaskProviderReference()).leavePair(p);
-		            } catch (Exception e) {
-		              e.printStackTrace();
-		            }
-		          }
-		        });
+
+		this.getOwner().handleRequest(
+				new AbstractComponent.AbstractService<Void>(this.getPluginURI()) {
+					@SuppressWarnings("unchecked")
+					@Override
+					public Void call() throws Exception {
+						((Facade_plugin)this.getServiceProviderReference()).leavePair(p);
+						return null;
+					}
+				});
 		
 	}
 
 	@Override
 	public void acceptProbed(ContentNodeAddressI p, String requsetURI) throws Exception {
-		 this.getOwner().runTask(
-			        new AbstractComponent.AbstractTask(this.getPluginURI()) {
-			          @Override
-			          public void run() {
-			            try {
-			              ((Facade) this.getTaskProviderReference()).acceptProbed(p, requsetURI);
-			            } catch (Exception e) {
-			              e.printStackTrace();
-			            }
-			          }
-			        });
-		
+
+		this.getOwner().handleRequest(
+				new AbstractComponent.AbstractService<Void>(this.getPluginURI()) {
+					@SuppressWarnings("unchecked")
+					@Override
+					public Void call() throws Exception {
+						((Facade_plugin)this.getServiceProviderReference()).acceptProbed(p,requsetURI);
+						return null;
+					}
+				});
 	}
 
 }
