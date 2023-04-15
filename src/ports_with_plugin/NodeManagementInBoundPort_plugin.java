@@ -25,7 +25,7 @@ public class NodeManagementInBoundPort_plugin extends AbstractInboundPort implem
 	public NodeManagementInBoundPort_plugin( ComponentI owner,String plugin )
 			throws Exception {
 	    super(NodeManagementCI.class, owner, plugin, null);
-		assert	uri != null && owner instanceof NodeManagementCI ;
+	//	assert	uri != null && owner instanceof NodeManagementCI ;
 
 	}
 

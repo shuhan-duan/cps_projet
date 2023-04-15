@@ -4,8 +4,6 @@ import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 import componenet.Client;
-import componenet.Facade;
-import componenet.Pair;
 import componenet_with_plugin.Facade_plugin;
 import componenet_with_plugin.Pair_plugin;
 import fr.sorbonne_u.components.AbstractComponent;
@@ -42,7 +40,7 @@ public class CVM_plugin extends AbstractCVM {
 	public void			deploy() throws Exception
 	{
 		assert	!this.deploymentDone() ;
-		long unixEpochStartTimeInNanos =	TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis())	+ CVM.DELAY_TO_START_IN_NANOS;
+		long unixEpochStartTimeInNanos =	TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis())	+ CVM_plugin.DELAY_TO_START_IN_NANOS;
 		Instant	startInstant = Instant.parse("2023-02-07T08:00:00Z");
 		double accelerationFactor = 60.0;
 		AbstractComponent.createComponent(ClocksServer.class.getCanonicalName(),
@@ -66,7 +64,7 @@ public class CVM_plugin extends AbstractCVM {
 					new Object[]{ContentManagementInboudPort_plugin,
 							NodeManagemenInboundPort_plugin ,FacadeCMInPortClient,FacadeCMInPortFacade_plugin});
 		}				
-				System.out.println("\nCreate Composant Facade OK ");
+				System.out.println("\nCreate Composant Facade_plugin OK ");
 				
 		// create the component pairs
 		for (int i = 0; i < NB_PEER  ; i++) {
@@ -76,7 +74,7 @@ public class CVM_plugin extends AbstractCVM {
 									NodeManagementOutboundPort+i,
 									NodeManagemenInboundPort_plugin, i });
 		}
-		System.out.println("\nCreate Composant pairs OK ");
+		System.out.println("\nCreate Composant pairs_plugin OK ");
 
 		
 
@@ -105,7 +103,7 @@ public class CVM_plugin extends AbstractCVM {
 	{
 		try {
 			// Create an instance of the defined component virtual machine.
-			CVM a = new CVM();
+			CVM_plugin a = new CVM_plugin();
 			// Execute the application.
 			a.startStandardLifeCycle(40000L);
 

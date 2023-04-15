@@ -62,6 +62,7 @@ public class Facade_plugin    extends AbstractPlugin  implements MyCMI ,MyFCMI{
 			this.cptAcceptProbed = new ConcurrentHashMap<String, Integer>();
 			// create the port that exposes the offered interface with the
 			// given URI to ease the connection from client components.
+			System.out.println("this.getowner()  =="+ this.getOwner());
 			NMportIn = new NodeManagementInBoundPort_plugin( this.getOwner(),this.getPluginURI());
 			NMportIn.publishPort();
 			fCMportIn = new FacadeContentManagementCInbound_plugin(this.getPluginURI(),this.getOwner());
