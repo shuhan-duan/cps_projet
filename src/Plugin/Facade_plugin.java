@@ -15,6 +15,7 @@ import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.ComponentI;
 import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentDescriptorI;
+import interfaces.ContentManagementCI;
 import interfaces.ContentNodeAddressI;
 import interfaces.ContentTemplateI;
 import interfaces.MyCMI;
@@ -63,7 +64,6 @@ public class Facade_plugin    extends AbstractPlugin  implements MyCMI ,MyFCMI{
 			this.cptAcceptProbed = new ConcurrentHashMap<String, Integer>();
 			// create the port that exposes the offered interface with the
 			// given URI to ease the connection from client components.
-		    System.out.println("this.getowner()  =="+ this.getOwner());
 		
 			
 		  }
@@ -85,6 +85,8 @@ public class Facade_plugin    extends AbstractPlugin  implements MyCMI ,MyFCMI{
 	  public void installOn(ComponentI owner) throws Exception {
 	    super.installOn(owner);
 	    this.addOfferedInterface(NodeManagementCI.class);
+	    this.addOfferedInterface(ContentManagementCI.class);
+
 	  }
 	 
 	//facade recoit le result de probe , p est le result , requestURI est le demander
@@ -138,12 +140,11 @@ public class Facade_plugin    extends AbstractPlugin  implements MyCMI ,MyFCMI{
 				String outportCM_Facade = "myOutportCMfacade" + cpt; 
 				ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM_Facade,this.getOwner());
 				CMportOut.publishPort(); 
-				System.out.println("je uis dans join plugfacade"+p.toString());
-
 				outPortsCM.put(p, CMportOut); 
-
 				String inportCM_Pair = p.getContentManagementURI();
-				this.getOwner().doPortConnection(outportCM_Facade,	inportCM_Pair, ContentManagementConector.class.getCanonicalName());
+				System.out.println("je uis dans join plugfacade  "+ inportCM_Pair);
+
+			    this.getOwner().doPortConnection(outportCM_Facade,	inportCM_Pair, ContentManagementConector.class.getCanonicalName());
 				outPortsCM.put(p,CMportOut); 
 				
 				//do connect entre facade et racine en "NodeCI" 
@@ -152,7 +153,7 @@ public class Facade_plugin    extends AbstractPlugin  implements MyCMI ,MyFCMI{
 				NodeCportOut.publishPort(); 
 				outPortsNodeC.put(p.getNodeidentifier(), NodeCportOut); 
 				String inportNodeC_pair = p.getNodeUri();
-				this.getOwner().doPortConnection(outportNodeC_Facade,	inportNodeC_pair, 	NodeConnector.class.getCanonicalName());
+			//	this.getOwner().doPortConnection(outportNodeC_Facade,	inportNodeC_pair, 	NodeConnector.class.getCanonicalName());
 				System.out.println("\nc'est ok " + p.getNodeidentifier() +" est connecte avec "+outportCM_Facade +" comme racine en FacadeContentManagementCI et NodeCI" ); 
 				cpt++;
 			}else {

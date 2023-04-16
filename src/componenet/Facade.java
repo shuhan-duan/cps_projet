@@ -31,10 +31,7 @@ import Plugin.*;
  */
 
 public class Facade  extends AbstractComponent{
-	public static int cpt = 0;//current racine nb
-	public static int cpt_facade = 0;
-	protected final int NB_RACINE = 3;
-	protected final int NB_PROBE = 3;
+
 	
 
 	/**   
@@ -50,13 +47,15 @@ public class Facade  extends AbstractComponent{
 	* @date: 30 janv. 2023 20:29:55 
 	*/
 	Facade_plugin facade_plugin ;
- 
+	Pair_plugin  pair_plugin;
 	protected	Facade(	String ContentManagementInboudPort,	String 	NodeManagemenInboundPort ,String FCMInbountPortClient, String FacadeCMInPortFacade) throws Exception
 		{
 			// the reflection inbound port URI is the URI of the component
 			super(NodeManagemenInboundPort, 1, 0) ;
 			Facade_plugin facade_plugin = new Facade_plugin(ContentManagementInboudPort, NodeManagemenInboundPort,FCMInbountPortClient,FacadeCMInPortFacade);
 			this.installPlugin(facade_plugin);
+			
+			
 			
 		}
 

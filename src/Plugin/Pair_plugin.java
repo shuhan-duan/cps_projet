@@ -61,11 +61,11 @@ public class Pair_plugin  extends AbstractPlugin implements MyCMI{
 	private ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound> outPortsCM;
 	
 	private String NMoutportUri;
-	public  Pair_plugin( String NMoutportUri ,String NMPortIn_facade, int DescriptorID , ContentNodeAdress adress )throws Exception {
+	public  Pair_plugin( String NMoutportUri ,String NMPortIn_facade, int DescriptorID  )throws Exception {
 		 super();
 		 setPluginURI(AbstractPort.generatePortURI());		
 		cpt++;
-		
+		this.adress = new ContentNodeAdress("Pair" + cpt,"CMuriIn"+ cpt, "NodeCuriIn"+ cpt);
 		this.counter = DescriptorID ;
 		this.NMPortIn_facade = NMPortIn_facade;
 		this.outPortsNodeC = new ConcurrentHashMap<ContentNodeAddressI,NodeCOutboundPort>();
@@ -327,6 +327,15 @@ public void disconnectePair(ContentNodeAddressI p) throws Exception {
 		System.out.println("\nc'est ok "+ p.getNodeidentifier() +" disconnect  avec " + this.adress.getNodeidentifier());
 		voisins.remove(p);
     }		
+}
+
+public void join_p() throws Exception {
+	NMportOut.join(adress);
+	
+}
+
+public void leave_p() throws Exception {
+	NMportOut.leave(adress);	
 }
 
 

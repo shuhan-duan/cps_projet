@@ -54,26 +54,7 @@ import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 @OfferedInterfaces(offered = { NodeCI.class })
 public class Pair  extends AbstractComponent  {
 	protected ClocksServerOutboundPort csop; 
-	public static int cpt = 0;
 
-	/**	the outbound port used to call the service.							*/
-	protected NodeManagementOutboundPort	NMportOut ;
-	protected String NMPortIn_facade;
-	protected NodeCIntboundPort	NodePortIn ;
-	protected ContentManagementCIIntbound CMportIn;
-	/**	counting service invocations.										*/
-	protected int counter ;
-	protected ContentNodeAdress adress;
-	private ArrayList<ContentDescriptorI> contents;
-	protected Set<ContentNodeAddressI> voisins; //neighbours 
-
-
-	//stock the pairs connected with this pair and the outportNodeC of me
-	//adresse conecte avec le pair courant 
-	private ConcurrentHashMap<ContentNodeAddressI,NodeCOutboundPort> outPortsNodeC;  //stock les voiins 
-	//stock the neighber pairs connected with this pair and the outportCMpair of me
-	//cntentMangement 
-	private ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound> outPortsCM;
 	
 	Pair_plugin plugin;
 
@@ -81,9 +62,9 @@ public class Pair  extends AbstractComponent  {
 	
 	protected Pair(String reflectionInboundPortURI, String NMoutportUri ,String NMPortIn_facade, int DescriptorID)throws Exception {
 		super(reflectionInboundPortURI, 1, 1);
-		 this.adress = new ContentNodeAdress("Pair" + cpt,"CMuriIn"+ cpt, "NodeCuriIn"+ cpt);
+		
 
-		plugin = new Pair_plugin(NMoutportUri, NMPortIn_facade, DescriptorID ,adress);
+		plugin = new Pair_plugin(NMoutportUri, NMPortIn_facade, DescriptorID);
 		this.installPlugin(plugin);
 		this.csop = new ClocksServerOutboundPort(this);
 		this.csop.publishPort();
@@ -147,23 +128,23 @@ public class Pair  extends AbstractComponent  {
 
 	public void		action1() throws Exception
 	{
-		plugin.NMportOut.join(this.adress);
+		plugin.join_p();
 		
 	}
 	
 	public void action2() throws Exception 
 	{
-		for (ContentNodeAddressI p: voisins ) {
-			NodeCOutboundPort NportOut = outPortsNodeC.get(p);
-			NportOut.disconnecte(this.adress);
-		}
+		//for (ContentNodeAddressI p: voisins ) {
+		//	NodeCOutboundPort NportOut = outPortsNodeC.get(p);
+		//	NportOut.disconnecte(this.adress);
+	//	}
 		
 	}
 
 	//leave  
 	public void action3() throws Exception 
 	{
-		this.NMportOut.leave(adress);
+		plugin.leave_p();
 		
 	}
 	

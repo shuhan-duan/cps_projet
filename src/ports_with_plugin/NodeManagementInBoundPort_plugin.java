@@ -47,17 +47,16 @@ public class NodeManagementInBoundPort_plugin extends AbstractInboundPort implem
 	@Override
 	public void join(ContentNodeAddressI p) throws Exception {
 
-			 this.getOwner().runTask(
-				      new AbstractComponent.AbstractTask(this.getPluginURI()) {
-				        @Override
-				        public void run() {
-				          try {
-				            ((Facade_plugin) this.getTaskProviderReference()).joinPair(p);
-				          } catch (Exception e) {
-				            e.printStackTrace();
-				          }
-				        }
-				      });
+		this.getOwner().handleRequest(
+				new AbstractComponent.AbstractService<Void>(this.getPluginURI()) {
+					@SuppressWarnings("unchecked")
+					@Override
+					public Void call() throws Exception {
+						((Facade_plugin)this.getServiceProviderReference()).joinPair(p);
+						return null;
+					}
+				});
+
 	}
 
 	@Override
