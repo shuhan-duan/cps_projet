@@ -50,6 +50,7 @@ public class NodeManagementOutboundPort extends AbstractOutboundPort implements 
 
 	@Override
 	public void join(ContentNodeAddressI p) throws Exception {
+		System.out.println(this.getOwnerPlugin(uri));
 		((NodeManagementCI)this.getConnector()).join(p);
 		
 	}

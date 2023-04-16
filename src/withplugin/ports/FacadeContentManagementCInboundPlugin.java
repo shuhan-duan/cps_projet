@@ -14,6 +14,7 @@ import interfaces.MyCMI;
 import interfaces.MyFCMI;
 
 public class FacadeContentManagementCInboundPlugin extends AbstractInboundPort implements  FacadeContentManagementCI {
+	
 	public FacadeContentManagementCInboundPlugin(String pluginURI ,ComponentI owner)
 			throws Exception {
 		super(FacadeContentManagementCI.class, owner, pluginURI, null);
