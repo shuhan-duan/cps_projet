@@ -138,12 +138,12 @@ public class Facade_plugin    extends AbstractPlugin  implements MyCMI ,MyFCMI{
 				String outportCM_Facade = "myOutportCMfacade" + cpt; 
 				ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM_Facade,this.getOwner());
 				CMportOut.publishPort(); 
+				System.out.println("je uis dans join plugfacade"+p.toString());
+
 				outPortsCM.put(p, CMportOut); 
+
 				String inportCM_Pair = p.getContentManagementURI();
-				this.getOwner().doPortConnection(outportCM_Facade,
-						  			inportCM_Pair, 
-						  			ContentManagementConector.class.getCanonicalName());
-				 
+				this.getOwner().doPortConnection(outportCM_Facade,	inportCM_Pair, ContentManagementConector.class.getCanonicalName());
 				outPortsCM.put(p,CMportOut); 
 				
 				//do connect entre facade et racine en "NodeCI" 
@@ -152,9 +152,7 @@ public class Facade_plugin    extends AbstractPlugin  implements MyCMI ,MyFCMI{
 				NodeCportOut.publishPort(); 
 				outPortsNodeC.put(p.getNodeidentifier(), NodeCportOut); 
 				String inportNodeC_pair = p.getNodeUri();
-				this.getOwner().doPortConnection(outportNodeC_Facade,
-						inportNodeC_pair, 
-						  			NodeConnector.class.getCanonicalName());
+				this.getOwner().doPortConnection(outportNodeC_Facade,	inportNodeC_pair, 	NodeConnector.class.getCanonicalName());
 				System.out.println("\nc'est ok " + p.getNodeidentifier() +" est connecte avec "+outportCM_Facade +" comme racine en FacadeContentManagementCI et NodeCI" ); 
 				cpt++;
 			}else {

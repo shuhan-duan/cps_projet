@@ -18,7 +18,7 @@ public class NodeManagementConnector  extends  AbstractConnector implements Node
 
 	@Override
 	public void join(ContentNodeAddressI p) throws Exception {
-		//System.out.println("ici dans ManagementConnector-------------");
+	//	System.out.println("ici dans ManagementConnector-------------");
 		//System.out.println(this.offeringPortURI);
 		((NodeManagementCI)this.offering).join(p);
 	}

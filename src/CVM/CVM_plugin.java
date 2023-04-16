@@ -25,8 +25,8 @@ public class CVM_plugin extends AbstractCVM {
 	
 	protected static final String	FacadeCMInPortClient = "inportFCMclient";
 	
-	protected static final String	FacadeCMInPortFacade_plugin = "inportFCMfacade_plug";
-	
+	public static final String	FacadeCMInPortFacade_plugin = "inportFCMfacade_plug";
+	public static final String reflectionInboundPortURI ="Reflection";
 	protected final int NB_PEER = 7;  
 	protected final int NB_FACADE = 1;
 	
@@ -60,19 +60,19 @@ public class CVM_plugin extends AbstractCVM {
 		System.out.println("\nCreate Composant client OK ");*/
 		
 		// create the component facade
-		for(int i = 0 ; i < NB_FACADE ; i++ ) {
+
 			AbstractComponent.createComponent(
 					Facade.class.getCanonicalName(),
 					new Object[]{ContentManagementInboudPort_plugin,
 							NodeManagemenInboundPort_plugin ,FacadeCMInPortClient,FacadeCMInPortFacade_plugin});
-		}				
+				
 				System.out.println("\nCreate Composant Facade_plugin OK ");
 				
 		// create the component pairs
 		for (int i = 0; i < NB_PEER  ; i++) {
 			AbstractComponent.createComponent(
 							Pair.class.getCanonicalName(),
-							new Object[]{
+							new Object[]{reflectionInboundPortURI,
 									NodeManagementOutboundPort+i,
 									NodeManagemenInboundPort_plugin, i });
 		}

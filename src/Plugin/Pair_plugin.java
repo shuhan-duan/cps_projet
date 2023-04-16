@@ -1,4 +1,5 @@
 package Plugin;
+import fr.sorbonne_u.components.reflection.interfaces.ReflectionCI;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +8,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import CVM.CVM_plugin;
 import classes.ContentDescriptor;
 import classes.ContentNodeAdress;
 import connector.ContentManagementConector;
@@ -16,6 +18,8 @@ import connector.NodeManagementConnector;
 import fr.sorbonne_u.components.AbstractPlugin;
 import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.ComponentI;
+import fr.sorbonne_u.components.reflection.connectors.ReflectionConnector;
+import fr.sorbonne_u.components.reflection.ports.ReflectionOutboundPort;
 import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import interfaces.ApplicationNodeAdressI;
@@ -38,7 +42,7 @@ public class Pair_plugin  extends AbstractPlugin implements MyCMI{
 	public static int cpt = 0;
 
 	/**	the outbound port used to call the service.							*/
-	protected NodeManagementOutboundPort	NMportOut ;
+	public  NodeManagementOutboundPort	NMportOut ;
 	protected String NMPortIn_facade;
 	protected NodeCIntboundPort_plugin	NodePortIn ;
 	protected ContentManagementCIIntbound_plugin CMportIn;
@@ -57,9 +61,9 @@ public class Pair_plugin  extends AbstractPlugin implements MyCMI{
 	private ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound> outPortsCM;
 	
 	private String NMoutportUri;
-	public  Pair_plugin( String NMoutportUri ,String NMPortIn_facade, int DescriptorID)throws Exception {
+	public  Pair_plugin( String NMoutportUri ,String NMPortIn_facade, int DescriptorID , ContentNodeAdress adress )throws Exception {
 		 super();
-		    setPluginURI(AbstractPort.generatePortURI());		
+		 setPluginURI(AbstractPort.generatePortURI());		
 		cpt++;
 		
 		this.counter = DescriptorID ;
@@ -69,16 +73,25 @@ public class Pair_plugin  extends AbstractPlugin implements MyCMI{
 		this.voisins = new HashSet<ContentNodeAddressI>();
 		this.contents = new ArrayList<ContentDescriptorI>();
 		
-		this.NMoutportUri= NMoutportUri;
-		 this.adress = new ContentNodeAdress("Pair" + cpt,"CMuriIn"+ cpt, "NodeCuriIn"+ cpt);
+	 	this.NMoutportUri= NMoutportUri;
+		 this.adress = adress;
 		//add descriptor
-			addDescriptor(DescriptorID);
+		addDescriptor(DescriptorID);
 
 	}
 	
 	 @Override
 	  public void initialise() throws Exception {
-		 super.initialise();
+		ReflectionOutboundPort rop = new ReflectionOutboundPort(this.getOwner());
+		rop.publishPort();
+
+		this.getOwner().doPortConnection(rop.getPortURI(),NMPortIn_facade,ReflectionConnector.class.getCanonicalName());
+		System.out.println(rop.getPortURI());
+
+		String[] uris = rop.findPortURIsFromInterface(NodeManagementCI.class);
+		
+		System.out.println(rop.getPortURI());
+
 		 this.NMportOut =new NodeManagementOutboundPort(NMoutportUri, this.getOwner()) ;
 		NMportOut.publishPort() ;
 		this.NodePortIn = new NodeCIntboundPort_plugin(this.getOwner() ,adress.getNodeUri());
@@ -88,7 +101,15 @@ public class Pair_plugin  extends AbstractPlugin implements MyCMI{
 		//Create Clock
 		this.csop = new ClocksServerOutboundPort(this.getOwner());
 		this.csop.publishPort();
-		this.getOwner().doPortConnection(NMportOut.getPortURI(), NMPortIn_facade,NodeManagementConnector.class.getCanonicalName());
+	
+		// connect the outbound port.
+
+		this.getOwner().doPortConnection(NMportOut.getPortURI(), uris[0],NodeManagementConnector.class.getCanonicalName());
+		
+		this.getOwner().doPortDisconnection(rop.getPortURI());
+		rop.unpublishPort();
+		rop.destroyPort();
+		 super.initialise();
 
 	  }
 
@@ -98,6 +119,7 @@ public class Pair_plugin  extends AbstractPlugin implements MyCMI{
 	    this.addOfferedInterface(NodeCI.class);
 	    this.addRequiredInterface(NodeCI.class);
 	    this.addRequiredInterface(NodeManagementCI.class);
+	   
 
 	  }
 	

@@ -25,6 +25,7 @@ import connector.FacadeContentManagementConector;
 import connector.NodeManagementConnector;
 import connector.NodeConnector;
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
@@ -36,6 +37,8 @@ import interfaces.ContentTemplateI;
 import interfaces.FacadeContentManagementCI;
 import interfaces.MyCMI;
 import interfaces.NodeAdresseI;
+import interfaces.NodeCI;
+import interfaces.NodeManagementCI;
 import ports.*;
 import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import fr.sorbonne_u.utils.aclocks.AcceleratedClock;
@@ -47,7 +50,8 @@ import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
  * @author lyna & shuhan 
  *
  */
-@RequiredInterfaces(required={ClocksServerCI.class}) 
+@RequiredInterfaces(required = { NodeManagementCI.class, NodeCI.class ,ClocksServerCI.class })
+@OfferedInterfaces(offered = { NodeCI.class })
 public class Pair  extends AbstractComponent  {
 	protected ClocksServerOutboundPort csop; 
 	public static int cpt = 0;
@@ -75,13 +79,15 @@ public class Pair  extends AbstractComponent  {
 
 
 	
-	protected Pair( String NMoutportUri ,String NMPortIn_facade, int DescriptorID)throws Exception {
-		super(NMoutportUri, 10, 1);
-		
-		plugin = new Pair_plugin(NMoutportUri, NMPortIn_facade, DescriptorID);
+	protected Pair(String reflectionInboundPortURI, String NMoutportUri ,String NMPortIn_facade, int DescriptorID)throws Exception {
+		super(reflectionInboundPortURI, 1, 1);
+		 this.adress = new ContentNodeAdress("Pair" + cpt,"CMuriIn"+ cpt, "NodeCuriIn"+ cpt);
+
+		plugin = new Pair_plugin(NMoutportUri, NMPortIn_facade, DescriptorID ,adress);
 		this.installPlugin(plugin);
 		this.csop = new ClocksServerOutboundPort(this);
 		this.csop.publishPort();
+		
 
 	}
 
@@ -96,14 +102,14 @@ public class Pair  extends AbstractComponent  {
 
 	@Override
 	public void			execute() throws Exception
-	{ 
+	{ 	
 		this.doPortConnection(this.csop.getPortURI(),ClocksServer.STANDARD_INBOUNDPORT_URI,ClocksServerConnector.class.getCanonicalName());
 		AcceleratedClock clock = this.csop.getClock(CVM.CLOCK_URI);
 		Instant startInstant = clock.getStartInstant();
 		clock.waitUntilStart();
 		//long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(10+counter*10));
 		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(10));
-		
+
 		//do join et connect 
 				this.scheduleTask(
 						o -> {
@@ -123,9 +129,9 @@ public class Pair  extends AbstractComponent  {
 	@Override
 	public void	finalise() throws Exception
 	{
-		this.doPortDisconnection(this.csop.getPortURI());
+		//this.doPortDisconnection(this.csop.getPortURI());
 
-		this.doPortDisconnection(NMportOut.getPortURI());
+	//	this.doPortDisconnection(NMportOut.getPortURI());
 		super.finalise();
 	}
 	@Override
@@ -141,7 +147,7 @@ public class Pair  extends AbstractComponent  {
 
 	public void		action1() throws Exception
 	{
-		this.NMportOut.join(this.adress);
+		plugin.NMportOut.join(this.adress);
 		
 	}
 	

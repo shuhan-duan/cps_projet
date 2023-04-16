@@ -49,12 +49,12 @@ public class Facade  extends AbstractComponent{
 	* @author: lyna & shuhan
 	* @date: 30 janv. 2023 20:29:55 
 	*/
-
+	Facade_plugin facade_plugin ;
  
 	protected	Facade(	String ContentManagementInboudPort,	String 	NodeManagemenInboundPort ,String FCMInbountPortClient, String FacadeCMInPortFacade) throws Exception
 		{
 			// the reflection inbound port URI is the URI of the component
-			super(NodeManagemenInboundPort, 2, 0) ;
+			super(NodeManagemenInboundPort, 1, 0) ;
 			Facade_plugin facade_plugin = new Facade_plugin(ContentManagementInboudPort, NodeManagemenInboundPort,FCMInbountPortClient,FacadeCMInPortFacade);
 			this.installPlugin(facade_plugin);
 			
