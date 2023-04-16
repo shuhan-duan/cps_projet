@@ -68,6 +68,9 @@ public class Facade  extends AbstractComponent implements MyCMI ,MyFCMI{
 	protected FacadeContentManagementCOutbound fCMportOutbound; //connect avec client
 	
 	protected String fCMInbountPortClient ;
+	private static boolean findflag ; // pour indiquer si on a trouve ou pas 
+	private static boolean matchflag ; // pour indiquer si on a trouve ou pas 
+	
  
 	protected	Facade(	String ContentManagementInboudPort,	String 	NodeManagemenInboundPort ,String FCMInbountPortClient, String FacadeCMInPortFacade) throws Exception
 		{
@@ -89,6 +92,9 @@ public class Facade  extends AbstractComponent implements MyCMI ,MyFCMI{
 			fCMportOutbound = new FacadeContentManagementCOutbound("myFCMfacade", this);
 			fCMportOutbound.publishPort();
 			fCMInbountPortClient = FCMInbountPortClient;
+			
+			this.findflag = false;
+			this.matchflag = false;
 		}
 
 	
@@ -215,16 +221,22 @@ public class Facade  extends AbstractComponent implements MyCMI ,MyFCMI{
 	public void acceptFound(ContentDescriptorI found, String requsetURI) throws Exception {
 		
 		doPortConnection(fCMportOutbound.getPortURI(), fCMInbountPortClient, FacadeContentManagementConector.class.getCanonicalName());
-		
 		if (found != null) {
-			fCMportOutbound.acceptFound(found, requsetURI);
+			if (findflag == false ) {
+				fCMportOutbound.acceptFound(found, requsetURI);
+				findflag = true ;
+			}			
 		}		
 	}
 	
 	public void acceptMatched(Set<ContentDescriptorI> matched ,String requsetURI) throws Exception {
 		doPortConnection(fCMportOutbound.getPortURI(), fCMInbountPortClient, FacadeContentManagementConector.class.getCanonicalName());
 		if (matched != null) {
-			fCMportOutbound.acceptMatched(matched, requsetURI);
+			if (matchflag == false) {
+				fCMportOutbound.acceptMatched(matched, requsetURI);
+				matchflag = true;
+			}
+			
 		}
 	}
 

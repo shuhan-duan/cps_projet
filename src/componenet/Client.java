@@ -42,6 +42,7 @@ public class Client extends AbstractComponent implements MyFCMI{
 
     protected String inportCM_facade;
     protected final int ID_TEMP = 0;
+    //private HashMap<String,  Set<ContentDescriptorI>> res;
 
     protected Client(String ContentManagementInboudPort, String ContentManagementOutboudPort,String FCMInbountPortClient) throws Exception {
         super(2,1);
@@ -50,6 +51,7 @@ public class Client extends AbstractComponent implements MyFCMI{
         inportFCM_client = new FacadeContentManagementCInbound(FCMInbountPortClient, this);
         inportFCM_client.publishPort();
         inportCM_facade = ContentManagementInboudPort; 
+        //res = new HashMap<>();
         
       //Create Clock
       this.csop = new ClocksServerOutboundPort(this);  
@@ -120,6 +122,7 @@ public class Client extends AbstractComponent implements MyFCMI{
 	
 	public void acceptMatched(Set<ContentDescriptorI> matched ,String requsetURI) throws Exception {
 		System.out.println("\nIn " + requsetURI +"  we have matched: ");
+		//res.put(requsetURI, matched);
 		for (ContentDescriptorI contentDescriptorI : matched) {
 			System.out.println(contentDescriptorI.toString());
 		}
@@ -173,7 +176,7 @@ public class Client extends AbstractComponent implements MyFCMI{
     	 //choose template
         ContentTemplateI temp = createTemplate(ID_TEMP);
         //find
-        //doFind(temp);
+        doFind(temp);
         //match
         //doMatch(temp);
 	}

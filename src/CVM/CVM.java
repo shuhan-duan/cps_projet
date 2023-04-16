@@ -35,7 +35,7 @@ public class CVM extends AbstractCVM{
 	
 	protected static final String	FacadeCMInPortFacade = "inportFCMfacade";
 	
-	protected final int NB_PEER = 7;  
+	protected final int NB_PEER = 10;  
 	protected final int NB_FACADE = 1;
 	
 	protected static final long		DELAY_TO_START_IN_NANOS =	TimeUnit.SECONDS.toNanos(5);

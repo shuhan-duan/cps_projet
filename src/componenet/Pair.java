@@ -61,6 +61,9 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	protected ContentNodeAdress adress;
 	private ArrayList<ContentDescriptorI> contents;
 	protected Set<ContentNodeAddressI> voisins; //neighbours 
+	
+	private static boolean findflag ; // pour indiquer si on a trouve ou pas 
+	private static boolean matchflag ; // pour indiquer si on a trouve ou pas 
 
 
 	//stock the pairs connected with this pair and the outportNodeC of me
@@ -69,7 +72,6 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	//stock the neighber pairs connected with this pair and the outportCMpair of me
 	//cntentMangement 
 	private ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound> outPortsCM;
-	
 	
 
 
@@ -96,11 +98,16 @@ public class Pair  extends AbstractComponent implements MyCMI {
 		this.outPortsCM = new ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound>();
 		this.voisins = new HashSet<ContentNodeAddressI>();
 		this.contents = new ArrayList<ContentDescriptorI>();
+		
+		this.findflag = false;
+		this.matchflag = false;
+		
 		//add descriptor
 		addDescriptor(DescriptorID);
 		//Create Clock
 		this.csop = new ClocksServerOutboundPort(this);
 		this.csop.publishPort();
+		
 		
 	}
 
@@ -419,81 +426,29 @@ public class Pair  extends AbstractComponent implements MyCMI {
 	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
 		requestURI = this.adress.getNodeidentifier();
 		System.out.println("\nwill do find in "+requestURI);
-		Boolean flag = false;
-		
-		if (hops <= 0) {
-			System.out.println("c'est find in pair qui termine");
-		}else {
-			// Cherche parmi ses propres contenus
-			for (ContentDescriptorI content : this.contents) {
-				if (content.match(cd)) {  //pour march le patron avec le contenue 
-					System.out.println("found in " + this.adress.getNodeidentifier());
-					FacadeContentManagementCOutbound outCM = new FacadeContentManagementCOutbound("myPairFCMout"+cpt, this);
-					outCM.publishPort();
-					
-					doPortConnection(outCM.getPortURI(), requester.getFacadeCMURI(), FacadeContentManagementConector.class.getCanonicalName());
-					
-					outCM.acceptFound(content, requestURI);
-					flag = true;
-				}
-			}
-	 		
-			if (flag == false) {
-				//sinon il cherche dans les voisin 
-				System.out.println(this.adress.getNodeidentifier() + " n'a pas touve");
-				// Si le contenu n'est pas dans le nœud courant, demande à un autre pair
-				if (voisins.size() == 0) {
-						System.out.println("\npas de neighbor : "+ this.adress.getNodeidentifier());
-							
-				}else {
-					
-							ContentNodeAddressI[] array = voisins .toArray(new ContentNodeAddressI[0]);
-							
-							Random rand = new Random();
-							
-							int randomIndex = rand.nextInt(voisins.size());
-							
-							ContentNodeAddressI neighbor = array[randomIndex];
-							
-							ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
-							
-							outportCM.find(cd, hops-1, requester, requestURI);
-							//System.out.println("\nwill do find in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
-							//System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());					
-				}
-			}
-			
-		}
-		
-	}
-
-	@Override
-	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, ApplicationNodeAdressI requester,
-			String requestURI) throws Exception {
-		requestURI = this.adress.getNodeidentifier();
-		System.out.println("\nwill do match in "+requestURI);
-		Boolean flag = false;
-		if (hops <= 0) {
-			System.out.println("c'est match in pair qui termine");
-		}else {
-			// Cherche parmi ses propres contenus
-			for (ContentDescriptorI content : this.contents) {
-				if (content.match(cd)) {  //pour march le patron avec le contenue 
-					System.out.println("matched in " + this.adress.getNodeidentifier());
-					FacadeContentManagementCOutbound outCM = new FacadeContentManagementCOutbound("myPairFCMout"+cpt, this);
-					outCM.publishPort();
-					
-					doPortConnection(outCM.getPortURI(), requester.getFacadeCMURI(), FacadeContentManagementConector.class.getCanonicalName());
-					matched.add(content);
-					outCM.acceptMatched(matched, requestURI);
-					flag =true ;
-				}
-			}
-	 		if (flag) {
-					
+			if (hops <= 0) {
+				System.out.println("c'est find in pair qui termine");
 			}else {
+				if (findflag == false) {
+					// Cherche parmi ses propres contenus
+					for (ContentDescriptorI content : this.contents) {
+						if (content.match(cd)) {  //pour march le patron avec le contenue 
+							System.out.println("found in " + this.adress.getNodeidentifier());
+							FacadeContentManagementCOutbound outCM = new FacadeContentManagementCOutbound("myPairFCMout"+cpt, this);
+							outCM.publishPort();
+							
+							doPortConnection(outCM.getPortURI(), requester.getFacadeCMURI(), FacadeContentManagementConector.class.getCanonicalName());
+							
+							outCM.acceptFound(content, requestURI);
+							findflag = true;
+							break;
+						}
+					}
+				}
+		 		
+				if (findflag == false) {
 					//sinon il cherche dans les voisin 
-					System.out.println(this.adress.getNodeidentifier() + " cannot match");
+					System.out.println(this.adress.getNodeidentifier() + " n'a pas touve");
 					// Si le contenu n'est pas dans le nœud courant, demande à un autre pair
 					if (voisins.size() == 0) {
 							System.out.println("\npas de neighbor : "+ this.adress.getNodeidentifier());
@@ -510,15 +465,74 @@ public class Pair  extends AbstractComponent implements MyCMI {
 								
 								ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
 								
-								outportCM.match(cd, matched, hops -1, requester, requestURI);
+								outportCM.find(cd, hops-1, requester, requestURI);
 								//System.out.println("\nwill do find in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
 								//System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());					
 					}
 				}
 				
-				
 			}
 			
+		
+		
+	}
+
+	@Override
+	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, ApplicationNodeAdressI requester,
+			String requestURI) throws Exception {
+		requestURI = this.adress.getNodeidentifier();
+		System.out.println("\nwill do match in "+requestURI);
+		
+		if (hops <= 0) {
+			System.out.println("c'est match in pair qui termine");
+		}else {
+			if (matchflag == false) {
+				// Cherche parmi ses propres contenus
+				for (ContentDescriptorI content : this.contents) {
+					if (content.match(cd)) {  //pour march le patron avec le contenue 
+						System.out.println("matched in " + this.adress.getNodeidentifier());
+						FacadeContentManagementCOutbound outCM = new FacadeContentManagementCOutbound("myPairFCMout"+cpt, this);
+						outCM.publishPort();
+						
+						doPortConnection(outCM.getPortURI(), requester.getFacadeCMURI(), FacadeContentManagementConector.class.getCanonicalName());
+						matched.add(content);
+						outCM.acceptMatched(matched, requestURI);
+						matchflag =true ;
+						break;
+					}
+				}
+			}
+			
+	 		if (matchflag == false) {
+	 			//sinon il cherche dans les voisin 
+				System.out.println(this.adress.getNodeidentifier() + " cannot match");
+				// Si le contenu n'est pas dans le nœud courant, demande à un autre pair
+				if (voisins.size() == 0) {
+						System.out.println("\npas de neighbor : "+ this.adress.getNodeidentifier());
+							
+				}else {
+					
+						ContentNodeAddressI[] array = voisins .toArray(new ContentNodeAddressI[0]);
+						
+						Random rand = new Random();
+						
+						int randomIndex = rand.nextInt(voisins.size());
+						
+						ContentNodeAddressI neighbor = array[randomIndex];
+						
+						ContentManagementCIOutbound outportCM = outPortsCM.get(neighbor);
+						
+						outportCM.match(cd, matched, hops -1, requester, requestURI);
+						//System.out.println("\nwill do find in :" + neighbor.getNodeidentifier()+" "+ outportCM.getPortURI());
+						//System.out.println(outportCM.getPortURI()+ " is connected? "+outportCM.connected());					
+				}
+					
+			}else {
+					
+				}
+			}
+			
+		
 		
 	}
 

@@ -16,6 +16,9 @@ import connector.NodeManagementConnector;
 import fr.sorbonne_u.components.AbstractPlugin;
 import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.ComponentI;
+import fr.sorbonne_u.components.reflection.connectors.ReflectionConnector;
+import fr.sorbonne_u.components.reflection.interfaces.ReflectionCI;
+import fr.sorbonne_u.components.reflection.ports.ReflectionOutboundPort;
 import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import interfaces.ApplicationNodeAdressI;
@@ -32,6 +35,7 @@ import ports.NodeCOutboundPort;
 import ports.NodeManagementOutboundPort;
 import withplugin.ports.ContentManagementCIIntboundPlugin;
 import withplugin.ports.NodeCIntboundPortForPlugin;
+import withplugin.CVM;
 
 public class PairPlugin extends AbstractPlugin implements MyCMI {
 	
@@ -125,6 +129,29 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		 NodePortIn.publishPort();
 		 this.CMportIn = new ContentManagementCIIntboundPlugin(this.getOwner(), adress.getContentManagementURI());
 		 CMportIn.publishPort();
+		 
+		// Use the reflection approach to get the URI of the inbound port of the component.
+		this.addRequiredInterface(ReflectionCI.class);
+		ReflectionOutboundPort rop = new ReflectionOutboundPort(this.getOwner());
+		rop.publishPort();
+		this.getOwner().doPortConnection(
+				rop.getPortURI(),
+				NMPortIn_facade,
+				ReflectionConnector.class.getCanonicalName());
+		String[] uris = rop.findPortURIsFromInterface(NodeManagementCI.class);
+		assert	uris != null && uris.length == 1;
+
+		this.getOwner().doPortDisconnection(rop.getPortURI());
+		rop.unpublishPort();
+		rop.destroyPort();
+		this.removeRequiredInterface(ReflectionCI.class);
+		
+		// connect the outbound port.
+		this.getOwner().doPortConnection(
+				this.NMportOut.getPortURI(),
+				uris[0],
+				NodeManagementConnector.class.getCanonicalName());
+		System.out.println("---------   "+ NMportOut.connected());
 		 
 	}
 	
