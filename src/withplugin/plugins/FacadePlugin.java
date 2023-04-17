@@ -13,8 +13,12 @@ import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.AbstractPlugin;
 import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.ComponentI;
+import fr.sorbonne_u.components.reflection.connectors.ReflectionConnector;
+import fr.sorbonne_u.components.reflection.interfaces.ReflectionCI;
+import fr.sorbonne_u.components.reflection.ports.ReflectionOutboundPort;
 import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentDescriptorI;
+import interfaces.ContentManagementCI;
 import interfaces.ContentNodeAddressI;
 import interfaces.ContentTemplateI;
 import interfaces.MyCMI;
@@ -85,8 +89,10 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI ,MyFCMI{
 		NMportIn.publishPort();
 		fCMportIn = new FacadeContentManagementCInboundPlugin(this.getPluginURI(),this.getOwner());
 		fCMportIn.publishPort();
-		CMportIn = new ContentManagementCIIntboundPlugin(this.getOwner(), this.getPluginURI());
+		
+		CMportIn = new ContentManagementCIIntboundPlugin(this.getOwner(),this.getPluginURI());
 		CMportIn.publishPort();
+		System.out.println("------  "+this.getPluginURI()+ "  "+adress.getContentManagementURI()+ "  "+ CMportIn.getPortURI());
 		fCMportOutbound = new FacadeContentManagementCOutbound("myFCMfacade", this.getOwner());
 		fCMportOutbound.publishPort();
 		
@@ -97,6 +103,8 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI ,MyFCMI{
 	  	public void installOn(ComponentI owner) throws Exception {
 		    super.installOn(owner);
 		    this.addOfferedInterface(NodeManagementCI.class);
+		    this.addRequiredInterface(ContentManagementCI.class);
+		    this.addOfferedInterface(ContentManagementCI.class);
 	  	}
 	  
 		/**
@@ -175,6 +183,7 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI ,MyFCMI{
 				
 				
 				public void joinPair(ContentNodeAddressI p) throws Exception {
+					
 					//quand on a encore besoin de racine
 					if (cpt < NB_RACINE -1  ) {
 						
@@ -184,10 +193,33 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI ,MyFCMI{
 						CMportOut.publishPort(); 
 						outPortsCM.put(p, CMportOut); 
 						String inportCM_Pair = p.getContentManagementURI();
+						
+						// Use the reflection approach to get the URI of the inbound port of the component.
+						this.addRequiredInterface(ReflectionCI.class);
+						ReflectionOutboundPort rop = new ReflectionOutboundPort(this.getOwner());
+						rop.publishPort();
+						System.out.println("------------ join "+ inportCM_Pair);
+						this.getOwner().doPortConnection(
+								rop.getPortURI(),
+								inportCM_Pair,
+								ReflectionConnector.class.getCanonicalName());
+						
+						
+						String[] uris = rop.findPortURIsFromInterface(ContentManagementCI.class);
+						assert	uris != null && uris.length == 1;
+						
+						System.out.println("------------ join + "+ uris[0]);
+						
+						this.getOwner().doPortDisconnection(rop.getPortURI());
+						rop.unpublishPort();
+						rop.destroyPort();
+						this.removeRequiredInterface(ReflectionCI.class);
+						
+					
 						this.getOwner().doPortConnection(outportCM_Facade,
-								  			inportCM_Pair, 
+											uris[0], 
 								  			ContentManagementConector.class.getCanonicalName());
-						 
+						System.out.println("------------ join ++ ");
 						outPortsCM.put(p,CMportOut); 
 						
 						//do connect entre facade et racine en "NodeCI" 

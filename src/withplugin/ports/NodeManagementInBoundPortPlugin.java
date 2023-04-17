@@ -46,7 +46,6 @@ public class NodeManagementInBoundPortPlugin extends AbstractInboundPort impleme
 
 	@Override
 	public void join(ContentNodeAddressI p) throws Exception {
-		
 		this.getOwner().handleRequest(
 				new AbstractComponent.AbstractService<Void>(this.getPluginURI()) {
 					@SuppressWarnings("unchecked")

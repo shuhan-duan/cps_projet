@@ -3,6 +3,7 @@ package withplugin.ports;
 import java.util.Set;
 
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import interfaces.ApplicationNodeAdressI;
@@ -16,7 +17,9 @@ public class ContentManagementCIIntboundPlugin  extends AbstractInboundPort  imp
 
 	public ContentManagementCIIntboundPlugin(ComponentI owner ,String plugin)
 			throws Exception {
-		super(ContentManagementCI.class, owner, plugin, null);
+		
+		super(ContentManagementCI.class, owner,plugin , null);
+		
 		
 	}
 	/**
