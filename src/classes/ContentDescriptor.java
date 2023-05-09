@@ -36,11 +36,33 @@ public class ContentDescriptor extends ContentTemplate implements  ContentDescri
 		// TODO Auto-generated method stub
 		return size;
 	}
-
+	
 	@Override
 	public boolean equals(ContentDescriptorI cd) throws Exception {
-		return  cd.equals(ca);
+	    if (cd == null) {
+	        return false;
+	    }
+	    if (!this.getContentNodeAdress().equals(cd.getContentNodeAdress())) {
+	        return false;
+	    }
+	    if (!this.getTitre().equals(cd.getTitre())) {
+	        return false;
+	    }
+	    if (!this.getALbumTitre().equals(cd.getALbumTitre())) {
+	        return false;
+	    }
+	    if (!this.getInterpreters().equals(cd.getInterpreters())) {
+	        return false;
+	    }
+	    if (!this.getComposers().equals(cd.getComposers())) {
+	        return false;
+	    }
+	    if (this.getsize() != cd.getsize()) {
+	        return false;
+	    }
+	    return true;
 	}
+
 
 	@Override
 	public boolean match(ContentTemplateI t) throws Exception {

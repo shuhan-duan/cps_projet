@@ -1,10 +1,10 @@
 package classes;
 
-import interfaces.FacadeNodeAdressI;
-import interfaces.NodeAdresseI;
-import interfaces.PeerNodeAddressI;
 
-public class NodeAdresse implements NodeAdresseI {
+import interfaces.NodeAdresseI;
+
+
+public abstract class NodeAdresse implements NodeAdresseI {
 
 	String uriPrefix ; 
 	
@@ -19,15 +19,10 @@ public class NodeAdresse implements NodeAdresseI {
 		return uriPrefix;
 	}
 
-	@Override
-	public Boolean isfacade() throws Exception {
-		return   this instanceof  FacadeNodeAdressI;
-	}
+	public abstract Boolean isfacade() throws Exception;
+    
+    public abstract Boolean ispeer() throws Exception;
 
-	@Override
-	public Boolean ispeer() throws Exception {
-		
-		 return this instanceof  PeerNodeAddressI;
-	}
+	
 
 }

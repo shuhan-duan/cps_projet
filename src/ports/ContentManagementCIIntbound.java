@@ -2,8 +2,7 @@ package ports;
 
 import java.util.Set;
 
-import componenet.Facade;
-import componenet.Pair;
+
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.interfaces.OfferedCI;

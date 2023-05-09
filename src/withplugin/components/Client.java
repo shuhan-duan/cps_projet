@@ -9,7 +9,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import CVM.CVM;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
@@ -27,6 +26,7 @@ import interfaces.ContentTemplateI;
 import interfaces.MyFCMI;
 import ports.ContentManagementCIOutbound;
 import ports.FacadeContentManagementCInbound;
+import withplugin.CVM;
 @RequiredInterfaces(required={ClocksServerCI.class}) 
 
 /**
@@ -41,7 +41,12 @@ public class Client extends AbstractComponent implements MyFCMI{
 
     protected String inportCM_facade;
     protected final int ID_TEMP = 0;
-
+    
+    
+    // -------------------------------------------------------------------------
+ 	// Constructors
+ 	// -------------------------------------------------------------------------
+    
     protected Client(String ContentManagementInboudPort, String ContentManagementOutboudPort,String FCMInbountPortClient) throws Exception {
         super(2,1);
         outportCM_client = new ContentManagementCIOutbound(ContentManagementOutboudPort,this);
@@ -54,6 +59,57 @@ public class Client extends AbstractComponent implements MyFCMI{
       this.csop = new ClocksServerOutboundPort(this);  
       this.csop.publishPort();
     }
+    
+    
+	
+	//-------------------------------------------------------------------------
+	// Component life-cycle
+	//-------------------------------------------------------------------------
+    
+    @Override
+    public void start() throws ComponentStartException {
+      try {
+        super.start();
+        //conexionc avec facade 
+        
+        String str = outportCM_client.getPortURI();
+        //this.doPortConnection(str, inportCM_facade, ContentManagementConector.class.getCanonicalName());		
+      } catch (Exception e) {
+        throw new ComponentStartException(e);
+      }
+    }
+    
+    @Override
+    public void execute() throws Exception {
+      super.execute();
+      this.doPortConnection(
+				this.csop.getPortURI(),
+				ClocksServer.STANDARD_INBOUNDPORT_URI,
+				ClocksServerConnector.class.getCanonicalName());
+		AcceleratedClock clock = this.csop.getClock(CVM.CLOCK_URI);
+		Instant startInstant = clock.getStartInstant();
+		clock.waitUntilStart();
+		
+		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(150));
+		
+		this.scheduleTask(
+				o -> {
+					try {
+						((Client)o).action();
+					} catch (Exception e) {
+						e.printStackTrace();
+					} 
+				},
+				delayInNanos,
+				TimeUnit.NANOSECONDS);  
+				
+
+    }
+    
+    
+    // -------------------------------------------------------------------------
+ 	// Services implementation
+ 	// -------------------------------------------------------------------------
     
     public ContentTemplate createTemplate(int numbre) throws ClassNotFoundException, IOException{
         ContentDataManager.DATA_DIR_NAME = "src/data";
@@ -123,49 +179,7 @@ public class Client extends AbstractComponent implements MyFCMI{
 			System.out.println(contentDescriptorI.toString());
 		}
 	}
-
-    
-    @Override
-    public void start() throws ComponentStartException {
-      try {
-        super.start();
-        //conexionc avec facade 
-        
-        String str = outportCM_client.getPortURI();
-        //this.doPortConnection(str, inportCM_facade, ContentManagementConector.class.getCanonicalName());		
-      } catch (Exception e) {
-        throw new ComponentStartException(e);
-      }
-    }
-    
-    @Override
-    public void execute() throws Exception {
-      super.execute();
-      this.doPortConnection(
-				this.csop.getPortURI(),
-				ClocksServer.STANDARD_INBOUNDPORT_URI,
-				ClocksServerConnector.class.getCanonicalName());
-		AcceleratedClock clock = this.csop.getClock(CVM.CLOCK_URI);
-		Instant startInstant = clock.getStartInstant();
-		clock.waitUntilStart();
-		
-		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(150));
-		
-		this.scheduleTask(
-				o -> {
-					try {
-						((Client)o).action();
-					} catch (Exception e) {
-						e.printStackTrace();
-					} 
-				},
-				delayInNanos,
-				TimeUnit.NANOSECONDS);  
-				
-
-    }
-    
-    
+	
     
     public void		action() throws Exception
 	{

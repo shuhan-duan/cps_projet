@@ -2,12 +2,13 @@ package ports;
 
 
 
-import componenet.Facade;
+
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentNodeAddressI;
 import interfaces.NodeManagementCI;
+import withplugin.components.Facade;
 
 public class NodeManagementInBoundPort extends AbstractInboundPort implements NodeManagementCI{
 
@@ -44,7 +45,6 @@ public class NodeManagementInBoundPort extends AbstractInboundPort implements No
 
 	@Override
 	public void join(ContentNodeAddressI p) throws Exception {
-		
 		this.getOwner().runTask(
 				owner -> {
 					try {

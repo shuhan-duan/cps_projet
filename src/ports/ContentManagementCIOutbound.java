@@ -12,7 +12,7 @@ import interfaces.ContentTemplateI;
 import interfaces.MyCMI;
 import interfaces.NodeAdresseI;
 import interfaces.NodeManagementCI;
-import componenet.Pair;
+
 
 public class ContentManagementCIOutbound   extends AbstractOutboundPort  implements    ContentManagementCI{
   

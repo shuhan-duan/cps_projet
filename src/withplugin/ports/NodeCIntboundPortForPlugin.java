@@ -3,7 +3,7 @@ package withplugin.ports;
 import java.util.Set;
 
 
-import componenet.Pair;
+import withplugin.components.Pair;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
@@ -59,7 +59,7 @@ private static final long serialVersionUID = 1L;
 			          @Override
 			          public void run() {
 			            try {
-			              ((PairPlugin) this.getTaskProviderReference()).disconnectePair(p);
+			              ((PairPlugin) this.getTaskProviderReference()).disconnecte(p);
 			            } catch (Exception e) {
 			              throw new RuntimeException(e);
 			            }
