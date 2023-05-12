@@ -15,10 +15,10 @@ import interfaces.MyCMI;
 
 public class ContentManagementCIIntboundPlugin  extends AbstractInboundPort  implements  ContentManagementCI {
 
-	public ContentManagementCIIntboundPlugin(ComponentI owner ,String plugin)
+	public ContentManagementCIIntboundPlugin(String uri, ComponentI owner ,String plugin , String executorServiceURI)
 			throws Exception {
 		
-		super(ContentManagementCI.class, owner,plugin , null);
+		super(uri,ContentManagementCI.class, owner,plugin , executorServiceURI);
 		
 		
 	}

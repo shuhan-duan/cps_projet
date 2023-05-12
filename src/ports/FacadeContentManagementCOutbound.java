@@ -22,12 +22,11 @@ public class FacadeContentManagementCOutbound extends AbstractOutboundPort imple
 
 
 
-			public				FacadeContentManagementCOutbound(
-				String uri,
+			public	FacadeContentManagementCOutbound(
 				ComponentI owner
 				) throws Exception
 			{
-				super(uri, FacadeContentManagementCI.class, owner);
+				super(generatePortURI(), FacadeContentManagementCI.class, owner);
 			}
 
 	@Override

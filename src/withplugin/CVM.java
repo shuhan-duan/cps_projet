@@ -1,6 +1,7 @@
 package withplugin;
 
 import java.time.Instant;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 
@@ -19,26 +20,22 @@ import withplugin.components.Pair;
  *
  */
 public class CVM extends AbstractCVM{
-	/** URI of the facade component (convenience).						*/
-	protected static final String	ContentManagementInboudPort = "inportCMfacade";
-
-	protected static final String	ContentManagementOutboudPort = "outportCMclient";
-
-	/** URI of the provider outbound port (simplifies the connection).		*/
-	protected static final String	NodeManagementOutboundPort = "outportNMpair";
-
+	/** URI of the facade inbound component (convenience).						*/
+	protected static final String	NMInboundPortURI = "inportNMfacade"; // 
+	protected static final String	FacadeCMInPortFacadeURI = "inportFCMfacade";
+	
 	/** URI of the consumer inbound port (simplifies the connection).		*/
-	protected static final String	NodeManagemenInboundPort = "inportNMfacade";
+	protected static final String	FacadeCMInPortClientURI = "inportFCMclient";
 	
-	protected static final String	FacadeCMInPortClient = "inportFCMclient";
+	/** URI of the pair inbound port (simplifies the connection).		*/
+	protected static final String	NodeCInPortPairURI = "inportNodeCpair";
+	protected static final String	CMInPortPairURI = "inportCMpair";
 	
-	protected static final String	FacadeCMInPortFacade = "inportFCMfacade";
-	
-	protected final int NB_PEER = 7;  
-	protected final int NB_FACADE = 1;
+	protected final int NB_PEER = 20;  
+	protected final int NB_FACADE = 3 ;
 	
 	protected static final long		DELAY_TO_START_IN_NANOS =	TimeUnit.SECONDS.toNanos(5);
-   public static final String		CLOCK_URI = "my-clock";
+	public static final String		CLOCK_URI = "my-clock";
 
 	/**    
 	* @Function: CVM.java
@@ -74,18 +71,24 @@ public class CVM extends AbstractCVM{
 		for(int i = 0 ; i < NB_FACADE ; i++ ) {
 			AbstractComponent.createComponent(
 					Facade.class.getCanonicalName(),
-					new Object[]{ContentManagementInboudPort,
-							NodeManagemenInboundPort ,FacadeCMInPortClient,FacadeCMInPortFacade});
+					new Object[]{i,
+							NMInboundPortURI,
+							FacadeCMInPortFacadeURI,
+							NB_FACADE // for the interconnection of facades
+					});
 		}				
 				System.out.println("\nCreate Composant Facade OK ");
 				
 		// create the component pairs
+		// for connect pair with facade , should pass the inportNM of facade to pair
 		for (int i = 0; i < NB_PEER  ; i++) {
 			AbstractComponent.createComponent(
 							Pair.class.getCanonicalName(),
-							new Object[]{
-									NodeManagementOutboundPort+i,
-									NodeManagemenInboundPort, i });
+							new Object[]{i,
+									NodeCInPortPairURI,
+									CMInPortPairURI,
+									NMInboundPortURI+ i%NB_FACADE // choose a facade
+									});
 		}
 		System.out.println("\nCreate Composant pairs OK ");
 
@@ -93,8 +96,7 @@ public class CVM extends AbstractCVM{
 		// create the component client
 		AbstractComponent.createComponent(
 				Client.class.getCanonicalName(),
-				new Object[]{ContentManagementInboudPort,
-						ContentManagementOutboudPort,FacadeCMInPortClient});
+				new Object[]{FacadeCMInPortClientURI,FacadeCMInPortFacadeURI+selectRandomFacadeId()}); // not sure client will connect with only one facade
 		System.out.println("\nCreate Composant client OK ");
 		
 
@@ -123,7 +125,7 @@ public class CVM extends AbstractCVM{
 			// Create an instance of the defined component virtual machine.
 			CVM a = new CVM();
 			// Execute the application.
-			a.startStandardLifeCycle(40000L);
+			a.startStandardLifeCycle(70000L);
 
 			// Give some time to see the traces (convenience).
 			Thread.sleep(5000L);
@@ -136,4 +138,9 @@ public class CVM extends AbstractCVM{
 		}
 	}
 	
+	private int selectRandomFacadeId() {
+	    Random random = new Random();
+	    int randomId = random.nextInt(NB_FACADE);
+	    return randomId;
+	}
 }

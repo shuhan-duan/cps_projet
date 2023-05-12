@@ -1,6 +1,4 @@
-/componenet/
-/ports/
-/CVM/
 /withplugin/
+/ports/
 /connector/
-/classes/
+/interfaces/

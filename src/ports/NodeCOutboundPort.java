@@ -37,15 +37,24 @@ public class NodeCOutboundPort   extends AbstractOutboundPort implements  NodeCI
 				((NodeCI)this.getConnector()).probe(facade ,remainghops ,requestURI);
 				
 			}
+			
+//			@Override
+//			public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI,
+//					ContentNodeAddressI leastNeighbor, int leastNeighborCount) throws Exception{
+// {
+//				((NodeCI)this.getConnector()).probe(facade ,remainghops ,requestURI,leastNeighbor,leastNeighborCount);
+//				
+//			}
+			
 
 			@Override
-			public void connecte(ContentNodeAddressI p) throws Exception {
-				((NodeCI)this.getConnector()).connecte(p);
+			public void connect(ContentNodeAddressI p) throws Exception {
+				((NodeCI)this.getConnector()).connect(p);
 			}
 
 			@Override
-			public void disconnecte(ContentNodeAddressI p) throws Exception {
-				((NodeCI)this.getConnector()).disconnecte(p);
+			public void disconnect(ContentNodeAddressI p) throws Exception {
+				((NodeCI)this.getConnector()).disconnect(p);
 			}
 
 			@Override
@@ -57,6 +66,12 @@ public class NodeCOutboundPort   extends AbstractOutboundPort implements  NodeCI
 			public void acceptConnected(ContentNodeAddressI p) throws Exception {
 				((NodeCI)this.getConnector()).acceptConnected(p);
 				
+			}
+
+			@Override
+			public int getNeighborCount() throws Exception {
+				
+				return ((NodeCI)this.getConnector()).getNeighborCount();
 			}
 
 

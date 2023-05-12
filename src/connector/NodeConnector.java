@@ -12,8 +12,8 @@ public class NodeConnector  extends  AbstractConnector implements NodeCI{
 	
 
 	@Override
-	public void disconnecte(ContentNodeAddressI p) throws Exception {
-		 ((NodeCI)this.offering).disconnecte(p);	
+	public void disconnect(ContentNodeAddressI p) throws Exception {
+		 ((NodeCI)this.offering).disconnect(p);	
 	}
 
 	@Override
@@ -35,9 +35,14 @@ public class NodeConnector  extends  AbstractConnector implements NodeCI{
 	}
 
 	@Override
-	public void connecte(ContentNodeAddressI p) throws Exception {
-		((NodeCI)this.offering).connecte(p);
+	public void connect(ContentNodeAddressI p) throws Exception {
+		((NodeCI)this.offering).connect(p);
 		
+	}
+
+	@Override
+	public int getNeighborCount() throws Exception {
+		return ((NodeCI)this.offering).getNeighborCount();
 	}
 
 }

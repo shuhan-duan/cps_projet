@@ -3,7 +3,7 @@ package withplugin.ports;
 import java.util.Set;
 
 
-import withplugin.components.Pair;
+
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
@@ -15,9 +15,9 @@ import withplugin.plugins.PairPlugin;
 public class NodeCIntboundPortForPlugin extends AbstractInboundPort  implements NodeCI {
 private static final long serialVersionUID = 1L;
 	
-	public NodeCIntboundPortForPlugin( ComponentI owner ,String plugin)
+	public NodeCIntboundPortForPlugin(String uri, ComponentI owner ,String plugin , String executorServiceURI)
 			throws Exception {
-	    super(NodeCI.class, owner, plugin, null);
+	    super(uri,NodeCI.class, owner, plugin, executorServiceURI);
 	}
 
 	@Override
@@ -37,13 +37,13 @@ private static final long serialVersionUID = 1L;
 	}
 
 	@Override
-	public void connecte(ContentNodeAddressI p) throws Exception {
+	public void connect(ContentNodeAddressI p) throws Exception {
 		 this.getOwner().runTask(
 			      new AbstractComponent.AbstractTask(this.getPluginURI()) {
 			        @Override
 			        public void run() {
 			          try {
-			            ((PairPlugin) this.getTaskProviderReference()).connecte(p);
+			            ((PairPlugin) this.getTaskProviderReference()).connect(p);
 			          } catch (Exception e) {
 			            throw new RuntimeException(e);
 			          }
@@ -53,13 +53,13 @@ private static final long serialVersionUID = 1L;
 	}
 
 	@Override
-	public void disconnecte(ContentNodeAddressI p) throws Exception {
+	public void disconnect(ContentNodeAddressI p) throws Exception {
 		 this.getOwner().runTask(
 			        new AbstractComponent.AbstractTask(this.getPluginURI()) {
 			          @Override
 			          public void run() {
 			            try {
-			              ((PairPlugin) this.getTaskProviderReference()).disconnecte(p);
+			              ((PairPlugin) this.getTaskProviderReference()).disconnect(p);
 			            } catch (Exception e) {
 			              throw new RuntimeException(e);
 			            }
@@ -98,6 +98,16 @@ private static final long serialVersionUID = 1L;
 		          }
 		        });
 		
+	}
+
+	@Override
+	public int getNeighborCount() throws Exception {
+		return this.getOwner().handleRequest(
+				new AbstractComponent.AbstractService<Integer>(this.getPluginURI()) {
+				@Override
+				public Integer call() throws Exception {					
+				return ((PairPlugin) this.getServiceProviderReference()).getNeighborCount(); }
+				});
 	}
 
 }

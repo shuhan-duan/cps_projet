@@ -6,12 +6,15 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import classes.ContentDescriptor;
+import classes.ContentNodeAdress;
+import classes.NodeAdresse;
 import connector.NodeManagementConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
+import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import interfaces.ContentDescriptorI;
@@ -35,11 +38,15 @@ public class Pair extends AbstractComponent {
 	private PairPlugin plugin;
 	
 	/**	the outbound port used to call the service.							*/
-	public NodeManagementOutboundPort	NMportOut ;
+	private NodeManagementOutboundPort	outPortNM ; // for calling join and leave , connected with facade
 	
-	protected String NMPortIn_facade;
+	//the inbound port NMPort of facade
+	private String inPortNMfacadeURI ;
 	
-	private int counter;
+	private ContentNodeAdress adress;
+	private ArrayList<ContentDescriptorI> contents; 
+	
+	private int id;
 	
 	
 	
@@ -47,20 +54,28 @@ public class Pair extends AbstractComponent {
 	// -------------------------------------------------------------------------
 	// Constructors
 	// -------------------------------------------------------------------------
-	
-	protected Pair( String NMoutportUri ,String NMPortIn_facade, int DescriptorID)throws Exception {
-		super(NMoutportUri, 10, 1);
+	protected Pair(int DescriptorID, String NodeCInPortPair ,String CMInPortPair,String inPortNMfacadeURI )throws Exception {
+		super("pair"+DescriptorID , 10, 1);
 		
-		this.counter = DescriptorID ;
-		this.NMPortIn_facade = NMPortIn_facade;
+		this.id = DescriptorID ;
 		
-		this.NMportOut =new NodeManagementOutboundPort(NMoutportUri, this) ;
-		NMportOut.publishPort() ;
+		this.inPortNMfacadeURI = inPortNMfacadeURI;
 		
-		plugin = new PairPlugin(NMoutportUri, DescriptorID ,NMPortIn_facade);
-		plugin.setPluginURI("pair-pluginUri"+counter);
+		this.outPortNM =new NodeManagementOutboundPort(this);
+		outPortNM.publishPort() ;
+		
+		this.adress = new ContentNodeAdress("pair"+id, CMInPortPair+id, NodeCInPortPair+id);
+		this.contents = new ArrayList<ContentDescriptorI>();
+		
+		//add descriptors to ArrayList contents
+		addDescriptor(id);
+		
+		//pass the outPortNM to call acceptprobed
+		plugin = new PairPlugin(adress ,contents);
+		plugin.setPluginURI("pair-pluginUri"+id);
 		
 		this.installPlugin(plugin);
+		
 		//Create Clock
 		this.csop = new ClocksServerOutboundPort(this);
 		this.csop.publishPort();
@@ -75,8 +90,9 @@ public class Pair extends AbstractComponent {
 	public void start() throws ComponentStartException {
 		super.start();
 		try {
-			doPortConnection( NMportOut.getPortURI(),NMPortIn_facade, NodeManagementConnector.class.getCanonicalName());
-			//System.out.println(NMportOut.connected());
+			//System.out.println("in pair "+ id +", inPortNMfacadeURI : " +inPortNMfacadeURI);
+			doPortConnection( outPortNM.getPortURI(),inPortNMfacadeURI, NodeManagementConnector.class.getCanonicalName());
+			//System.out.println("pair"+id+" ->"+inPortNMfacadeURI+"[color=red];");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -91,8 +107,8 @@ public class Pair extends AbstractComponent {
 		AcceleratedClock clock = this.csop.getClock(CVM.CLOCK_URI);
 		Instant startInstant = clock.getStartInstant();
 		clock.waitUntilStart();
-		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(10+counter*10));
-		//long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(10));
+		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(10));
+		
 		
 		//do join et connect 
 				this.scheduleTask(
@@ -133,14 +149,26 @@ public class Pair extends AbstractComponent {
 	// Services implementation
 	// -------------------------------------------------------------------------
 	
-	public void	 actionJoin() throws Exception
-	{
-		
-		this.NMportOut.join(plugin.adress);
+	private void addDescriptor(int number)
+			throws Exception{
+		//ContentDataManager.DATA_DIR_NAME = "src/data";
+		ContentDataManager.DATA_DIR_NAME = "src/testsDataCPSAvril";
+		ArrayList<HashMap<String, Object>> result = ContentDataManager.readDescriptors(number);
+		for (HashMap<String, Object> hashMap : result) {
+			ContentDescriptorI descriptor = new ContentDescriptor(hashMap);
+			contents.add(descriptor);
+		}  
+		System.out.println("pair"+id+"[label=\"Pair "+ id +"\"];");
 	}
 	
-	public void  actionLeave() throws Exception {
+	private void	 actionJoin() throws Exception
+	{
 		
+		this.outPortNM.join(this.adress);
+	}
+	
+	private void  actionLeave() throws Exception {
+		this.outPortNM.leave(this.adress);
 	}
 	
 	

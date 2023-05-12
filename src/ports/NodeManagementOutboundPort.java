@@ -29,10 +29,10 @@ public class NodeManagementOutboundPort extends AbstractOutboundPort implements 
 	* @author: lyna & shuhan
 	* @date: 30 janv. 2023 21:08:00 
 	*/
-	public NodeManagementOutboundPort(String uri, ComponentI owner)
+	public NodeManagementOutboundPort( ComponentI owner)
 			throws Exception {
-		super(uri,   NodeManagementCI.class, owner);
-		assert	uri != null && owner != null ;
+		super( generatePortURI(), NodeManagementCI.class, owner);
+		assert  owner != null ;
 	}
 	// -------------------------------------------------------------------------
 		// Methods

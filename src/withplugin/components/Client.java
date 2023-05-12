@@ -19,6 +19,7 @@ import fr.sorbonne_u.utils.aclocks.ClocksServerConnector;
 import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import classes.ContentTemplate;
 import connector.ContentManagementConector;
+import connector.FacadeContentManagementConector;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import interfaces.ContentDescriptorI;
@@ -26,6 +27,7 @@ import interfaces.ContentTemplateI;
 import interfaces.MyFCMI;
 import ports.ContentManagementCIOutbound;
 import ports.FacadeContentManagementCInbound;
+import ports.FacadeContentManagementCOutbound;
 import withplugin.CVM;
 @RequiredInterfaces(required={ClocksServerCI.class}) 
 
@@ -35,29 +37,31 @@ import withplugin.CVM;
  */
 
 public class Client extends AbstractComponent implements MyFCMI{
-    protected ContentManagementCIOutbound outportCM_client;
-    protected FacadeContentManagementCInbound inportFCM_client;
-	protected ClocksServerOutboundPort csop; 
-
-    protected String inportCM_facade;
-    protected final int ID_TEMP = 0;
+	
+	    protected FacadeContentManagementCInbound inportFCM_client;
+	    private FacadeContentManagementCOutbound outportFCM_client;
+		protected ClocksServerOutboundPort csop; 
+	
+	    protected String inportCM_facadeURI;
+	    protected final int ID_TEMP = 0;
     
     
     // -------------------------------------------------------------------------
  	// Constructors
  	// -------------------------------------------------------------------------
     
-    protected Client(String ContentManagementInboudPort, String ContentManagementOutboudPort,String FCMInbountPortClient) throws Exception {
+    protected Client(String FacadeCMInPortClientURI ,String inportFCMfacadeURI) throws Exception {
         super(2,1);
-        outportCM_client = new ContentManagementCIOutbound(ContentManagementOutboudPort,this);
-        outportCM_client.publishPort();
-        inportFCM_client = new FacadeContentManagementCInbound(FCMInbountPortClient, this);
+        inportFCM_client = new FacadeContentManagementCInbound(FacadeCMInPortClientURI, this);
         inportFCM_client.publishPort();
-        inportCM_facade = ContentManagementInboudPort; 
         
-      //Create Clock
-      this.csop = new ClocksServerOutboundPort(this);  
-      this.csop.publishPort();
+        outportFCM_client = new FacadeContentManagementCOutbound(this);
+        outportFCM_client.publishPort();
+        
+        this.inportCM_facadeURI = inportFCMfacadeURI;
+		//Create Clock
+		this.csop = new ClocksServerOutboundPort(this);  
+		this.csop.publishPort();
     }
     
     
@@ -70,10 +74,9 @@ public class Client extends AbstractComponent implements MyFCMI{
     public void start() throws ComponentStartException {
       try {
         super.start();
-        //conexionc avec facade 
+        //connect with facade in FCM       
+        this.doPortConnection(outportFCM_client.getPortURI(), inportCM_facadeURI, FacadeContentManagementConector.class.getCanonicalName());	
         
-        String str = outportCM_client.getPortURI();
-        //this.doPortConnection(str, inportCM_facade, ContentManagementConector.class.getCanonicalName());		
       } catch (Exception e) {
         throw new ComponentStartException(e);
       }
@@ -111,8 +114,8 @@ public class Client extends AbstractComponent implements MyFCMI{
  	// Services implementation
  	// -------------------------------------------------------------------------
     
-    public ContentTemplate createTemplate(int numbre) throws ClassNotFoundException, IOException{
-        ContentDataManager.DATA_DIR_NAME = "src/data";
+    private ContentTemplate createTemplate(int numbre) throws ClassNotFoundException, IOException{
+        ContentDataManager.DATA_DIR_NAME = "src/testsDataCPSAvril";
         ArrayList<HashMap<String, Object>> result = ContentDataManager.readTemplates(numbre);
         Random rn = new Random ();
         int randomindex = rn.nextInt(result.size());
@@ -137,10 +140,11 @@ public class Client extends AbstractComponent implements MyFCMI{
 	*/
 
     
-    public void doFind(ContentTemplateI temp) throws Exception {
-    	//find
+    private void doFind(ContentTemplateI temp) throws Exception {
+    	//call find in the facade connected
+    	this.outportFCM_client.find(temp, 5, null, null);
         System.out.println("\nplease find the template:\n "+ temp.toString()+"\n");
-       this.outportCM_client.find(temp, 15, null, inportCM_facade); 
+       
 	}
     
     /**   
@@ -158,12 +162,11 @@ public class Client extends AbstractComponent implements MyFCMI{
  	* 
  	*/
 
-    public void doMatch(ContentTemplateI temp) throws Exception {
-    	//match
+    private void doMatch(ContentTemplateI temp) throws Exception {
         System.out.println("\nplease match the template:\n"+ temp.toString());
         
         Set<ContentDescriptorI> matched = new HashSet<>();
-        this.outportCM_client.match(temp,matched, 5, null, inportCM_facade); 
+        
  
 	}
     

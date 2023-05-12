@@ -1,6 +1,7 @@
 package withplugin.components;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,13 +9,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import classes.ApplicationNodeAdress;
 import connector.ContentManagementConector;
 import connector.NodeConnector;
+import connector.NodeManagementConnector;
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.exceptions.ComponentStartException;
+import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentNodeAddressI;
 import ports.ContentManagementCIOutbound;
 import ports.NodeCOutboundPort;
 import ports.NodeManagementInBoundPort;
+import ports.NodeManagementOutboundPort;
 import withplugin.plugins.FacadePlugin;
+
 
 
 
@@ -22,36 +28,79 @@ public class Facade  extends AbstractComponent{
 	// -------------------------------------------------------------------------
 	// Component variables and constants
 	// -------------------------------------------------------------------------
-	private final int MAX_ROOTS = 3;
-	private final int MAX_PROBES = 3;
-		
-	private final ConcurrentHashMap<String, Integer> cptAcceptProbed = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Set<ContentNodeAddressI>> liste = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, NodeCOutboundPort> outPortsNodeC = new ConcurrentHashMap<>();
-    private final NodeManagementInBoundPort NMportIn;
-    private final ApplicationNodeAdress adress;
-    private final FacadePlugin facade_plugin;
+	private final int MAX_ROOTS = 2; 
+	private final int MAX_PROBES = 2;
+	
+	//to count the times that facade has received the result of probed
+	private ConcurrentHashMap<String, Integer> cptAcceptProbed = new ConcurrentHashMap<>();
+	
+    private ConcurrentHashMap<String, Set<ContentNodeAddressI>> resProbed = new ConcurrentHashMap<>();
+    
+    //stock "NodeCOutboundPort" connected with each pair to call probe on root and acceptNeighbours on pair
+    private ConcurrentHashMap<String, NodeCOutboundPort> outPortsNodeC = new ConcurrentHashMap<>();
+    //stock "NodeManagementOutboundPort" connected with neighbors facade to call probe on neighbor facade  
+    private ConcurrentHashMap<Integer, NodeManagementOutboundPort> outPortsNM = new ConcurrentHashMap<>();
+    
+    private NodeManagementInBoundPort inPortNM;
+    
+    private ApplicationNodeAdress adress;
+    
+    private FacadePlugin facade_plugin;
+    
+    private String inportNMFacadeURI;
 
-	
-    private int rootCount = 0; //current racine nb
-	
-	
+	private int id ;
+	private int nbFacades ;
+	private Random random = new Random();
+
 	// -------------------------------------------------------------------------
 	// Constructors
 	// -------------------------------------------------------------------------
-	
-	protected	Facade(	String ContentManagementInboudPort,	String 	NodeManagemenInboundPort ,String FCMInbountPortClient, String FacadeCMInPortFacade) throws Exception
+
+	protected	Facade(	int i, String NMInboundPortURI,String FacadeCMInPortFacadeURI ,int nbFacades ) throws Exception
 	{
 		// the reflection inbound port URI is the URI of the component
-		super(NodeManagemenInboundPort, 2, 0) ;
+		super("Facade"+i, 2, 0) ;
 		
-		this.adress = new ApplicationNodeAdress("Facade",ContentManagementInboudPort,NodeManagemenInboundPort,FacadeCMInPortFacade) ;
+		this.id = i;
+		this.nbFacades = nbFacades;
+		this.inportNMFacadeURI = NMInboundPortURI ;
+		//public ApplicationNodeAdress(String uriPrefix, String uriFCM ,String  uriNM)
+		this.adress = new ApplicationNodeAdress("facade"+id ,FacadeCMInPortFacadeURI +id ,inportNMFacadeURI +id) ;
 		
-		this.NMportIn = new NodeManagementInBoundPort( this,NodeManagemenInboundPort);
-		this.NMportIn.publishPort();
+		this.inPortNM = new NodeManagementInBoundPort(this, adress.getNodeManagementUri());
+		this.inPortNM.publishPort();
 		
-		this.facade_plugin = new FacadePlugin(ContentManagementInboudPort, NodeManagemenInboundPort,FCMInbountPortClient,FacadeCMInPortFacade);
+		//FacadeCMInPortFacadeURI is used for plugin
+		this.facade_plugin = new FacadePlugin(adress);
 		this.installPlugin(facade_plugin);
+		System.out.println("facade"+id+"[label=\"Facade "+ id +"\"];");
+		
+	}
+	//-------------------------------------------------------------------------
+	// Component life-cycle
+	//-------------------------------------------------------------------------
+	
+	@Override
+	public void start() throws ComponentStartException {
+		super.start();
+		try {
+			//the façade components will be interconnected via the NodeManagementCI interface
+			for (int i = 0; i < nbFacades; i++) {
+				if (i == id) {
+					// not connect with itself
+				}else {
+					NodeManagementOutboundPort outPortNM = new NodeManagementOutboundPort(this);
+					outPortNM.publishPort();
+					outPortsNM.put(i, outPortNM);
+					doPortConnection(outPortNM.getPortURI(), inportNMFacadeURI+i, NodeManagementConnector.class.getCanonicalName());
+					System.out.println("facade"+id +" -> facade"+ i);
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -60,89 +109,118 @@ public class Facade  extends AbstractComponent{
 	// -------------------------------------------------------------------------
 	
 	
-	//facade recoit le result de probe , p est le result , requestURI est le demander
+	//facade receives the result from probe , p is the result , requestURI is the request
 	public void acceptProbed(ContentNodeAddressI p, String requsetURI) throws Exception {
-		liste.get(requsetURI).add(p);
+		resProbed.get(requsetURI).add(p);
 		int cpt_acceptProbed = cptAcceptProbed.get(requsetURI);
 		cpt_acceptProbed++;
 		cptAcceptProbed.put(requsetURI, cpt_acceptProbed);
-		if (cpt_acceptProbed < MAX_PROBES) {
-			System.out.println(cptAcceptProbed.get(requsetURI)+ "  "+ requsetURI+"  "+ p.getNodeidentifier());
-		}else {
-			NodeCOutboundPort nodeCportOut = outPortsNodeC.get(requsetURI);
-			System.out.println(cptAcceptProbed.get(requsetURI)+ "  "+ requsetURI+"  "+ p.getNodeidentifier());
-			nodeCportOut.acceptNeighbours(liste.get(requsetURI));
-			System.out.println("\nfini acceptProbed : "+ requsetURI);
-		
-		}			
-		
+		//System.out.println(requsetURI + " recieved the result of probe : result "+ cptAcceptProbed.get(requsetURI)+" : "+ p.getNodeidentifier());
+		if (cptAcceptProbed.get(requsetURI) == MAX_PROBES) {
+			NodeCOutboundPort outPortNodeC = outPortsNodeC.get(requsetURI);
+			outPortNodeC.acceptNeighbours(resProbed.get(requsetURI));
+			//System.out.println("\nfini acceptProbed : "+ requsetURI);
+		}					
 	}
 	
-	public void joinPair(ContentNodeAddressI p) throws Exception {
-		if (rootCount < MAX_ROOTS - 1) {
+	public void join(ContentNodeAddressI p) throws Exception {
+		if ( facade_plugin.getRootOutPortsCM().size()< MAX_ROOTS) {
 	        connectToContentManagementCI(p);
 	        connectToNodeCI(p);
-	        rootCount++;
 	    } else {
 	        connectToNodeCI(p);
-	        probeRoots(p);
+	        //probe(this.adress, MAX_PROBES, p.getNodeidentifier());
+	        doProbe(p);
 	    }
 	}
 	
-	private void connectToContentManagementCI(ContentNodeAddressI address) throws Exception {
-	    String outportCM_Facade = "myOutportCMfacade" + rootCount;
-	    ContentManagementCIOutbound CMportOut = new ContentManagementCIOutbound(outportCM_Facade, this);
-	    CMportOut.publishPort();
-	    facade_plugin.outPortsCM.put(address, CMportOut);
-	    String inportCM_Pair = address.getContentManagementURI();
-
-	    this.doPortConnection(outportCM_Facade, inportCM_Pair, ContentManagementConector.class.getCanonicalName());
-
-	    System.out.println(address.getNodeidentifier() + " is connected to " + outportCM_Facade + " as root in FacadeContentManagementCI");
-	}
 	
-	private void connectToNodeCI(ContentNodeAddressI address) throws Exception {
-	    String outportNodeC_Facade = "myOutportNodeCfacade" + rootCount;
-	    NodeCOutboundPort nodeCportOut = new NodeCOutboundPort(outportNodeC_Facade, this);
-	    nodeCportOut.publishPort();
-	    outPortsNodeC.put(address.getNodeidentifier(), nodeCportOut);
-	    String inportNodeC_pair = address.getNodeUri();
-
-	    this.doPortConnection(outportNodeC_Facade, inportNodeC_pair, NodeConnector.class.getCanonicalName());
-
-	    System.out.println(address.getNodeidentifier() + " is connected to " + outportNodeC_Facade + " in NodeCI");
-	}
-	
-	private void probeRoots(ContentNodeAddressI address) throws Exception {
-		int cpt_acceptProbed = 0; 
-		cptAcceptProbed.put(address.getNodeidentifier(),cpt_acceptProbed);
-		Set<ContentNodeAddressI> roots = facade_plugin.outPortsCM.keySet();
-		ContentNodeAddressI[] array = roots .toArray(new ContentNodeAddressI[0]);
-		Random random = new Random();
-		for(int i = 0 ; i < MAX_PROBES ;i++) {
-			int randomIndex = random.nextInt(array.length);
-			ContentNodeAddressI root = array[randomIndex]; 
-			NodeCOutboundPort nodeCOutboundPort = outPortsNodeC.get(root.getNodeidentifier());
-			nodeCOutboundPort.probe(adress, MAX_PROBES, address.getNodeidentifier());
-			Set<ContentNodeAddressI> set = new HashSet<>();
-			liste.put(address.getNodeidentifier(), set);
-		}			
-	}
-	
-	public void leavePair(ContentNodeAddressI address) throws Exception {
-	    if (facade_plugin.outPortsCM.containsKey(address)) {
-	        this.doPortDisconnection(facade_plugin.outPortsCM.get(address).getPortURI());
+	public void leave(ContentNodeAddressI address) throws Exception {
+	    if (facade_plugin.getRootOutPortsCM().containsKey(address)) {
+	        this.doPortDisconnection(facade_plugin.getRootOutPortsCM().get(address).getPortURI());
 	        this.doPortDisconnection(outPortsNodeC.get(address.getNodeidentifier()).getPortURI());
-	        System.out.println("Removed root pair " + address.getNodeidentifier() + " with CM and NodeCI");
-	        facade_plugin.outPortsCM.remove(address);
+	        System.out.println("Removed root :" + address.getNodeidentifier() + " with CM and NodeCI");
+	        facade_plugin.removeRootOutPortsCM(address);
 	    } else {
 	    	System.out.println("No root pair connected with facade");
 	    }
 	}
 
 
-	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI) {
-		// TODO Auto-generated method stub
+	public void probe(ApplicationNodeAdressI facadeInitial, int remainghops, String requestURI) throws Exception {
+		//randomly choose to probe by roots or facades
+	    boolean doRoots = random.nextBoolean();
+	    if (doRoots) {
+	        probeRoots(requestURI, facadeInitial ,remainghops);
+	    } else {
+	        probeFacade(requestURI, facadeInitial ,remainghops);
+	    }	    
+//		probeRoots(requestURI, facadeInitial ,remainghops);
+//		probeFacade(requestURI, facadeInitial ,remainghops);
+	}
+	
+	// -------------------------------------------------------------------------
+	// Auxiliary Functions to use in Facade
+	// -------------------------------------------------------------------------
+	private void connectToContentManagementCI(ContentNodeAddressI address) throws Exception {
+	    String outportCM_Facade = AbstractOutboundPort.generatePortURI();
+	    ContentManagementCIOutbound outPortCM = new ContentManagementCIOutbound(outportCM_Facade, this);
+	    outPortCM.publishPort();
+	    facade_plugin.addRootOutPortsCM(address,outPortCM);
+	    
+	    String inportCM_Pair = address.getContentManagementURI();
+	    this.doPortConnection(outportCM_Facade, inportCM_Pair, ContentManagementConector.class.getCanonicalName());
+
+	    System.out.println(address.getNodeidentifier() + " -> " + this.adress.getNodeidentifier()+"[style=dashed]");
+	}
+	
+	private void connectToNodeCI(ContentNodeAddressI address) throws Exception {
+	    String outportNodeC_Facade = AbstractOutboundPort.generatePortURI();
+	    NodeCOutboundPort outPortNodeC = new NodeCOutboundPort(outportNodeC_Facade, this);
+	    outPortNodeC.publishPort();
+	    outPortsNodeC.put(address.getNodeidentifier(), outPortNodeC);
+	    
+	    String inportNodeC_pair = address.getNodeUri();
+	    this.doPortConnection(outportNodeC_Facade, inportNodeC_pair, NodeConnector.class.getCanonicalName());
+
+	}
+	
+	// Initialization return results for probe 
+	private void doProbe(ContentNodeAddressI address) throws Exception {	    
+	    
+		probeFacade(address.getNodeidentifier(), adress, MAX_PROBES);
+		probeRoots(address.getNodeidentifier(), adress, MAX_PROBES);
 		
+		//Initialization return results
+	    int cpt_acceptProbed = 0; 
+	    cptAcceptProbed.put(address.getNodeidentifier(), cpt_acceptProbed);
+	    Set<ContentNodeAddressI> set = new HashSet<>();
+	    resProbed.put(address.getNodeidentifier(), set);
+	}
+
+	
+	private void probeRoots(String requestURI, ApplicationNodeAdressI adressnInitiale, int hops) throws Exception {
+	    Set<ContentNodeAddressI> roots = facade_plugin.getRootOutPortsCM().keySet();
+	    // call probe for each root
+	    for (ContentNodeAddressI root : roots) {
+	        NodeCOutboundPort outPortNodeC = outPortsNodeC.get(root.getNodeidentifier());
+	        outPortNodeC.probe(adressnInitiale, hops, requestURI);
+	    }
+	    if (adressnInitiale == adress) {
+			
+		}
+	}
+
+	
+	private void probeFacade(String requestURI, ApplicationNodeAdressI adressnInitiale, int hops) throws Exception {
+	    // randomly call probe in a neighbor facade 		
+	    int randomIndex = random.nextInt(outPortsNM.size());
+	    Iterator<Integer> iterator = outPortsNM.keySet().iterator();
+	    Integer facadeId = null ;
+	    for (int i = 0; i <= randomIndex; i++) {
+			facadeId = iterator.next();
+		}
+	    NodeManagementOutboundPort outPortNM = outPortsNM.get(facadeId);
+	    outPortNM.probe(adressnInitiale, hops, requestURI);
 	}
 }

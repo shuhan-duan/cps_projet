@@ -48,7 +48,7 @@ public class NodeManagementInBoundPort extends AbstractInboundPort implements No
 		this.getOwner().runTask(
 				owner -> {
 					try {
-						((Facade) owner).joinPair(p);
+						((Facade) owner).join(p);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
@@ -61,7 +61,7 @@ public class NodeManagementInBoundPort extends AbstractInboundPort implements No
 		this.getOwner().runTask(
 				owner -> {
 					try {
-						((Facade) owner).leavePair(p);
+						((Facade) owner).leave(p);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
