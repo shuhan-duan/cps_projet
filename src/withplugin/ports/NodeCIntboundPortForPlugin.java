@@ -23,6 +23,7 @@ private static final long serialVersionUID = 1L;
 	@Override
 	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI) throws Exception {
 		 this.getOwner().runTask(
+				 this.getExecutorServiceURI(),
 			        new AbstractComponent.AbstractTask(this.getPluginURI()) {
 			          @Override
 			          public void run() {
@@ -39,6 +40,7 @@ private static final long serialVersionUID = 1L;
 	@Override
 	public void connect(ContentNodeAddressI p) throws Exception {
 		 this.getOwner().runTask(
+				 this.getExecutorServiceURI(),
 			      new AbstractComponent.AbstractTask(this.getPluginURI()) {
 			        @Override
 			        public void run() {
@@ -55,6 +57,7 @@ private static final long serialVersionUID = 1L;
 	@Override
 	public void disconnect(ContentNodeAddressI p) throws Exception {
 		 this.getOwner().runTask(
+				 this.getExecutorServiceURI(),
 			        new AbstractComponent.AbstractTask(this.getPluginURI()) {
 			          @Override
 			          public void run() {
@@ -71,6 +74,7 @@ private static final long serialVersionUID = 1L;
 	@Override
 	public void acceptNeighbours(Set<ContentNodeAddressI> neighbours) throws Exception {
 		 this.getOwner().runTask(
+				 this.getExecutorServiceURI(),
 			        new AbstractComponent.AbstractTask(this.getPluginURI()) {
 			          @Override
 			          public void run() {
@@ -87,6 +91,7 @@ private static final long serialVersionUID = 1L;
 	@Override
 	public void acceptConnected(ContentNodeAddressI p) throws Exception {
 		this.getOwner().runTask(
+				this.getExecutorServiceURI(),
 		        new AbstractComponent.AbstractTask(this.getPluginURI()) {
 		          @Override
 		          public void run() {
@@ -103,6 +108,7 @@ private static final long serialVersionUID = 1L;
 	@Override
 	public int getNeighborCount() throws Exception {
 		return this.getOwner().handleRequest(
+				this.getExecutorServiceURI(),
 				new AbstractComponent.AbstractService<Integer>(this.getPluginURI()) {
 				@Override
 				public Integer call() throws Exception {					

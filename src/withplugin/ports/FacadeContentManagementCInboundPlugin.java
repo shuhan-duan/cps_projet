@@ -17,7 +17,7 @@ public class FacadeContentManagementCInboundPlugin extends AbstractInboundPort i
 	
 	public FacadeContentManagementCInboundPlugin(String uri, ComponentI owner ,String pluginURI ,String executorServiceURI)
 			throws Exception {
-		super(uri,FacadeContentManagementCI.class, owner, pluginURI, null);
+		super(uri,FacadeContentManagementCI.class, owner, pluginURI, executorServiceURI);
 		
 	}
 	/**

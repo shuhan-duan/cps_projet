@@ -34,6 +34,7 @@ import interfaces.ContentDescriptorI;
 import interfaces.ContentNodeAddressI;
 import interfaces.ContentTemplateI;
 import interfaces.MyCMI;
+import interfaces.MyThreadServiceI;
 import interfaces.NodeCI;
 import interfaces.NodeManagementCI;
 import ports.ContentManagementCIOutbound;
@@ -123,14 +124,23 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		public void initialise() throws Exception {
 			 super.initialise();
 			 
-			 // Create the inbound port
-			 
-			 this.inPortNodeC = new NodeCIntboundPortForPlugin(adress.getNodeUri(), this.getOwner(), this.getPluginURI(), this.getPreferredExecutionServiceURI());
+			 // Create the in bound port
+			 this.inPortNodeC = new NodeCIntboundPortForPlugin(adress.getNodeUri(),
+					 this.getOwner(),
+					 this.getPluginURI(), 
+					 ((MyThreadServiceI)this.getOwner()).
+		    		 get_THREAD_POOL_URI());
 			 inPortNodeC.publishPort();
-			 this.inPortCM = new ContentManagementCIIntboundPlugin(adress.getContentManagementURI(),this.getOwner(),this.getPluginURI(),this.getPreferredExecutionServiceURI());
+			 
+			 this.inPortCM = new ContentManagementCIIntboundPlugin(adress.getContentManagementURI(),
+					 this.getOwner(),
+					 this.getPluginURI(),
+					 ((MyThreadServiceI)this.getOwner()).
+		    		 get_CM_THREAD_POOL_URI());
 			 inPortCM.publishPort();
-			 //
-			 this.outPortNM = new NodeManagementOutboundPort(getOwner());
+			 
+			 //Create the out bound port
+			 this.outPortNM = new NodeManagementOutboundPort(this.getOwner());
 			 outPortNM.publishPort();
 			 this.outPortFCM = new FacadeContentManagementCOutbound(this.getOwner());
 	         outPortFCM.publishPort();
@@ -183,40 +193,6 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		    }
 		}
 		
-//		public void probe(ApplicationNodeAdressI facadeInitial, int remainingHops, String requestURI, ContentNodeAddressI leastNeighbor, int leastNeighborCount) throws Exception {
-//		    if (remainingHops <= 0 || voisins.isEmpty()) {
-//		        // Return the address of the least neighbor with minimum count to the facade that initiated the probe
-//		        if (leastNeighbor != null) {
-//		            this.getOwner().doPortConnection(outPortNM.getPortURI(),
-//		                    facadeInitial.getNodeManagementUri(),
-//		                    NodeManagementConnector.class.getCanonicalName());
-//		            outPortNM.acceptProbed(leastNeighbor, requestURI);
-//		            outPortNM.doDisconnection();
-//		        } else {
-//		            // If no least neighbor found, return its own address
-//		            this.getOwner().doPortConnection(outPortNM.getPortURI(),
-//		                    facadeInitial.getNodeManagementUri(),
-//		                    NodeManagementConnector.class.getCanonicalName());
-//		            outPortNM.acceptProbed(this.adress, requestURI);
-//		            outPortNM.doDisconnection();
-//		        }
-//		    } else {
-//		        // If there are neighbors
-//		        ContentNodeAddressI neighbor = getRandomNeighbor();
-//		        NodeCOutboundPort outPortNodeC = outPortsNodeC.get(neighbor);
-//		        
-//		        // Update the least neighbor information
-//		        int neighborCount = //getNeighborCount;
-//		        if (leastNeighbor == null || neighborCount < leastNeighborCount) {
-//		            leastNeighbor = neighbor;
-//		            leastNeighborCount = neighborCount;
-//		        }
-//		        
-//		        outPortNodeC.probe(facadeInitial, remainingHops - 1, requestURI, leastNeighbor, leastNeighborCount);
-//		    }
-//		}
-
-		
 		
 		public void acceptNeighbours(Set<ContentNodeAddressI> neighbours) throws Exception {
 		   
@@ -232,16 +208,6 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		    }
 		}
 		
-		
-//		public void connecte(ContentNodeAddressI neighbor) throws Exception {
-//		    connectToNode(neighbor);
-//		    synchronized (voisins) {
-//		    	//System.out.println(adress.getNodeidentifier()+ " has new neighbor : "+ neighbor.getNodeidentifier());
-//		        voisins.add(neighbor);
-//		    }
-//		    outPortsNodeC.get(neighbor).acceptConnected(this.adress);
-//		}
-
 		public void connect(ContentNodeAddressI newNodeAddress) throws Exception {
 			
 		    int leastNeighborCount = Integer.MAX_VALUE;
@@ -433,8 +399,7 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		}
 
 
-		public Integer getNeighborCount() {
-			
+		public Integer getNeighborCount() {			
 			return voisins.size();
 		}
 

@@ -18,6 +18,7 @@ import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import interfaces.ContentDescriptorI;
+import interfaces.MyThreadServiceI;
 import interfaces.NodeManagementCI;
 import ports.NodeManagementOutboundPort;
 import withplugin.plugins.PairPlugin;
@@ -29,7 +30,7 @@ import withplugin.CVM;
 
 
 @RequiredInterfaces(required={ClocksServerCI.class}) 
-public class Pair extends AbstractComponent {
+public class Pair extends AbstractComponent implements MyThreadServiceI{
 	// -------------------------------------------------------------------------
 	// Component variables and constants
 	// -------------------------------------------------------------------------
@@ -48,14 +49,17 @@ public class Pair extends AbstractComponent {
 	
 	private int id;
 	
-	
+	private static final int NB_OF_THREADS = 10;
+
+	private static final String NM_THREAD_SERVICE_URI = "pair_nm_pool";
+	private static final String CM_THREAD_SERVICE_URI = "pair_cm_pool";
 	
 	
 	// -------------------------------------------------------------------------
 	// Constructors
 	// -------------------------------------------------------------------------
 	protected Pair(int DescriptorID, String NodeCInPortPair ,String CMInPortPair,String inPortNMfacadeURI )throws Exception {
-		super("pair"+DescriptorID , 10, 1);
+		super("pair"+DescriptorID , NB_OF_THREADS, 1);
 		
 		this.id = DescriptorID ;
 		
@@ -70,16 +74,21 @@ public class Pair extends AbstractComponent {
 		//add descriptors to ArrayList contents
 		addDescriptor(id);
 		
-		//pass the outPortNM to call acceptprobed
-		plugin = new PairPlugin(adress ,contents);
-		plugin.setPluginURI("pair-pluginUri"+id);
-		
-		this.installPlugin(plugin);
 		
 		//Create Clock
 		this.csop = new ClocksServerOutboundPort(this);
 		this.csop.publishPort();
 
+		int nbThreadsNM = 1;
+		int nbThreadsCM = NB_OF_THREADS - nbThreadsNM;
+		
+		this.createNewExecutorService(NM_THREAD_SERVICE_URI+id, nbThreadsNM, true);
+		this.createNewExecutorService(CM_THREAD_SERVICE_URI+id, nbThreadsCM, false);
+		
+		//pass the outPortNM in plugin to call acceptprobed
+		plugin = new PairPlugin(adress ,contents);
+		plugin.setPluginURI("pair-pluginUri"+id);
+		this.installPlugin(plugin);
 	}
 
 	//-------------------------------------------------------------------------
@@ -170,6 +179,15 @@ public class Pair extends AbstractComponent {
 	private void  actionLeave() throws Exception {
 		this.outPortNM.leave(this.adress);
 	}
-	
+
+	@Override
+	public String get_THREAD_POOL_URI() {
+		// TODO Auto-generated method stub
+		return NM_THREAD_SERVICE_URI+id;
+	}
+	@Override
+	public String get_CM_THREAD_POOL_URI() {
+		return CM_THREAD_SERVICE_URI+id;
+	}
 	
 }

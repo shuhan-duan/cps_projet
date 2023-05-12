@@ -18,6 +18,7 @@ import interfaces.ContentNodeAddressI;
 import interfaces.ContentTemplateI;
 import interfaces.MyCMI;
 import interfaces.MyFCMI;
+import interfaces.MyThreadServiceI;
 import interfaces.NodeManagementCI;
 import ports.ContentManagementCIOutbound;
 import ports.FacadeContentManagementCOutbound;
@@ -69,7 +70,11 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI ,MyFCMI{
 		public void initialise() throws Exception {
 		     super.initialise();     
 		     // Create the inbound port FCM 
-		     inPortFCM = new FacadeContentManagementCInboundPlugin(adress.getContentManagementURI(), this.getOwner(), this.getPluginURI(), this.getPreferredExecutionServiceURI());
+		     inPortFCM = new FacadeContentManagementCInboundPlugin(adress.getContentManagementURI(),
+		    		 this.getOwner(), 
+		    		 this.getPluginURI(),
+		    		 ((MyThreadServiceI)this.getOwner()).
+		    		 get_CM_THREAD_POOL_URI());
 		     inPortFCM.publishPort();
 		     
 		     // the outport FCM

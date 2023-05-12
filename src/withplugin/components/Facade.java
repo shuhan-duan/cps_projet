@@ -1,35 +1,46 @@
 package withplugin.components;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import classes.ApplicationNodeAdress;
 import connector.ContentManagementConector;
 import connector.NodeConnector;
 import connector.NodeManagementConnector;
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import fr.sorbonne_u.utils.aclocks.AcceleratedClock;
+import fr.sorbonne_u.utils.aclocks.ClocksServer;
+import fr.sorbonne_u.utils.aclocks.ClocksServerCI;
+import fr.sorbonne_u.utils.aclocks.ClocksServerConnector;
+import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentNodeAddressI;
+import interfaces.MyThreadServiceI;
 import ports.ContentManagementCIOutbound;
 import ports.NodeCOutboundPort;
 import ports.NodeManagementInBoundPort;
 import ports.NodeManagementOutboundPort;
+import withplugin.CVM;
 import withplugin.plugins.FacadePlugin;
 
 
 
 
-public class Facade  extends AbstractComponent{
+public class Facade  extends AbstractComponent implements MyThreadServiceI{
+	
 	// -------------------------------------------------------------------------
 	// Component variables and constants
 	// -------------------------------------------------------------------------
-	private final int MAX_ROOTS = 2; 
-	private final int MAX_PROBES = 2;
+	private static final int MAX_ROOTS = 2; 
+	private static final int MAX_PROBES = 2;
 	
 	//to count the times that facade has received the result of probed
 	private ConcurrentHashMap<String, Integer> cptAcceptProbed = new ConcurrentHashMap<>();
@@ -52,6 +63,13 @@ public class Facade  extends AbstractComponent{
 	private int id ;
 	private int nbFacades ;
 	private Random random = new Random();
+	
+	private static final int NB_OF_THREADS = 2;
+
+	private static final String NM_THREAD_SERVICE_URI = "facade_nm_pool";
+	private static final String FCM_THREAD_SERVICE_URI = "facade_fcm_pool";
+	
+	
 
 	// -------------------------------------------------------------------------
 	// Constructors
@@ -60,7 +78,7 @@ public class Facade  extends AbstractComponent{
 	protected	Facade(	int i, String NMInboundPortURI,String FacadeCMInPortFacadeURI ,int nbFacades ) throws Exception
 	{
 		// the reflection inbound port URI is the URI of the component
-		super("Facade"+i, 2, 0) ;
+		super("Facade"+i, NB_OF_THREADS, 0) ;
 		
 		this.id = i;
 		this.nbFacades = nbFacades;
@@ -71,10 +89,18 @@ public class Facade  extends AbstractComponent{
 		this.inPortNM = new NodeManagementInBoundPort(this, adress.getNodeManagementUri());
 		this.inPortNM.publishPort();
 		
+		
+		int nbThreadsNM = 1;
+		int nbThreadsFCM = NB_OF_THREADS - nbThreadsNM;
+		
+		this.createNewExecutorService(NM_THREAD_SERVICE_URI+id, nbThreadsNM, false);
+		this.createNewExecutorService(FCM_THREAD_SERVICE_URI+id, nbThreadsFCM, false);
+		
 		//FacadeCMInPortFacadeURI is used for plugin
 		this.facade_plugin = new FacadePlugin(adress);
 		this.installPlugin(facade_plugin);
 		System.out.println("facade"+id+"[label=\"Facade "+ id +"\"];");
+		
 		
 	}
 	//-------------------------------------------------------------------------
@@ -103,6 +129,8 @@ public class Facade  extends AbstractComponent{
 		}
 		
 	}
+	
+	
 	
 	// -------------------------------------------------------------------------
 	// Services implementation
@@ -186,8 +214,7 @@ public class Facade  extends AbstractComponent{
 	}
 	
 	// Initialization return results for probe 
-	private void doProbe(ContentNodeAddressI address) throws Exception {	    
-	    
+	private void doProbe(ContentNodeAddressI address) throws Exception {
 		probeFacade(address.getNodeidentifier(), adress, MAX_PROBES);
 		probeRoots(address.getNodeidentifier(), adress, MAX_PROBES);
 		
@@ -222,5 +249,16 @@ public class Facade  extends AbstractComponent{
 		}
 	    NodeManagementOutboundPort outPortNM = outPortsNM.get(facadeId);
 	    outPortNM.probe(adressnInitiale, hops, requestURI);
+	}
+
+	@Override
+	public String get_THREAD_POOL_URI() {
+	
+		return NM_THREAD_SERVICE_URI+id;
+	}
+	
+	@Override
+	public String get_CM_THREAD_POOL_URI() {	
+		return FCM_THREAD_SERVICE_URI+id;
 	}
 }
