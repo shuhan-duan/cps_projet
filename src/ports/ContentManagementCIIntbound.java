@@ -1,7 +1,7 @@
 package ports;
 
 import java.util.Set;
-
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.ComponentI;
@@ -28,11 +28,12 @@ public class ContentManagementCIIntbound  extends AbstractInboundPort  implement
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
+	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester
+			, String requestURI) throws Exception {
 		this.getOwner().runTask(
 				owner -> {
 					try {
-						((MyCMI) owner).find(cd ,hops ,requester,requestURI);
+						((MyCMI) owner).find(cd ,hops ,requester,requestURI );
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}

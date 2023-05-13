@@ -1,35 +1,33 @@
 package withplugin.plugins;
 
 
-import java.util.HashSet;
+
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import classes.ApplicationNodeAdress;
-import connector.FacadeContentManagementConector;
+import connector.MyClientConnector;
 import fr.sorbonne_u.components.AbstractPlugin;
 import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.ComponentI;
-import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+
 import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentDescriptorI;
 import interfaces.ContentManagementCI;
 import interfaces.ContentNodeAddressI;
 import interfaces.ContentTemplateI;
+import interfaces.FacadeContentManagementCI;
 import interfaces.MyCMI;
-import interfaces.MyFCMI;
 import interfaces.MyThreadServiceI;
 import interfaces.NodeManagementCI;
 import ports.ContentManagementCIOutbound;
-import ports.FacadeContentManagementCOutbound;
-import ports.NodeCOutboundPort;
-import ports.NodeManagementOutboundPort;
-import withplugin.ports.ContentManagementCIIntboundPlugin;
+import ports.MyClientCOutbound;
 import withplugin.ports.FacadeContentManagementCInboundPlugin;
 
 
 
-public class FacadePlugin extends AbstractPlugin implements MyCMI ,MyFCMI{
+public class FacadePlugin extends AbstractPlugin implements MyCMI,FacadeContentManagementCI{
 	
 		private static final long serialVersionUID = 1L;
 	
@@ -43,26 +41,25 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI ,MyFCMI{
 	  	
 	  	
 	  	private FacadeContentManagementCInboundPlugin inPortFCM; //connect with client(find)and roots(acceptFound)
-	  	private FacadeContentManagementCOutbound outPortFCM; //call acceptFound and acceptMatched in client
+	  	private MyClientCOutbound outPortFCM; //call acceptFound and acceptMatched in client
 	  	
 	  	private String inPortFCMclientURI ;
+	  	private static AtomicBoolean resultReturned = new AtomicBoolean(false);
 	  	
-	  	private boolean flag;
-	  	private final Object lock = new Object(); //lock for flag
   	
 	  	// -------------------------------------------------------------------------
 	 	// Life cycle
 	 	// -------------------------------------------------------------------------
 	 	
-	  	public FacadePlugin(ApplicationNodeAdress adress)throws Exception {
+	  	public FacadePlugin(ApplicationNodeAdress adress ,String inPortFCMclientURI)throws Exception {
 		    super();
 		    
 		    setPluginURI(AbstractPort.generatePortURI());
 		    			
 			this.rootsOutPortsCM =  new ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound>();
 			this.adress = adress;
-			this.flag = false;
 			
+			this.inPortFCMclientURI = inPortFCMclientURI;
 			
 		  }
   	
@@ -76,9 +73,9 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI ,MyFCMI{
 		    		 ((MyThreadServiceI)this.getOwner()).
 		    		 get_CM_THREAD_POOL_URI());
 		     inPortFCM.publishPort();
-		     
+
 		     // the outport FCM
-		     outPortFCM = new FacadeContentManagementCOutbound(this.getOwner());
+		     outPortFCM = new MyClientCOutbound(this.getOwner());
 		     outPortFCM.publishPort();
 		}
   	
@@ -120,16 +117,16 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI ,MyFCMI{
 		// -------------------------------------------------------------------------
 
 		@Override
-		public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
-			Set<ContentNodeAddressI> racineSet = rootsOutPortsCM.keySet();
-			
+		public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI ) throws Exception {
+			Set<ContentNodeAddressI> racineSet = rootsOutPortsCM.keySet();			
 			//set the requester initial
 			if (requester == null) {
 			    requester = this.adress;
 			}
 			for (ContentNodeAddressI root : racineSet) {
 				requestURI = root.getNodeidentifier();
-				rootsOutPortsCM.get(root).find(cd, hops, requester, requestURI);
+				
+				rootsOutPortsCM.get(root).find(cd, hops, requester, requestURI );
 			}
 			
 		}
@@ -150,19 +147,21 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI ,MyFCMI{
 				
 				
 		public void acceptFound(ContentDescriptorI found, String requsetURI) throws Exception {
-			//Use locks to ensure that only one result of find is returned
-		    synchronized (lock) {
-		        if (!flag) {
-		            this.getOwner().doPortConnection(outPortFCM.getPortURI(), inPortFCMclientURI, FacadeContentManagementConector.class.getCanonicalName());
+	        if (resultReturned.compareAndSet(false, true)) {
+	            System.out.println("has returned the result to "+ adress.getNodeidentifier());
 
-		            if (found != null) {
-		                outPortFCM.acceptFound(found, requsetURI);
-		                flag = true;
-		            }
-		        }
-		    }
-		}
-		
+	            this.getOwner().doPortConnection(outPortFCM.getPortURI(),
+	                    inPortFCMclientURI,
+	                    MyClientConnector.class.getCanonicalName());
+
+	            if (found != null) {
+	                outPortFCM.foundRes(found, requsetURI);
+	            }
+	        } else {
+	            return;
+	        }
+	    }
+	
 		public void acceptMatched(Set<ContentDescriptorI> matched ,String requsetURI) throws Exception {
 //			this.getOwner().doPortConnection(outPortFCM.getPortURI(), inPortFCMclientURI, FacadeContentManagementConector.class.getCanonicalName());
 //			if (matched != null) {

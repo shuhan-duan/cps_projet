@@ -74,6 +74,14 @@ public class NodeCOutboundPort   extends AbstractOutboundPort implements  NodeCI
 				return ((NodeCI)this.getConnector()).getNeighborCount();
 			}
 
+			@Override
+			public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI,
+					ContentNodeAddressI leastNeighbor, int leastNeighborCount) throws Exception {
+				((NodeCI)this.getConnector()).probe(facade,  remainghops,  requestURI,
+						 leastNeighbor, leastNeighborCount);
+							
+			}
+
 
 	
 

@@ -1,6 +1,7 @@
 package ports;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
@@ -10,27 +11,27 @@ import interfaces.ContentDescriptorI;
 import interfaces.ContentTemplateI;
 import interfaces.FacadeContentManagementCI;
 import interfaces.MyCMI;
-import interfaces.MyFCMI;
-import interfaces.NodeAdresseI;
 
 public class FacadeContentManagementCOutbound extends AbstractOutboundPort implements  FacadeContentManagementCI{
 	private static final long serialVersionUID = 1L;
 
 	// -------------------------------------------------------------------------
-			// Constructors
-			// -------------------------------------------------------------------------
+	// Constructors
+	// -------------------------------------------------------------------------
 
 
 
-			public	FacadeContentManagementCOutbound(
-				ComponentI owner
-				) throws Exception
-			{
-				super(generatePortURI(), FacadeContentManagementCI.class, owner);
-			}
+	public	FacadeContentManagementCOutbound(
+		ComponentI owner
+		) throws Exception
+	{
+		super(generatePortURI(), FacadeContentManagementCI.class, owner);
+		assert  owner != null ;
+	}
 
 	@Override
-	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
+	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester,
+			String requestURI) throws Exception {
 		// TODO Auto-generated method stub
 		((MyCMI)this.getConnector()).find(cd ,hops ,requester,requestURI);
 	}
@@ -45,12 +46,12 @@ public class FacadeContentManagementCOutbound extends AbstractOutboundPort imple
 	@Override
 	public void acceptFound(ContentDescriptorI found, String requsetURI) throws Exception {
 		
-		((MyFCMI)this.getConnector()).acceptFound(found, requsetURI);
+		((FacadeContentManagementCI)this.getConnector()).acceptFound(found, requsetURI);
 		
 	}
 	@Override
 	public void acceptMatched(Set<ContentDescriptorI> matched, String requsetURI) throws Exception {
-		((MyFCMI)this.getConnector()).acceptMatched(matched, requsetURI);
+		((FacadeContentManagementCI)this.getConnector()).acceptMatched(matched, requsetURI);
 		
 	}
 

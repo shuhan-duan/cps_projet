@@ -1,20 +1,20 @@
 package connector;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.sorbonne_u.components.connectors.AbstractConnector;
 import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentDescriptorI;
 import interfaces.ContentTemplateI;
 import interfaces.FacadeContentManagementCI;
-import interfaces.NodeAdresseI;
-import javassist.expr.Instanceof;
 
 public class FacadeContentManagementConector  extends  AbstractConnector implements  FacadeContentManagementCI{
 
 	@Override
-	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
-		((FacadeContentManagementCI)this.offering).find(cd,hops, requester, requestURI);
+	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester,
+			String requestURI ) throws Exception {
+		((FacadeContentManagementCI)this.offering).find(cd,hops, requester, requestURI );
 		
 	}
 
@@ -33,8 +33,7 @@ public class FacadeContentManagementConector  extends  AbstractConnector impleme
 
 	@Override
 	public void acceptMatched(Set<ContentDescriptorI> matched, String requsetURI) throws Exception {
-		((FacadeContentManagementCI)this.offering).acceptMatched(matched, requsetURI);
-		
+		((FacadeContentManagementCI)this.offering).acceptMatched(matched, requsetURI);		
 	}
 
 }

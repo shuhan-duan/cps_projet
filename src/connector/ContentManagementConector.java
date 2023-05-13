@@ -1,6 +1,7 @@
 package connector;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.sorbonne_u.components.connectors.AbstractConnector;
 import interfaces.ApplicationNodeAdressI;
@@ -12,7 +13,8 @@ import interfaces.NodeAdresseI;
 public class ContentManagementConector   extends  AbstractConnector implements  ContentManagementCI {
 
 	@Override
-	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI)
+	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester
+			, String requestURI)
 			throws Exception {
 		((ContentManagementCI)this.offering).find(cd,hops, requester, requestURI);
 		

@@ -1,6 +1,7 @@
 package withplugin.ports;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.AbstractPort;
@@ -28,7 +29,8 @@ public class ContentManagementCIIntboundPlugin  extends AbstractInboundPort  imp
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
+	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester,
+			String requestURI) throws Exception {
 		 this.getOwner().runTask(
 	                new AbstractComponent.AbstractTask(this.getPluginURI()) {
 	                    @Override

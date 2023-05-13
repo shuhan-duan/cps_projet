@@ -1,6 +1,7 @@
 package withplugin.ports;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.ComponentI;
@@ -11,7 +12,6 @@ import interfaces.ContentDescriptorI;
 import interfaces.ContentTemplateI;
 import interfaces.FacadeContentManagementCI;
 import interfaces.MyCMI;
-import interfaces.MyFCMI;
 
 public class FacadeContentManagementCInboundPlugin extends AbstractInboundPort implements  FacadeContentManagementCI {
 	
@@ -25,7 +25,8 @@ public class FacadeContentManagementCInboundPlugin extends AbstractInboundPort i
 	 */
 	private static final long serialVersionUID = 1L;
 	@Override
-	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
+	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester
+			, String requestURI ) throws Exception {
 		 this.getOwner().runTask(
 	                new AbstractComponent.AbstractTask(this.getPluginURI()) {
 	                    @Override
@@ -58,25 +59,31 @@ public class FacadeContentManagementCInboundPlugin extends AbstractInboundPort i
 	public void acceptFound(ContentDescriptorI found, String requsetURI) throws Exception {
 		
 		this.getOwner().runTask(
-				owner -> {
-					try {
-						((MyFCMI)owner).acceptFound(found, requsetURI);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
-				});
+				new AbstractComponent.AbstractTask(this.getPluginURI()) {
+                    @Override
+                    public void run() {
+                        try {
+                            ((FacadeContentManagementCI) this.getTaskProviderReference()).acceptFound(found, requsetURI);;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
 		
 	}
 	@Override
 	public void acceptMatched(Set<ContentDescriptorI> matched, String requsetURI) throws Exception {
 		this.getOwner().runTask(
-				owner -> {
-					try {
-						((MyFCMI)owner).acceptMatched(matched, requsetURI);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
-				});
+				new AbstractComponent.AbstractTask(this.getPluginURI()) {
+                    @Override
+                    public void run() {
+                        try {
+                            ((FacadeContentManagementCI) this.getTaskProviderReference()).acceptMatched(matched, requsetURI);;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
 		
 	}
 

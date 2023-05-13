@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import com.thaiopensource.validate.Flag;
+
 import classes.ContentDescriptor;
 import classes.ContentNodeAdress;
 import classes.NodeAdresse;
@@ -160,8 +162,8 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 	
 	private void addDescriptor(int number)
 			throws Exception{
-		//ContentDataManager.DATA_DIR_NAME = "src/data";
-		ContentDataManager.DATA_DIR_NAME = "src/testsDataCPSAvril";
+		ContentDataManager.DATA_DIR_NAME = "src/data";
+		//ContentDataManager.DATA_DIR_NAME = "src/testsDataCPSAvril";
 		ArrayList<HashMap<String, Object>> result = ContentDataManager.readDescriptors(number);
 		for (HashMap<String, Object> hashMap : result) {
 			ContentDescriptorI descriptor = new ContentDescriptor(hashMap);

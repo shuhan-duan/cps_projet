@@ -45,4 +45,12 @@ public class NodeConnector  extends  AbstractConnector implements NodeCI{
 		return ((NodeCI)this.offering).getNeighborCount();
 	}
 
+	@Override
+	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI,
+			ContentNodeAddressI leastNeighbor, int leastNeighborCount) throws Exception {
+		((NodeCI)this.offering).probe(facade,  remainghops,  requestURI,
+				 leastNeighbor, leastNeighborCount) ;
+		
+	}
+
 }

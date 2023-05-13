@@ -2,7 +2,7 @@ package interfaces;
 
 import java.util.Set;
 
-public interface FacadeContentManagementCI extends ContentManagementCI ,MyFCMI{
+public interface FacadeContentManagementCI extends ContentManagementCI ,MyCMI{
 	
 	public void acceptFound(ContentDescriptorI found, String requsetURI) throws Exception;
 	

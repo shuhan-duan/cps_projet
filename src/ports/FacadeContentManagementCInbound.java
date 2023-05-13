@@ -1,6 +1,7 @@
 package ports;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
@@ -10,7 +11,6 @@ import interfaces.ContentDescriptorI;
 import interfaces.ContentTemplateI;
 import interfaces.FacadeContentManagementCI;
 import interfaces.MyCMI;
-import interfaces.MyFCMI;
 import interfaces.NodeAdresseI;
 
 public class FacadeContentManagementCInbound extends AbstractInboundPort implements  FacadeContentManagementCI {
@@ -24,7 +24,8 @@ public class FacadeContentManagementCInbound extends AbstractInboundPort impleme
 	 */
 	private static final long serialVersionUID = 1L;
 	@Override
-	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
+	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester
+			, String requestURI) throws Exception {
 		this.getOwner().runTask(
 				owner -> {
 					try {
@@ -53,7 +54,7 @@ public class FacadeContentManagementCInbound extends AbstractInboundPort impleme
 		this.getOwner().runTask(
 				owner -> {
 					try {
-						((MyFCMI)owner).acceptFound(found, requsetURI);
+						((FacadeContentManagementCI)owner).acceptFound(found, requsetURI);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
@@ -65,7 +66,7 @@ public class FacadeContentManagementCInbound extends AbstractInboundPort impleme
 		this.getOwner().runTask(
 				owner -> {
 					try {
-						((MyFCMI)owner).acceptMatched(matched, requsetURI);
+						((FacadeContentManagementCI)owner).acceptMatched(matched, requsetURI);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}

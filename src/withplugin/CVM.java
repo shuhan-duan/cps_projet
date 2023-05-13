@@ -31,8 +31,8 @@ public class CVM extends AbstractCVM{
 	protected static final String	NodeCInPortPairURI = "inportNodeCpair";
 	protected static final String	CMInPortPairURI = "inportCMpair";
 	
-	protected final int NB_PEER = 20;  
-	protected final int NB_FACADE = 3 ;
+	protected final int NB_PEER = 10;  
+	protected final int NB_FACADE = 2 ;
 	
 	protected static final long		DELAY_TO_START_IN_NANOS =	TimeUnit.SECONDS.toNanos(5);
 	public static final String		CLOCK_URI = "my-clock";
@@ -74,7 +74,8 @@ public class CVM extends AbstractCVM{
 					new Object[]{i,
 							NMInboundPortURI,
 							FacadeCMInPortFacadeURI,
-							NB_FACADE // for the interconnection of facades
+							NB_FACADE,// for the interconnection of facades
+							FacadeCMInPortClientURI // for call accept in client
 					});
 		}				
 				System.out.println("\nCreate Composant Facade OK ");
@@ -125,10 +126,10 @@ public class CVM extends AbstractCVM{
 			// Create an instance of the defined component virtual machine.
 			CVM a = new CVM();
 			// Execute the application.
-			a.startStandardLifeCycle(70000L);
+			a.startStandardLifeCycle(50000L);
 
 			// Give some time to see the traces (convenience).
-			Thread.sleep(5000L);
+			Thread.sleep(10000L);
 
 			// Simplifies the termination (termination has yet to be treated
 			// properly in BCM).

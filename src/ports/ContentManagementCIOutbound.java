@@ -1,6 +1,7 @@
 package ports;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.interfaces.RequiredCI;
@@ -38,8 +39,9 @@ public class ContentManagementCIOutbound   extends AbstractOutboundPort  impleme
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
-		((MyCMI)this.getConnector()).find(cd ,hops ,requester,requestURI);
+	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester
+			, String requestURI) throws Exception {
+		((MyCMI)this.getConnector()).find(cd ,hops ,requester,requestURI );
 		
 	}
 

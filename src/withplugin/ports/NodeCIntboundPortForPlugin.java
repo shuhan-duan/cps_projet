@@ -116,4 +116,23 @@ private static final long serialVersionUID = 1L;
 				});
 	}
 
+	@Override
+	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI,
+			ContentNodeAddressI leastNeighbor, int leastNeighborCount) throws Exception {
+		this.getOwner().runTask(
+				this.getExecutorServiceURI(),
+		        new AbstractComponent.AbstractTask(this.getPluginURI()) {
+		          @Override
+		          public void run() {
+		            try {
+		              ((PairPlugin) this.getTaskProviderReference()).probe(facade,  remainghops,  requestURI,
+		     				 leastNeighbor, leastNeighborCount);
+		            } catch (Exception e) {
+		              throw new RuntimeException(e);
+		            }
+		          }
+		        });
+		
+	}
+
 }

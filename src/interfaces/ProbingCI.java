@@ -5,7 +5,4 @@ import fr.sorbonne_u.components.interfaces.RequiredCI;
 
 public interface ProbingCI extends RequiredCI , OfferedCI{
 	public void probe(ApplicationNodeAdressI facade , int remainghops , String requestURI ) throws Exception;
-//	public void probe(ApplicationNodeAdressI facade , int remainghops , String requestURI,
-//			ContentNodeAddressI leastNeighbor, int leastNeighborCount) throws Exception;
-
 }

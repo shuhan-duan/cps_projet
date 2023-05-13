@@ -1,26 +1,19 @@
 package withplugin.components;
 
-import java.time.Instant;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import classes.ApplicationNodeAdress;
 import connector.ContentManagementConector;
 import connector.NodeConnector;
 import connector.NodeManagementConnector;
 import fr.sorbonne_u.components.AbstractComponent;
-import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
-import fr.sorbonne_u.utils.aclocks.AcceleratedClock;
-import fr.sorbonne_u.utils.aclocks.ClocksServer;
-import fr.sorbonne_u.utils.aclocks.ClocksServerCI;
-import fr.sorbonne_u.utils.aclocks.ClocksServerConnector;
-import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentNodeAddressI;
 import interfaces.MyThreadServiceI;
@@ -28,7 +21,6 @@ import ports.ContentManagementCIOutbound;
 import ports.NodeCOutboundPort;
 import ports.NodeManagementInBoundPort;
 import ports.NodeManagementOutboundPort;
-import withplugin.CVM;
 import withplugin.plugins.FacadePlugin;
 
 
@@ -75,7 +67,7 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	// Constructors
 	// -------------------------------------------------------------------------
 
-	protected	Facade(	int i, String NMInboundPortURI,String FacadeCMInPortFacadeURI ,int nbFacades ) throws Exception
+	protected	Facade(	int i, String NMInboundPortURI,String FacadeCMInPortFacadeURI ,int nbFacades,String FacadeCMInPortClientURI ) throws Exception
 	{
 		// the reflection inbound port URI is the URI of the component
 		super("Facade"+i, NB_OF_THREADS, 0) ;
@@ -97,7 +89,7 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 		this.createNewExecutorService(FCM_THREAD_SERVICE_URI+id, nbThreadsFCM, false);
 		
 		//FacadeCMInPortFacadeURI is used for plugin
-		this.facade_plugin = new FacadePlugin(adress);
+		this.facade_plugin = new FacadePlugin(adress,FacadeCMInPortClientURI);
 		this.installPlugin(facade_plugin);
 		System.out.println("facade"+id+"[label=\"Facade "+ id +"\"];");
 		
@@ -231,7 +223,9 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	    // call probe for each root
 	    for (ContentNodeAddressI root : roots) {
 	        NodeCOutboundPort outPortNodeC = outPortsNodeC.get(root.getNodeidentifier());
-	        outPortNodeC.probe(adressnInitiale, hops, requestURI);
+	        //outPortNodeC.probe(adressnInitiale, hops, requestURI);
+	        outPortNodeC.probe(adressnInitiale,  hops,  requestURI,
+					 null, 0);
 	    }
 	    if (adressnInitiale == adress) {
 			

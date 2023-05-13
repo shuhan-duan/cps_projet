@@ -2,33 +2,23 @@ package withplugin.plugins;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import classes.ContentDescriptor;
 import classes.ContentNodeAdress;
 import connector.ContentManagementConector;
 import connector.FacadeContentManagementConector;
 import connector.NodeConnector;
 import connector.NodeManagementConnector;
 import fr.sorbonne_u.components.AbstractPlugin;
-import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
-import fr.sorbonne_u.components.reflection.connectors.ReflectionConnector;
-import fr.sorbonne_u.components.reflection.interfaces.ReflectionCI;
-import fr.sorbonne_u.components.reflection.ports.ReflectionOutboundPort;
-import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
-import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentDescriptorI;
 import interfaces.ContentNodeAddressI;
@@ -43,7 +33,7 @@ import ports.NodeCOutboundPort;
 import ports.NodeManagementOutboundPort;
 import withplugin.ports.ContentManagementCIIntboundPlugin;
 import withplugin.ports.NodeCIntboundPortForPlugin;
-import withplugin.CVM;
+
 
 public class PairPlugin extends AbstractPlugin implements MyCMI {
 	
@@ -66,17 +56,16 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		private ContentNodeAdress adress;
 		private ArrayList<ContentDescriptorI> contents;
 		
-		private Set<ContentNodeAddressI> voisins;
 		
 		//stock the neighbor pairs connected with this and the outPortNodeCodeC
 		private ConcurrentHashMap<ContentNodeAddressI,NodeCOutboundPort> outPortsNodeC;  
 		
-		//stock the neighbor pairs connected with this pair and the outportCMpair of me
+		//stock the neighbor pairs connected with this pair and the outportCMpair of this
 		//ContentMangement 
 		private ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound> outPortsCM;
-		
-		private boolean flag;
-
+ 
+		private static ConcurrentHashMap<String, Boolean> visitedPairs = new ConcurrentHashMap<>();
+		private static AtomicBoolean found = new AtomicBoolean(false);
 		
 		// -------------------------------------------------------------------------
 		// Life cycle
@@ -103,8 +92,6 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 			
 			this.outPortsNodeC = new ConcurrentHashMap<ContentNodeAddressI,NodeCOutboundPort>();
 			this.outPortsCM = new ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound>();
-			this.voisins = new HashSet<ContentNodeAddressI>();
-			this.flag = false;
 		
 		}
 		
@@ -176,7 +163,7 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 	
 		public void probe(ApplicationNodeAdressI facadeInitial, int remainingHops, String requestURI) throws Exception {
 		    //System.out.println(requestURI + " demande do prob in " + this.adress.getNodeidentifier() + " hops " + remainingHops);
-		    if (remainingHops <= 0 || voisins.isEmpty()) {
+		    if (remainingHops <= 0 || outPortsNodeC.isEmpty()) {
 		        // Return its own address to the facade that initiated the probe
 		    	
 		        this.getOwner().doPortConnection(outPortNM.getPortURI(),
@@ -193,6 +180,41 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		    }
 		}
 		
+		//there is a problem because of the async task , the list of neighbors is updated lately 
+		public void probe(ApplicationNodeAdressI facadeInitial, int remainingHops, String requestURI, ContentNodeAddressI leastNeighbor, int leastNeighborCount) throws Exception {
+		    if (remainingHops <= 0 || outPortsNodeC.isEmpty()) {
+		        // Return the address of the least neighbor with minimum count to the facade that initiated the probe
+		        if (leastNeighbor != null) {
+		            this.getOwner().doPortConnection(outPortNM.getPortURI(),
+		                    facadeInitial.getNodeManagementUri(),
+		                    NodeManagementConnector.class.getCanonicalName());
+		            outPortNM.acceptProbed(leastNeighbor, requestURI);
+		            outPortNM.doDisconnection();
+		        } else {
+		            // If no least neighbor found, return its own address
+		        	//System.out.println("no least neighbor for "+ this.adress.getNodeidentifier());
+		            this.getOwner().doPortConnection(outPortNM.getPortURI(),
+		                    facadeInitial.getNodeManagementUri(),
+		                    NodeManagementConnector.class.getCanonicalName());
+		            outPortNM.acceptProbed(this.adress, requestURI);
+		            outPortNM.doDisconnection();
+		        }
+		    } else {
+		        // If there are neighbors
+		        ContentNodeAddressI neighbor = getRandomNeighbor();
+		        NodeCOutboundPort outPortNodeC = outPortsNodeC.get(neighbor);
+		        
+		        // Update the least neighbor information
+		        int neighborCount = outPortsNodeC.get(neighbor).getNeighborCount();
+		        if (leastNeighbor == null || neighborCount < leastNeighborCount) {
+		            leastNeighbor = neighbor;
+		            leastNeighborCount = neighborCount;
+		        }
+		        
+		        outPortNodeC.probe(facadeInitial, remainingHops - 1, requestURI, leastNeighbor, leastNeighborCount);
+		    }
+		}
+
 		
 		public void acceptNeighbours(Set<ContentNodeAddressI> neighbours) throws Exception {
 		   
@@ -201,58 +223,25 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		    } else {
 		        for (ContentNodeAddressI neighbor : neighbours) {
 		            //System.out.println("I am " + this.adress.getNodeidentifier() + " I have neighbor: " + neighbor.getNodeidentifier());
-		            connectToNode(neighbor);
-		            // call neighbor to connect this
-		            outPortsNodeC.get(neighbor).connect(this.adress);
+		            
+		            // connect to neighbors
+		            this.connect(neighbor);
 		        }
 		    }
 		}
 		
 		public void connect(ContentNodeAddressI newNodeAddress) throws Exception {
-			
-		    int leastNeighborCount = Integer.MAX_VALUE;
-		    ContentNodeAddressI leastNeighbor = null;
-		    
-		    if (!voisins.isEmpty()) {
-		    	for (ContentNodeAddressI neighbor : voisins) {
-			        NodeCOutboundPort neighborOutPort = outPortsNodeC.get(neighbor);
-			        int neighborCount = neighborOutPort.getNeighborCount();
-			        
-			        if (neighborCount < leastNeighborCount) {
-			            leastNeighbor = neighbor;
-			            leastNeighborCount = neighborCount;
-			        }
-			    }
-			}else {
-				System.out.println(this.adress.getNodeidentifier() +" not has neighbor yet ,can not pass "+ newNodeAddress.getNodeidentifier()+" to leastNeighbor");
-			}
-		    
-		    
-		    if (leastNeighbor != null && leastNeighborCount < outPortsNodeC.get(adress).getNeighborCount()) {
-		    	System.out.println("leastNeighbor of "+this.adress.getNodeidentifier()+ " is "+leastNeighbor.getNodeidentifier()+" "+leastNeighborCount);
-		        NodeCOutboundPort leastNeighborOutPort = outPortsNodeC.get(leastNeighbor);
-		        
-		        leastNeighborOutPort.connect(newNodeAddress);
-		        System.out.println("send to leastNeighbor");
-		    } else {
-		        // Connect to the new node directly
-		        connectToNode(newNodeAddress);
-		        synchronized (voisins) {
-			    	//System.out.println(adress.getNodeidentifier()+ " has new neighbor : "+ neighbor.getNodeidentifier());
-			        voisins.add(newNodeAddress);
-			    }
-		    }
+			connectToNode(newNodeAddress);
+			//call neighbor to connect this
+			NodeCOutboundPort outPortNodeC= outPortsNodeC.get(newNodeAddress);
+			outPortNodeC.acceptConnected(this.adress);
 		}
 
 		
 		
 		public void acceptConnected(ContentNodeAddressI p) throws Exception {
-			synchronized (voisins) {
-				//System.out.println(adress.getNodeidentifier()+ " has new neighbor : "+ p.getNodeidentifier());
-				voisins.add(p);
-		    }
+			connectToNode(p);
 		}
-
 
 		
 		public void disconnect(ContentNodeAddressI p) throws Exception {
@@ -271,7 +260,6 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 				outportCM.unpublishPort();
 				outPortsCM.remove(p);
 				System.out.println("\nc'est ok "+this.adress.getNodeidentifier() +" --disconnect--> " + p.getNodeidentifier());
-				voisins.remove(p);
 		    }	
 			
 		}
@@ -280,46 +268,46 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		// Plug-in services implementation
 		// -------------------------------------------------------------------------
 	
-		@Override
 		public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
-		    //System.out.println("\nwill do find in "+this.adress.getNodeidentifier());
-		
-			// Check among its own contents
-		    for (ContentDescriptorI content : this.contents) {
-		        if (content.match(cd)) {
-		            System.out.println("found in " + this.adress.getNodeidentifier());
-		            // create connection enter this pair and requester initial
-		            outPortFCM.publishPort();
+	        synchronized (PairPlugin.class) {
+	            if (found.get()) {
+	                return;
+	            }
 
-		            this.getOwner().doPortConnection(outPortFCM.getPortURI(),
-		                    requester.getContentManagementURI(),
-		                    FacadeContentManagementConector.class.getCanonicalName());
+	            for (ContentDescriptorI content : this.contents) {
+	                if (content.match(cd)) {
+	                    System.out.println("found in " + this.adress.getNodeidentifier());
+	                    this.getOwner().doPortConnection(outPortFCM.getPortURI(),
+	                            requester.getContentManagementURI(),
+	                            FacadeContentManagementConector.class.getCanonicalName());
 
-		            outPortFCM.acceptFound(content, this.adress.getNodeidentifier());
-		            return;
-		        }
-		    }
-			    
-		    // >1 because it first check its own contents then check the remaining hops
-		    if (hops > 1) {
-		        // Check among neighbors
-		        System.out.println(this.adress.getNodeidentifier() + " not found ");
+	                    outPortFCM.acceptFound(content, this.adress.getNodeidentifier());
+	                    found.set(true);
+	                    return;
+	                }
+	            }
 
-		        if (voisins.isEmpty()) {
-		            System.out.println(this.adress.getNodeidentifier() + " has no neighbors");
-		        } else {
-		            Set<ContentNodeAddressI> randomNeighbors = getRandomSubset(voisins, 3);
-		            for (ContentNodeAddressI voisin : randomNeighbors) {
-		            	 ContentManagementCIOutbound outportCM = outPortsCM.get(voisin);
-	                     outportCM.find(cd, hops - 1, requester, voisin.getNodeidentifier());
-		            }
+	            if (hops > 1 && !found.get()) {
+	                System.out.println(this.adress.getNodeidentifier() + " not found ");
 
-		        }
+	                if (outPortsCM.isEmpty()) {
+	                    System.out.println(this.adress.getNodeidentifier() + " has no neighbors");
+	                } else {
+	                    Set<ContentNodeAddressI> randomNeighbors = getRandomSubset(outPortsNodeC.keySet(), 3);
+	                    for (ContentNodeAddressI voisin : randomNeighbors) {
+	                    	Boolean alreadyVisited = visitedPairs.putIfAbsent(voisin.getNodeidentifier(), true);
+	                        if (alreadyVisited == null || !alreadyVisited) {
+	                            visitedPairs.put(voisin.getNodeidentifier(), true);
+	                            ContentManagementCIOutbound outportCM = outPortsCM.get(voisin);
+	                            outportCM.find(cd, hops - 1, requester, voisin.getNodeidentifier());
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }
 
-		    }
-		}
-
-		
+			
 		@Override
 		public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
 			System.out.println("\nwill do find in "+this.adress.getNodeidentifier());
@@ -345,10 +333,10 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		        // Check among neighbors
 		        System.out.println(this.adress.getNodeidentifier() + " not matched ");
 
-		        if (voisins.isEmpty()) {
+		        if (outPortsNodeC.isEmpty()) {
 		            System.out.println(this.adress.getNodeidentifier() + " has no neighbors");
 		        } else {
-		            Set<ContentNodeAddressI> randomNeighbors = getRandomSubset(voisins, 3);
+		            Set<ContentNodeAddressI> randomNeighbors = getRandomSubset(outPortsNodeC.keySet(), 3);
 		           
 		            for (ContentNodeAddressI voisin : randomNeighbors) {
 		            	ContentManagementCIOutbound outportCM = outPortsCM.get(voisin);
@@ -382,8 +370,8 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		}
 
 		private ContentNodeAddressI getRandomNeighbor() {
-		    int randomIndex = new Random().nextInt(voisins.size());
-		    Iterator<ContentNodeAddressI> iterator = voisins.iterator();
+		    int randomIndex = new Random().nextInt(outPortsNodeC.size());
+		    Iterator<ContentNodeAddressI> iterator = outPortsNodeC.keySet().iterator();
 		    for (int i = 0; i < randomIndex; i++) {
 		        iterator.next();
 		    }
@@ -400,7 +388,7 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 
 
 		public Integer getNeighborCount() {			
-			return voisins.size();
+			return outPortsNodeC.size();
 		}
 
 		

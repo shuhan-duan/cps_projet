@@ -13,5 +13,8 @@ public interface NodeCI extends ProbingCI{
 	
 	// function used in management of the number of neighbors
 	public int getNeighborCount()throws Exception;
+	public void probe(ApplicationNodeAdressI facade , int remainghops , String requestURI,
+	ContentNodeAddressI leastNeighbor, int leastNeighborCount) throws Exception;
+
 }
 
