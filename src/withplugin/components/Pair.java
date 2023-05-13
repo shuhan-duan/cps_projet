@@ -119,24 +119,19 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 		Instant startInstant = clock.getStartInstant();
 		clock.waitUntilStart();
 		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(10));
+		actionJoin(delayInNanos);
+						
+		long delayInNanos2 =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(300));
+		actionLeave(delayInNanos2);
 		
-		
-		//do join et connect 
-		this.scheduleTask(
-				o -> {
-					try {
-						((Pair)o).actionJoin();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				},
-				delayInNanos,
-				TimeUnit.NANOSECONDS);
+		long delayInNanos3 =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(350));
+		actionDisconnect(delayInNanos3);
 				
-	
 			
 	}
 	
+	
+
 	@Override
 	public void	finalise() throws Exception
 	{
@@ -172,14 +167,48 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 		System.out.println("pair"+id+"[label=\"Pair "+ id +"\"];");
 	}
 	
-	private void	 actionJoin() throws Exception
+	private void	 actionJoin(long delayInNanos) throws Exception
 	{
+		//do join et connect 
+		this.scheduleTask(
+				o -> {
+					try {
+						this.outPortNM.join(this.adress);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				},
+				delayInNanos,
+				TimeUnit.NANOSECONDS);
 		
-		this.outPortNM.join(this.adress);
 	}
 	
-	private void  actionLeave() throws Exception {
-		this.outPortNM.leave(this.adress);
+	private void  actionLeave(long delayInNanos) throws Exception {
+		this.scheduleTask(
+				o -> {
+					try {
+						this.outPortNM.leave(this.adress);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				},
+				delayInNanos,
+				TimeUnit.NANOSECONDS);
+		
+	}
+	
+	private void actionDisconnect(long delayInNanos) {
+		this.scheduleTask(
+				o -> {
+					try {
+						this.plugin.doDisconnect();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				},
+				delayInNanos,
+				TimeUnit.NANOSECONDS);
+		
 	}
 
 	@Override

@@ -92,7 +92,7 @@ public class Client extends AbstractComponent{
 		Instant startInstant = clock.getStartInstant();
 		clock.waitUntilStart();
 		
-		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(200));
+		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(150));
 		
 		this.scheduleTask(
 				o -> {

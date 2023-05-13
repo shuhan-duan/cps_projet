@@ -395,6 +395,13 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 			return outPortsNodeC.size();
 		}
 
+		public void doDisconnect() throws Exception {
+			for (ContentNodeAddressI neighbor : outPortsNodeC.keySet()) {
+				this.outPortsNodeC.get(neighbor).disconnect(this.adress);
+			}
+			
+		}
+
 		
 
 }

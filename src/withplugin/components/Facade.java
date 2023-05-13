@@ -159,10 +159,10 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	    if (facade_plugin.getRootOutPortsCM().containsKey(address)) {
 	        this.doPortDisconnection(facade_plugin.getRootOutPortsCM().get(address).getPortURI());
 	        this.doPortDisconnection(outPortsNodeC.get(address.getNodeidentifier()).getPortURI());
-	        System.out.println("Removed root :" + address.getNodeidentifier() + " with CM and NodeCI");
+	        System.out.println("Removed root :" + address.getNodeidentifier());
 	        facade_plugin.removeRootOutPortsCM(address);
 	    } else {
-	    	System.out.println("No root pair connected with facade");
+	    	System.out.println(address.getNodeidentifier()+" is not connected with facade as root");
 	    }
 	}
 
