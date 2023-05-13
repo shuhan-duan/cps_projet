@@ -67,6 +67,7 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		private static ConcurrentHashMap<String, Boolean> visitedPairs = new ConcurrentHashMap<>();
 		private static AtomicBoolean found = new AtomicBoolean(false);
 		
+		private static ConcurrentHashMap<String, Boolean> visitedPairsMatch = new ConcurrentHashMap<>();
 		// -------------------------------------------------------------------------
 		// Life cycle
 		// -------------------------------------------------------------------------
@@ -310,12 +311,11 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 			
 		@Override
 		public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
-			System.out.println("\nwill do find in "+this.adress.getNodeidentifier());
+		    System.out.println("will do match in "+this.adress.getNodeidentifier());
 
 		    // Check among its own contents
 		    for (ContentDescriptorI content : this.contents) {
 		        if (content.match(cd)) {
-		            System.out.println("matched in " + this.adress.getNodeidentifier());
 		            // create connection enter this pair and requester initial
 		            outPortFCM.publishPort();
 
@@ -323,29 +323,33 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		                    requester.getContentManagementURI(),
 		                    FacadeContentManagementConector.class.getCanonicalName());
 
+		            // Add the matching content to the matched queue
+		            synchronized (matched) {
+		                matched.add(content);
+		            }
 		            outPortFCM.acceptMatched(matched, this.adress.getNodeidentifier());
-		            return;
 		        }
 		    }
 		    
 		    // >1 because it first check its own contents then check the remaining hops
 		    if (hops > 1) {
-		        // Check among neighbors
-		        System.out.println(this.adress.getNodeidentifier() + " not matched ");
-
 		        if (outPortsNodeC.isEmpty()) {
 		            System.out.println(this.adress.getNodeidentifier() + " has no neighbors");
 		        } else {
 		            Set<ContentNodeAddressI> randomNeighbors = getRandomSubset(outPortsNodeC.keySet(), 3);
 		           
 		            for (ContentNodeAddressI voisin : randomNeighbors) {
-		            	ContentManagementCIOutbound outportCM = outPortsCM.get(voisin);
-                        outportCM.match(cd, matched, hops -1, requester, voisin.getNodeidentifier());
+		            	Boolean alreadyVisited = visitedPairsMatch.putIfAbsent(voisin.getNodeidentifier(), true);
+                        if (alreadyVisited == null || !alreadyVisited) {
+                        	visitedPairsMatch.put(voisin.getNodeidentifier(), true);
+                            ContentManagementCIOutbound outportCM = outPortsCM.get(voisin);
+                            outportCM.match(cd, matched, hops -1, requester, voisin.getNodeidentifier());
+                        }
 		            }
 		        }
-
 		    }
 		}
+
 
 		private void connectToNode(ContentNodeAddressI neighbor) throws Exception {
 			// connect in NodeCI

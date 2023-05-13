@@ -163,10 +163,13 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI,FacadeContentM
 	    }
 	
 		public void acceptMatched(Set<ContentDescriptorI> matched ,String requsetURI) throws Exception {
-//			this.getOwner().doPortConnection(outPortFCM.getPortURI(), inPortFCMclientURI, FacadeContentManagementConector.class.getCanonicalName());
-//			if (matched != null) {
-//				outPortFCM.acceptMatched(matched, requsetURI);
-//			}
+			this.getOwner().doPortConnection(outPortFCM.getPortURI(),
+                    inPortFCMclientURI,
+                    MyClientConnector.class.getCanonicalName());
+			
+			if (matched != null) {
+				outPortFCM.acceptMatched(matched, requsetURI);
+			}
 		}
 		
 		// -------------------------------------------------------------------------

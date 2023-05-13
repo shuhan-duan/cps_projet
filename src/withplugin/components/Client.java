@@ -133,9 +133,9 @@ public class Client extends AbstractComponent{
     	 //choose template
         ContentTemplateI temp = createTemplate(ID_TEMP);
         //find
-        doFind(temp);
+        //doFind(temp);
         //match
-        //doMatch(temp);
+        doMatch(temp);
 	}
     
     private ContentTemplate createTemplate(int numbre) throws ClassNotFoundException, IOException{
@@ -191,8 +191,7 @@ public class Client extends AbstractComponent{
         System.out.println("\nplease match the template:\n"+ temp.toString());
         
         Set<ContentDescriptorI> matched = new HashSet<>();
-        
- 
+        this.outportFCM_client.match(temp, matched, 5, null, null);
 	}
     
     

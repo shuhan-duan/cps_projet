@@ -122,16 +122,16 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 		
 		
 		//do join et connect 
-				this.scheduleTask(
-						o -> {
-							try {
-								((Pair)o).actionJoin();
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						},
-						delayInNanos,
-						TimeUnit.NANOSECONDS);
+		this.scheduleTask(
+				o -> {
+					try {
+						((Pair)o).actionJoin();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				},
+				delayInNanos,
+				TimeUnit.NANOSECONDS);
 				
 	
 			
