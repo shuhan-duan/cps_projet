@@ -1,0 +1,24 @@
+<deployment>
+   <hosts>
+    <host name="localhost"
+          dir="C:\Users\aboub_bmdb7gr\git\Pear2Peer"/>
+  </hosts>
+  <cyclicBarrier   hostname="localhost" port="8080"/>
+  <globalRegistry  hostname="localhost" port="8081"/>
+  <rmiRegistryPort no="55999"/>
+  <jvms2hostnames>
+    <jvm2hostname jvmuri="Facade_jvm"
+        rmiRegistryCreator="true"
+        hostname="localhost"
+        mainclass="Withplugin.DistributesCVM"/>
+    <jvm2hostname jvmuri=""
+        rmiRegistryCreator="false"
+        hostname="localhost"
+        mainclass="Withplugin.DistributesCVM"/>
+    <jvm2hostname jvmuri=""
+        rmiRegistryCreator="false"
+        hostname="localhost"
+        mainclass="Withplugin.DistributesCVM"/>
+    
+  </jvms2hostnames>
+</deployment>
