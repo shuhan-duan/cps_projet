@@ -131,7 +131,13 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	// Services implementation
 	// -------------------------------------------------------------------------
 	
-	
+	/**
+	 * 
+	 * @param p
+	 * @param requsetURI
+	 * @throws Exception
+	 * @author:  shuhan 
+	 */
 	//facade receives the result from probe , p is the result , requestURI is the request
 	public void acceptProbed(ContentNodeAddressI p, String requsetURI) throws Exception {
 		resProbed.get(requsetURI).add(p);
@@ -145,7 +151,12 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 			//System.out.println("\nfini acceptProbed : "+ requsetURI);
 		}					
 	}
-	
+	 /**
+	  * 
+	  * @param p
+	  * @throws Exception
+	  *@author: lyna & shuhan 
+	  */
 	public void join(ContentNodeAddressI p) throws Exception {
 		if ( facade_plugin.getRootOutPortsCM().size()< MAX_ROOTS) {
 	        connectToContentManagementCI(p);
@@ -157,7 +168,12 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	    }
 	}
 	
-	
+	/**
+	 * 
+	 * @param address
+	 * @throws Exception
+	 * @author: lyna & shuhan 
+	 */
 	public void leave(ContentNodeAddressI address) throws Exception {
 	    if (facade_plugin.getRootOutPortsCM().containsKey(address)) {
 	        this.doPortDisconnection(facade_plugin.getRootOutPortsCM().get(address).getPortURI());
@@ -168,8 +184,14 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	    	System.out.println(address.getNodeidentifier()+" is not connected with facade as root");
 	    }
 	}
-
-
+ /**
+  * 
+  * @param facadeInitial
+  * @param remainghops
+  * @param requestURI
+  * @throws Exception
+  *@author: lyna & shuhan 
+  */
 	public void probe(ApplicationNodeAdressI facadeInitial, int remainghops, String requestURI) throws Exception {
 		//randomly choose to probe by roots or facades
 	    boolean doRoots = random.nextBoolean();
@@ -196,7 +218,12 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 
 	    System.out.println(address.getNodeidentifier() + " -> " + this.adress.getNodeidentifier()+"[style=dashed]");
 	}
-	
+	/**
+	 * 
+	 * @param address
+	 * @throws Exception
+	 * @author: lyna & shuhan 
+	 */
 	private void connectToNodeCI(ContentNodeAddressI address) throws Exception {
 	    String outportNodeC_Facade = AbstractOutboundPort.generatePortURI();
 	    NodeCOutboundPort outPortNodeC = new NodeCOutboundPort(outportNodeC_Facade, this);
@@ -207,7 +234,12 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	    this.doPortConnection(outportNodeC_Facade, inportNodeC_pair, NodeConnector.class.getCanonicalName());
 
 	}
-	
+	/**
+	 * 
+	 * @param address
+	 * @throws Exception
+	 * @author: lyna & shuhan 
+	 */
 	// Initialization return results for probe 
 	private void doProbe(ContentNodeAddressI address) throws Exception {
 		probeFacade(address.getNodeidentifier(), adress, MAX_PROBES);
@@ -220,7 +252,14 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	    resProbed.put(address.getNodeidentifier(), set);
 	}
 
-	
+	/**
+	 * 
+	 * @param requestURI
+	 * @param adressnInitiale
+	 * @param hops
+	 * @throws Exception
+	 * @author: shuhan 
+	 */
 	private void probeRoots(String requestURI, ApplicationNodeAdressI adressnInitiale, int hops) throws Exception {
 	    Set<ContentNodeAddressI> roots = facade_plugin.getRootOutPortsCM().keySet();
 	    // call probe for each root
@@ -235,7 +274,14 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 		}
 	}
 
-	
+	/**
+	 * 
+	 * @param requestURI
+	 * @param adressnInitiale
+	 * @param hops
+	 * @throws Exception
+	 *  shuhan 
+	 */
 	private void probeFacade(String requestURI, ApplicationNodeAdressI adressnInitiale, int hops) throws Exception {
 	    // randomly call probe in a neighbor facade 		
 	    int randomIndex = random.nextInt(outPortsNM.size());

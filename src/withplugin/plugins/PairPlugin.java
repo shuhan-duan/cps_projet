@@ -87,13 +87,10 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		public	PairPlugin(ContentNodeAdress adress, ArrayList<ContentDescriptorI> contents ) throws Exception
 		{
 			super();
-			
 			this.contents = contents;
 			this.adress = adress;
-			
 			this.outPortsNodeC = new ConcurrentHashMap<ContentNodeAddressI,NodeCOutboundPort>();
 			this.outPortsCM = new ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound>();
-		
 		}
 		
 		
@@ -105,7 +102,6 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		    this.addOfferedInterface(NodeCI.class);
 		    this.addRequiredInterface(NodeCI.class);
 		    this.addRequiredInterface(NodeManagementCI.class);
-		
 		  }
 		
 		@Override
@@ -148,7 +144,6 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 			
 			this.inPortNodeC.unpublishPort();
 			this.inPortCM.unpublishPort();
-			
 			// remove the interface
 		    this.removeOfferedInterface(NodeCI.class);
 		    this.removeOfferedInterface(NodeCI.class);
@@ -161,7 +156,14 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		// -------------------------------------------------------------------------
 		
 		
-	
+		/**
+		 * 
+		 * @param facadeInitial
+		 * @param remainingHops
+		 * @param requestURI
+		 * @throws Exception
+		 * @author shuhan
+		 */
 		public void probe(ApplicationNodeAdressI facadeInitial, int remainingHops, String requestURI) throws Exception {
 		    //System.out.println(requestURI + " demande do prob in " + this.adress.getNodeidentifier() + " hops " + remainingHops);
 		    if (remainingHops <= 0 || outPortsNodeC.isEmpty()) {
@@ -180,7 +182,16 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		        outPortNodeC.probe(facadeInitial, remainingHops - 1, requestURI);
 		    }
 		}
-		
+		/**
+		 * 
+		 * @param facadeInitial
+		 * @param remainingHops
+		 * @param requestURI
+		 * @param leastNeighbor
+		 * @param leastNeighborCount
+		 * @throws Exception
+		 * @author shuhan
+		 */
 		//there is a problem because of the async task , the list of neighbors is updated lately 
 		public void probe(ApplicationNodeAdressI facadeInitial, int remainingHops, String requestURI, ContentNodeAddressI leastNeighbor, int leastNeighborCount) throws Exception {
 		    if (remainingHops <= 0 || outPortsNodeC.isEmpty()) {
@@ -216,7 +227,12 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		    }
 		}
 
-		
+		/**
+		 * 
+		 * @param neighbours
+		 * @throws Exception
+		 * @author shuhan
+		 */
 		public void acceptNeighbours(Set<ContentNodeAddressI> neighbours) throws Exception {
 		   
 		    if (neighbours.isEmpty()) {
@@ -230,7 +246,12 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		        }
 		    }
 		}
-		
+		/**
+		 * 
+		 * @param newNodeAddress
+		 * @throws Exception
+		 * @author shuhan & lyna
+		 */
 		public void connect(ContentNodeAddressI newNodeAddress) throws Exception {
 			connectToNode(newNodeAddress);
 			//call neighbor to connect this
@@ -238,12 +259,23 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 			outPortNodeC.acceptConnected(this.adress);
 		}
 
-		
+		/**
+		 * 
+		 * @param p
+		 * @throws Exception
+		 * @author suhan & lyna 
+		 */
 		
 		public void acceptConnected(ContentNodeAddressI p) throws Exception {
 			connectToNode(p);
 		}
 
+		/**
+		 * 
+		 * @param p
+		 * @throws Exception
+		 * @author suhan & lyna 
+		 */
 		
 		public void disconnect(ContentNodeAddressI p) throws Exception {
 			//disconnect pair and pair in NodeC and CM
@@ -268,7 +300,15 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		// -------------------------------------------------------------------------
 		// Plug-in services implementation
 		// -------------------------------------------------------------------------
-	
+		/**
+		 * 
+		 * @param cd
+		 * @param hops
+		 * @param requester
+		 * @param requestURI
+		 * @throws Exception
+		 * author shuhan & lyna 
+		 */
 		public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
 	        synchronized (PairPlugin.class) {
 	            if (found.get()) {
@@ -308,7 +348,16 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 	        }
 	    }
 
-			
+		/**
+		 * 
+		 * @param cd
+		 * @param matched
+		 * @param hops
+		 * @param requester
+		 * @param requestURI
+		 * @throws Exception
+		 * @author shuhan 
+		 */	
 		@Override
 		public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, ApplicationNodeAdressI requester, String requestURI) throws Exception {
 		    System.out.println("will do match in "+this.adress.getNodeidentifier());
@@ -350,7 +399,12 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		    }
 		}
 
-
+		/**
+		 * 
+		 * @param neighbor
+		 * @throws Exception
+		 * @author shuhan 
+		 */
 		private void connectToNode(ContentNodeAddressI neighbor) throws Exception {
 			// connect in NodeCI
 		    String outPortNodeCURI = AbstractOutboundPort.generatePortURI();
@@ -372,7 +426,10 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 
 		    System.out.println(this.adress.getNodeidentifier() + " -> " + neighbor.getNodeidentifier());
 		}
-
+/**
+ * @author shuhan
+ * @return
+ */
 		private ContentNodeAddressI getRandomNeighbor() {
 		    int randomIndex = new Random().nextInt(outPortsNodeC.size());
 		    Iterator<ContentNodeAddressI> iterator = outPortsNodeC.keySet().iterator();
@@ -381,7 +438,13 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		    }
 		    return iterator.next();
 		}
-
+/**
+ * 
+ * @param set
+ * @param subsetSize
+ * @author shuhan
+ * @return
+ */
 		private Set<ContentNodeAddressI> getRandomSubset(Set<ContentNodeAddressI> set, int subsetSize) {
 		    List<ContentNodeAddressI> list = new ArrayList<>(set);
 		    Collections.shuffle(list);

@@ -18,11 +18,23 @@ public class DistributedCVM extends AbstractDistributedCVM {
 
 	protected final int NB_PEER = 10;  
 	
-	
+	/**
+	 * 
+	 * @param args
+	 * @throws Exception
+	 * @author: lyna & shuhan
+	 * @date: 14 Mai . 2023 21:31:56 
+	 */
 	public DistributedCVM(String[] args) throws Exception {
 		super(args);
 	}
 	
+	/**
+	 * 
+	 * @throws Exception
+	 *  @author: lyna & shuhan
+	 * @date: 14 Mai 2023 21:31:56 
+	 */
 	@Override
 	public void instantiateAndPublish() throws Exception {
 		String jvmURI = AbstractCVM.getThisJVMURI();
@@ -68,7 +80,12 @@ public class DistributedCVM extends AbstractDistributedCVM {
 	}
 	
 	// the interconnection is done in component facade
-	
+	/**
+	 * 
+	 * @throws Exception
+	 *  @author: lyna & shuhan
+	 * @date: 14 Mai 2023 21:31:56 
+	 */
 	public static void main(String[] args) {		
 		try {
 			DistributedCVM dCvm = new DistributedCVM(args);

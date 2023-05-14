@@ -210,7 +210,11 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 				TimeUnit.NANOSECONDS);
 		
 	}
-	
+	/**
+	 * 
+	 * @param delayInNanos
+	 * @author shuhan 
+	 */
 	private void actionDisconnect(long delayInNanos) {
 		this.scheduleTask(
 				o -> {

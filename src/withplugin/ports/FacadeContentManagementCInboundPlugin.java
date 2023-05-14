@@ -20,10 +20,17 @@ public class FacadeContentManagementCInboundPlugin extends AbstractInboundPort i
 		super(uri,FacadeContentManagementCI.class, owner, pluginURI, executorServiceURI);
 		
 	}
+	
+	private static final long serialVersionUID = 1L;
 	/**
 	 * 
+	 * @param cd
+	 * @param hops
+	 * @param requester
+	 * @param requestURI
+	 * @throws Exception
+	 * @author: lyna & shuhan 
 	 */
-	private static final long serialVersionUID = 1L;
 	@Override
 	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester
 			, String requestURI ) throws Exception {
@@ -40,6 +47,16 @@ public class FacadeContentManagementCInboundPlugin extends AbstractInboundPort i
 	                });
 		
 	}
+	/**
+	 * 
+	 * @param cd
+	 * @param matched
+	 * @param hops
+	 * @param requester
+	 * @param requestURI
+	 * @throws Exception
+	 * @author: lyna & shuhan 
+	 */
 	@Override
 	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, ApplicationNodeAdressI requester,
 			String requestURI) throws Exception {
@@ -55,6 +72,13 @@ public class FacadeContentManagementCInboundPlugin extends AbstractInboundPort i
                     }
                 });
 	}
+	/**
+	 * 
+	 * @param found
+	 * @param requsetURI
+	 * @throws Exception
+	 * @author: lyna & shuhan 
+	 */
 	@Override
 	public void acceptFound(ContentDescriptorI found, String requsetURI) throws Exception {
 		
@@ -71,6 +95,14 @@ public class FacadeContentManagementCInboundPlugin extends AbstractInboundPort i
                 });
 		
 	}
+	/**
+	 * 
+	 * @param matched
+	 * @param requsetURI
+	 * @throws Exception
+	 * @author: lyna & shuhan 
+
+	 */
 	@Override
 	public void acceptMatched(Set<ContentDescriptorI> matched, String requsetURI) throws Exception {
 		this.getOwner().runTask(

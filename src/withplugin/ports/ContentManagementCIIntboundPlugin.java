@@ -27,7 +27,15 @@ public class ContentManagementCIIntboundPlugin  extends AbstractInboundPort  imp
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	/**
+	 * 
+	 * @param cd
+	 * @param hops
+	 * @param requester
+	 * @param requestURI
+	 * @throws Exception
+	 * @author: lyna & shuhan 
+	 */
 	@Override
 	public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester,
 			String requestURI) throws Exception {
@@ -44,7 +52,17 @@ public class ContentManagementCIIntboundPlugin  extends AbstractInboundPort  imp
 	                });
 		
 	}
+/**
+ * 
+ * @param cd
+ * @param matched
+ * @param hops
+ * @param requester
+ * @param requestURI
+ * @throws Exception
+ * @author: lyna & shuhan 
 
+ */
 	@Override
 	public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, ApplicationNodeAdressI requester,
 			String requestURI) throws Exception {
