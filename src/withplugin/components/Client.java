@@ -60,7 +60,14 @@ public class Client extends AbstractComponent{
     // -------------------------------------------------------------------------
  	// Constructors
  	// -------------------------------------------------------------------------
-    
+    /**
+	 * 
+	 * @param clientURI
+	 * @param facadeFCMURI
+	 * @param path
+	 * @throws Exception
+	 * @author lyna & shuhan
+	 */
     protected Client(String clientURI , String facadeFCMURI ,String path) throws Exception {
         super(clientURI,2,1);
         
@@ -95,7 +102,7 @@ public class Client extends AbstractComponent{
 		}
 		
 	}
-    
+  
     @Override
     public void execute() throws Exception {
       super.execute();
@@ -129,7 +136,13 @@ public class Client extends AbstractComponent{
     // -------------------------------------------------------------------------
  	// Services implementation
  	// -------------------------------------------------------------------------
-    
+    /**
+	 * 
+	 * @param found
+	 * @param requsetURI
+	 * @throws Exception
+	 * @author shuhan
+	 */
     public void foundRes(ContentDescriptorI found, String requsetURI) throws Exception {
 		if (found != null) {
 			System.out.println("has returned the result to client,"
@@ -142,14 +155,23 @@ public class Client extends AbstractComponent{
 		System.out.println("responseTimeInMillis of find : "+ responseTimeInMillis+ "\n");
 
 	}
-	
+	/**
+	 * @author lyna & shuhan
+	 * @param matched
+	 * @param requsetURI
+	 * @throws Exception
+	 */
 	public void acceptMatched(Set<ContentDescriptorI> matched ,String requsetURI) throws Exception {
 		System.out.println("\nIn " + requsetURI +"  we have matched: ");
 		for (ContentDescriptorI contentDescriptorI : matched) {
 			System.out.println(contentDescriptorI.toString());
 		}
 	}
-	
+	/**
+	 * 
+	 * @throws Exception
+	 * @author shuhan && lyna 
+	 */
 	private void doConnectFacade() throws Exception {
 		//connect with facade in FCM
         this.addRequiredInterface(ReflectionCI.class);
@@ -172,7 +194,11 @@ public class Client extends AbstractComponent{
 		this.removeRequiredInterface(ReflectionCI.class);	
 		System.out.println("-------------------");
 	}
-    
+    /**
+	 * 
+	 * @throws Exception
+	 * @author lyna & shuhan
+	 */
 	private void action() throws Exception
 	{
     	 //choose template
@@ -195,22 +221,15 @@ public class Client extends AbstractComponent{
         return temp;
     }
 
-    /**   
-	* @Function: Client.java
-	* @Description: 
-	*
-	* @param: ContentTemplateI temp
-	* @return：
-	* @throws：Exception
-	*
-	* @version: v1.0.0
-	* @author: lyna & shuhan 
-	* @date: 06 Fev. 2023 20:34:57 
-	*
-	* 
-	*/
 
-    
+
+    /**
+	 * 
+	 * @param temp
+	 * @throws Exception
+	 * @author lyna & shuhan
+	 * 
+	 */
     private void doFind(ContentTemplateI temp) throws Exception {
     	//call find in the facade connected
     	this.outportFCM_client.find(temp, 4, null, null);

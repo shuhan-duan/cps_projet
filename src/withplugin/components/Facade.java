@@ -81,7 +81,14 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	// -------------------------------------------------------------------------
 	// Constructors
 	// -------------------------------------------------------------------------
-
+	/**
+	 * 
+	 * @param FacadeURI
+	 * @param FCMInPortClientURI
+	 * @param nbFacades
+	 * @throws Exception
+	 * @author shuhan & lyna 
+	 */
 	protected	Facade(String FacadeURI ,String FCMInPortClientURI ,int nbFacades) throws Exception
 	{
 		// the reflection inbound port URI is the URI of the component
@@ -136,7 +143,13 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	// Services implementation
 	// -------------------------------------------------------------------------
 	
-	
+	/**
+	 * @depription : get the result from probe 
+	 * @param ContentNodeAddressI p
+	 * @param String requsetURI
+	 * @throws Exception
+	 * @author shuhan
+	 */
 	//facade receives the result from probe , p is the result , requestURI is the request
 	public void acceptProbed(ContentNodeAddressI p, String requsetURI) throws Exception {
 		resProbed.get(requsetURI).add(p);
@@ -150,7 +163,11 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 			//System.out.println("\nfini acceptProbed : "+ requsetURI);
 		}					
 	}
-	
+	/**
+	 * 
+	 * @param ContentNodeAddressI p
+	 * @throws Exception
+	 */
 	public void join(ContentNodeAddressI p) throws Exception {
 		if ( facade_plugin.getRootOutPortsCM().size()< MAX_ROOTS) {
 	        connectToContentManagementCI(p);

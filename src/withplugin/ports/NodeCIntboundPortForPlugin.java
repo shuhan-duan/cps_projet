@@ -14,12 +14,27 @@ import withplugin.plugins.PairPlugin;
 
 public class NodeCIntboundPortForPlugin extends AbstractInboundPort  implements NodeCI {
 private static final long serialVersionUID = 1L;
-	
+	/**
+	 * 
+	 * @param uri
+	 * @param owner
+	 * @param plugin
+	 * @param executorServiceURI
+	 * @throws Exception
+	 * @author lyna & shuhan
+	 */
 	public NodeCIntboundPortForPlugin(String uri, ComponentI owner ,String plugin , String executorServiceURI)
 			throws Exception {
 	    super(uri,NodeCI.class, owner, plugin, executorServiceURI);
 	}
-
+	/**
+	 * 
+	 * @param facade
+	 * @param remainghops
+	 * @param requestURI
+	 * @throws Exception
+	 * @author lyna & shuhan
+	 */
 	@Override
 	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI) throws Exception {
 		 this.getOwner().runTask(
@@ -36,7 +51,12 @@ private static final long serialVersionUID = 1L;
 			        });
 		
 	}
-
+	/**
+	 * 
+	 * @param p
+	 * @throws Exception
+	 * @author lyna & shuhan
+	 */
 	@Override
 	public void connect(ContentNodeAddressI p) throws Exception {
 		 this.getOwner().runTask(
@@ -53,7 +73,12 @@ private static final long serialVersionUID = 1L;
 			      });
 		
 	}
-
+	/**
+	 * 
+	 * @param p
+	 * @throws Exception
+	 * @author lyna & shuhan
+	 */
 	@Override
 	public void disconnect(ContentNodeAddressI p) throws Exception {
 		 this.getOwner().runTask(
@@ -70,7 +95,11 @@ private static final long serialVersionUID = 1L;
 			        });
 		
 	}
-
+	/**
+	 * @author lyna & shuhan
+	 * @param neighbours
+	 * @throws Exception
+	 */
 	@Override
 	public void acceptNeighbours(Set<ContentNodeAddressI> neighbours) throws Exception {
 		 this.getOwner().runTask(
@@ -87,7 +116,12 @@ private static final long serialVersionUID = 1L;
 			        });
 		
 	}
-
+	/**
+	 * 
+	 * @param p
+	 * @throws Exception
+	 * @author shuhan lyna 
+	 */
 	@Override
 	public void acceptConnected(ContentNodeAddressI p) throws Exception {
 		this.getOwner().runTask(
@@ -104,7 +138,11 @@ private static final long serialVersionUID = 1L;
 		        });
 		
 	}
-
+	/**
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
 	public int getNeighborCount() throws Exception {
 		return this.getOwner().handleRequest(
@@ -115,7 +153,16 @@ private static final long serialVersionUID = 1L;
 				return ((PairPlugin) this.getServiceProviderReference()).getNeighborCount(); }
 				});
 	}
-
+	/**
+	 * 
+	 * @param facade
+	 * @param remainghops
+	 * @param requestURI
+	 * @param leastNeighbor
+	 * @param leastNeighborCount
+	 * @throws Exception
+	 * @author lyna & shuhan
+	 */
 	@Override
 	public void probe(ApplicationNodeAdressI facade, int remainghops, String requestURI,
 			ContentNodeAddressI leastNeighbor, int leastNeighborCount) throws Exception {
