@@ -19,6 +19,7 @@ import interfaces.ContentNodeAddressI;
 import interfaces.ContentTemplateI;
 import interfaces.FacadeContentManagementCI;
 import interfaces.MyCMI;
+import interfaces.MyClientI;
 import interfaces.MyThreadServiceI;
 import interfaces.NodeManagementCI;
 import ports.ContentManagementCIOutbound;
@@ -50,13 +51,7 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI,FacadeContentM
 	  	// -------------------------------------------------------------------------
 	 	// Life cycle
 	 	// -------------------------------------------------------------------------
-	 	/**
-		 * 
-		 * @param adress
-		 * @param inPortFCMclientURI
-		 * @throws Exception
-		 * @author shuna & lyna 
-		 */
+	 	
 	  	public FacadePlugin(ApplicationNodeAdress adress ,String inPortFCMclientURI)throws Exception {
 		    super();
 		    
@@ -76,8 +71,7 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI,FacadeContentM
 		     inPortFCM = new FacadeContentManagementCInboundPlugin(adress.getContentManagementURI(),
 		    		 this.getOwner(), 
 		    		 this.getPluginURI(),
-		    		 ((MyThreadServiceI)this.getOwner()).
-		    		 get_CM_THREAD_POOL_URI());
+		    		 ((MyThreadServiceI)this.getOwner()).get_CM_THREAD_POOL_URI());
 		     inPortFCM.publishPort();
 
 		     // the outport FCM
@@ -90,9 +84,9 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI,FacadeContentM
 	  	public void installOn(ComponentI owner) throws Exception {
 		    super.installOn(owner);
 		    
-		    this.addOfferedInterface(NodeManagementCI.class);
-		    this.addRequiredInterface(ContentManagementCI.class);
-		    this.addOfferedInterface(ContentManagementCI.class);
+		    this.addOfferedInterface(FacadeContentManagementCI.class);
+		    this.addRequiredInterface(MyClientI.class);
+		   
 	  	}
 	  
 		/**
@@ -101,7 +95,8 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI,FacadeContentM
 		@Override
 	  	public void			finalise() throws Exception
 		{
-
+			
+			
 			super.finalise();
 		}
 	
@@ -113,6 +108,8 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI,FacadeContentM
 		{
 			
 			inPortFCM.unpublishPort();
+			this.removeOfferedInterface(FacadeContentManagementCI.class);
+			this.removeRequiredInterface(MyClientI.class);
 			
 		}
 		
@@ -120,16 +117,7 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI,FacadeContentM
 		// -------------------------------------------------------------------------
 		// Plug-in services implementation
 		// -------------------------------------------------------------------------
-		
-		/**
-		 * 
-		 * @param cd
-		 * @param hops
-		 * @param requester
-		 * @param requestURI
-		 * @throws Exception
-		 * @author shuhan & lyna 
-		 */
+
 		@Override
 		public void find(ContentTemplateI cd, int hops, ApplicationNodeAdressI requester, String requestURI ) throws Exception {
 			Set<ContentNodeAddressI> racineSet = rootsOutPortsCM.keySet();			
@@ -144,16 +132,6 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI,FacadeContentM
 			}
 			
 		}
-		/**
-		 * 
-		 * @param cd
-		 * @param matched
-		 * @param hops
-		 * @param requester
-		 * @param requestURI
-		 * @throws Exception
-		 * @author shuan & lyna
-		 */
 		@Override
 		public void match(ContentTemplateI cd, Set<ContentDescriptorI> matched, int hops, ApplicationNodeAdressI requester,
 				String requestURI) throws Exception {
@@ -169,13 +147,7 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI,FacadeContentM
 			
 		}
 				
-		/**
-		 * 
-		 * @param found
-		 * @param requsetURI
-		 * @throws Exception
-		 * @author shuhan
-		 */
+				
 		public void acceptFound(ContentDescriptorI found, String requsetURI) throws Exception {
 	        if (resultReturned.compareAndSet(false, true)) {
 	            System.out.println("has returned the result to "+ adress.getNodeidentifier());
@@ -191,13 +163,7 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI,FacadeContentM
 	            return;
 	        }
 	    }
-	/**
-	 * 
-	 * @param matched
-	 * @param requsetURI
-	 * @throws Exception
-	 * @author shuhan
-	 */
+	
 		public void acceptMatched(Set<ContentDescriptorI> matched ,String requsetURI) throws Exception {
 			this.getOwner().doPortConnection(outPortFCM.getPortURI(),
                     inPortFCMclientURI,
@@ -211,12 +177,6 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI,FacadeContentM
 		// -------------------------------------------------------------------------
 		// Auxiliary Functions to use in Facade
 		// -------------------------------------------------------------------------
-		/**
-		 * 
-		 * @param address
-		 * @param outPortCM
-		 * @author shuhan 
-		 */
 		public void addRootOutPortsCM(ContentNodeAddressI address, ContentManagementCIOutbound outPortCM ) {
 			this.rootsOutPortsCM.put(address, outPortCM);
 		}
@@ -224,11 +184,7 @@ public class FacadePlugin extends AbstractPlugin implements MyCMI,FacadeContentM
 		public ConcurrentHashMap<ContentNodeAddressI,ContentManagementCIOutbound> getRootOutPortsCM() {
 			return this.rootsOutPortsCM;
 		}
-		/**
-		 * 
-		 * @param address
-		 * @author shuhan
-		 */
+		
 		public void removeRootOutPortsCM(ContentNodeAddressI address) {
 			this.rootsOutPortsCM.remove(address);
 		}

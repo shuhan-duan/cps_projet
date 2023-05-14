@@ -4,12 +4,12 @@ import java.time.Instant;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-
-
+import connector.NodeManagementConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 
 import fr.sorbonne_u.utils.aclocks.ClocksServer;
+import ports.NodeManagementOutboundPort;
 import withplugin.components.Client;
 import withplugin.components.Facade;
 import withplugin.components.Pair;
@@ -29,8 +29,11 @@ public class CVM extends AbstractCVM{
 	
 	protected static final String PAIR_URI = "Pair";
 	protected static final String FACADE_URI = "Facade";
+	
 	protected static final String FCMInPortClientURI = "inPortFCMClient";
-
+	protected static final String	NMInboundFacadePortURI = "inportNMfacade";
+	
+	
 	/**    
 	* @Function: CVM.java
 	* @Description: 
@@ -40,7 +43,6 @@ public class CVM extends AbstractCVM{
 	* @author: lyna & shuhan
 	* @date: 31 janv. 2023 21:31:56 
 	*/
-	
 	public CVM() throws Exception {
 		super();
 		// TODO Auto-generated constructor stub
@@ -67,7 +69,8 @@ public class CVM extends AbstractCVM{
 			AbstractComponent.createComponent(
 					Facade.class.getCanonicalName(),
 					new Object[]{FACADE_URI+i,
-							FCMInPortClientURI}); // pass the FCMInPortClientURI to facade
+							FCMInPortClientURI,// pass the FCMInPortClientURI to facade
+							NB_FACADE}); 
 		}				
 				System.out.println("\nCreate Composant Facade OK ");
 				
@@ -76,8 +79,9 @@ public class CVM extends AbstractCVM{
 			AbstractComponent.createComponent(
 							Pair.class.getCanonicalName(),
 							new Object[]{PAIR_URI+i,
-									FACADE_URI+ i % NB_FACADE // choose a facade
-									});
+									// choose a facade and pass the NMInboundFacadePortURI to pair
+									NMInboundFacadePortURI+ i%NB_FACADE ,
+									"src/data"});
 		}
 		System.out.println("\nCreate Composant pairs OK ");
 
@@ -86,7 +90,8 @@ public class CVM extends AbstractCVM{
 		AbstractComponent.createComponent(
 				Client.class.getCanonicalName(),
 				new Object[]{"client",
-						FACADE_URI+selectRandomFacadeId()}); 
+						FACADE_URI+selectRandomFacadeId(),
+						"src/data"}); 
 		System.out.println("\nCreate Composant client OK ");
 		
 

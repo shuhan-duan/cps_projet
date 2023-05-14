@@ -1,31 +1,43 @@
 package withplugin.components;
 
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import classes.ApplicationNodeAdress;
 import connector.ContentManagementConector;
 import connector.NodeConnector;
 import connector.NodeManagementConnector;
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.annotations.OfferedInterfaces;
+import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import fr.sorbonne_u.utils.aclocks.AcceleratedClock;
+import fr.sorbonne_u.utils.aclocks.ClocksServer;
+import fr.sorbonne_u.utils.aclocks.ClocksServerCI;
+import fr.sorbonne_u.utils.aclocks.ClocksServerConnector;
+import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import interfaces.ApplicationNodeAdressI;
 import interfaces.ContentNodeAddressI;
+import interfaces.FacadeContentManagementCI;
 import interfaces.MyThreadServiceI;
+import interfaces.NodeCI;
+import interfaces.NodeManagementCI;
 import ports.ContentManagementCIOutbound;
 import ports.NodeCOutboundPort;
 import ports.NodeManagementInBoundPort;
 import ports.NodeManagementOutboundPort;
+import withplugin.CVM;
 import withplugin.plugins.FacadePlugin;
 
-
-
-
+@OfferedInterfaces(offered ={NodeManagementCI.class}) 
+@RequiredInterfaces(required={NodeManagementCI.class ,ClocksServerCI.class })
 public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	
 	// -------------------------------------------------------------------------
@@ -33,10 +45,9 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	// -------------------------------------------------------------------------
 	private static final int MAX_ROOTS = 2; 
 	private static final int MAX_PROBES = 2;
-	private static final int nbFacades = 2;
 	
 	/** URI of the facade inbound component (convenience).						*/
-	protected static final String	NMInboundPortURI = "inportNMfacade"; // 
+	protected static final String	NMInboundFacadePortURI = "inportNMfacade"; // 
 	protected static final String	FCMInPortFacadeURI = "inportFCMfacade";
 	
 	//to count the times that facade has received the result of probed
@@ -54,9 +65,10 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
     private ApplicationNodeAdress adress;
     
     private FacadePlugin facade_plugin;
+    protected ClocksServerOutboundPort csop;
  
 	private int id ;
-	
+	private int nbFacades;
 	private Random random = new Random();
 	
 	private static final int NB_OF_THREADS = 2;
@@ -70,7 +82,7 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	// Constructors
 	// -------------------------------------------------------------------------
 
-	protected	Facade(String FacadeURI ,String FCMInPortClientURI) throws Exception
+	protected	Facade(String FacadeURI ,String FCMInPortClientURI ,int nbFacades) throws Exception
 	{
 		// the reflection inbound port URI is the URI of the component
 		super(FacadeURI, NB_OF_THREADS, 0) ;
@@ -78,12 +90,16 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 		String[] parts = FacadeURI.split("Facade");
 		this.id = Integer.parseInt(parts[1]);
 		
+		this.nbFacades = nbFacades;
 		//public ApplicationNodeAdress(String uriPrefix, String uriFCM ,String  uriNM)
-		this.adress = new ApplicationNodeAdress(FacadeURI ,FCMInPortFacadeURI +id ,NMInboundPortURI +id) ;
+		this.adress = new ApplicationNodeAdress(FacadeURI ,FCMInPortFacadeURI +id ,NMInboundFacadePortURI +id) ;
 		
 		this.inPortNM = new NodeManagementInBoundPort(this, adress.getNodeManagementUri());
 		this.inPortNM.publishPort();
 		
+		//Create Clock
+		this.csop = new ClocksServerOutboundPort(this);
+		this.csop.publishPort();
 		
 		int nbThreadsNM = 1;
 		int nbThreadsFCM = NB_OF_THREADS - nbThreadsNM;
@@ -97,47 +113,30 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 		System.out.println("facade"+id+"[label=\"Facade "+ id +"\"];");
 		
 		
+		
 	}
 	//-------------------------------------------------------------------------
 	// Component life-cycle
 	//-------------------------------------------------------------------------
 	
-	@Override
-	public void start() throws ComponentStartException {
-		super.start();
-		try {
-			//the façade components will be interconnected via the NodeManagementCI interface
-			for (int i = 0; i < nbFacades; i++) {
-				if (i == id) {
-					// not connect with itself
-				}else {
-					NodeManagementOutboundPort outPortNM = new NodeManagementOutboundPort(this);
-					outPortNM.publishPort();
-					outPortsNM.put(i, outPortNM);
-					doPortConnection(outPortNM.getPortURI(), NMInboundPortURI+i, NodeManagementConnector.class.getCanonicalName());
-					System.out.println("facade"+id +" -> facade"+ i);
-				}
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
 	
+	@Override
+	public void start() throws RuntimeException{
+//		this.doPortConnection(this.csop.getPortURI(),ClocksServer.STANDARD_INBOUNDPORT_URI,ClocksServerConnector.class.getCanonicalName());
+//		AcceleratedClock clock = this.csop.getClock(CVM.CLOCK_URI);
+//		Instant startInstant = clock.getStartInstant();
+//		clock.waitUntilStart();
+//		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(2));
+//		doConnectFacade(delayInNanos);
+		connectFacade();
+	}
 	
 	
 	// -------------------------------------------------------------------------
 	// Services implementation
 	// -------------------------------------------------------------------------
 	
-	/**
-	 * 
-	 * @param p
-	 * @param requsetURI
-	 * @throws Exception
-	 * @author:  shuhan 
-	 */
+	
 	//facade receives the result from probe , p is the result , requestURI is the request
 	public void acceptProbed(ContentNodeAddressI p, String requsetURI) throws Exception {
 		resProbed.get(requsetURI).add(p);
@@ -151,12 +150,7 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 			//System.out.println("\nfini acceptProbed : "+ requsetURI);
 		}					
 	}
-	 /**
-	  * 
-	  * @param p
-	  * @throws Exception
-	  *@author: lyna & shuhan 
-	  */
+	
 	public void join(ContentNodeAddressI p) throws Exception {
 		if ( facade_plugin.getRootOutPortsCM().size()< MAX_ROOTS) {
 	        connectToContentManagementCI(p);
@@ -168,12 +162,7 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	    }
 	}
 	
-	/**
-	 * 
-	 * @param address
-	 * @throws Exception
-	 * @author: lyna & shuhan 
-	 */
+	
 	public void leave(ContentNodeAddressI address) throws Exception {
 	    if (facade_plugin.getRootOutPortsCM().containsKey(address)) {
 	        this.doPortDisconnection(facade_plugin.getRootOutPortsCM().get(address).getPortURI());
@@ -184,14 +173,8 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	    	System.out.println(address.getNodeidentifier()+" is not connected with facade as root");
 	    }
 	}
- /**
-  * 
-  * @param facadeInitial
-  * @param remainghops
-  * @param requestURI
-  * @throws Exception
-  *@author: lyna & shuhan 
-  */
+
+
 	public void probe(ApplicationNodeAdressI facadeInitial, int remainghops, String requestURI) throws Exception {
 		//randomly choose to probe by roots or facades
 	    boolean doRoots = random.nextBoolean();
@@ -218,12 +201,7 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 
 	    System.out.println(address.getNodeidentifier() + " -> " + this.adress.getNodeidentifier()+"[style=dashed]");
 	}
-	/**
-	 * 
-	 * @param address
-	 * @throws Exception
-	 * @author: lyna & shuhan 
-	 */
+	
 	private void connectToNodeCI(ContentNodeAddressI address) throws Exception {
 	    String outportNodeC_Facade = AbstractOutboundPort.generatePortURI();
 	    NodeCOutboundPort outPortNodeC = new NodeCOutboundPort(outportNodeC_Facade, this);
@@ -234,12 +212,7 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	    this.doPortConnection(outportNodeC_Facade, inportNodeC_pair, NodeConnector.class.getCanonicalName());
 
 	}
-	/**
-	 * 
-	 * @param address
-	 * @throws Exception
-	 * @author: lyna & shuhan 
-	 */
+	
 	// Initialization return results for probe 
 	private void doProbe(ContentNodeAddressI address) throws Exception {
 		probeFacade(address.getNodeidentifier(), adress, MAX_PROBES);
@@ -252,14 +225,7 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	    resProbed.put(address.getNodeidentifier(), set);
 	}
 
-	/**
-	 * 
-	 * @param requestURI
-	 * @param adressnInitiale
-	 * @param hops
-	 * @throws Exception
-	 * @author: shuhan 
-	 */
+	
 	private void probeRoots(String requestURI, ApplicationNodeAdressI adressnInitiale, int hops) throws Exception {
 	    Set<ContentNodeAddressI> roots = facade_plugin.getRootOutPortsCM().keySet();
 	    // call probe for each root
@@ -274,14 +240,7 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 		}
 	}
 
-	/**
-	 * 
-	 * @param requestURI
-	 * @param adressnInitiale
-	 * @param hops
-	 * @throws Exception
-	 *  shuhan 
-	 */
+	
 	private void probeFacade(String requestURI, ApplicationNodeAdressI adressnInitiale, int hops) throws Exception {
 	    // randomly call probe in a neighbor facade 		
 	    int randomIndex = random.nextInt(outPortsNM.size());
@@ -293,7 +252,39 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	    NodeManagementOutboundPort outPortNM = outPortsNM.get(facadeId);
 	    outPortNM.probe(adressnInitiale, hops, requestURI);
 	}
-
+	
+	private void doConnectFacade(long delayInNanos) {
+		this.scheduleTask(
+				o -> {
+					try {
+						this.connectFacade();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				},
+				delayInNanos,
+				TimeUnit.NANOSECONDS);
+	}
+	
+	private void connectFacade() {
+		try {
+			//the façade components will be interconnected via the NodeManagementCI interface
+			for (int i = 0; i < nbFacades; i++) {
+				if (i == id) {
+					// not connect with itself
+				}else {
+					NodeManagementOutboundPort outPortNM = new NodeManagementOutboundPort(this);
+					outPortNM.publishPort();
+					outPortsNM.put(i, outPortNM);
+					doPortConnection(outPortNM.getPortURI(), NMInboundFacadePortURI+i, NodeManagementConnector.class.getCanonicalName());
+					System.out.println("facade"+id +" -> facade"+ i);
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}				
+	}
 	@Override
 	public String get_THREAD_POOL_URI() {
 	

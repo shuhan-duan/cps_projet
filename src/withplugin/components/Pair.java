@@ -36,11 +36,12 @@ import fr.sorbonne_u.utils.aclocks.ClocksServerConnector;
 import withplugin.CVM;
 
 
-@RequiredInterfaces(required={ClocksServerCI.class}) 
+@RequiredInterfaces(required={ClocksServerCI.class ,NodeManagementCI.class}) 
 public class Pair extends AbstractComponent implements MyThreadServiceI{
 	// -------------------------------------------------------------------------
 	// Component variables and constants
 	// -------------------------------------------------------------------------
+
 	/** URI of the pair inbound port (simplifies the connection).		*/
 	protected static final String	NodeCInPortPairURI = "inportNodeCpair";
 	protected static final String	CMInPortPairURI = "inportCMpair";
@@ -55,7 +56,7 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 	private ArrayList<ContentDescriptorI> contents; 
 	
 	private int id;
-	protected String facadeURI; // for connect a facade in NM
+	protected String facadeNMURI; // for connect a facade in NM
 	
 	private static final int NB_OF_THREADS = 10;
 
@@ -66,27 +67,27 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 	// -------------------------------------------------------------------------
 	// Constructors
 	// -------------------------------------------------------------------------
-	protected Pair(String PAIR_URI ,String FACADE_URI)throws Exception {
-		super(PAIR_URI , NB_OF_THREADS, 1);
+	protected Pair(String PAIR_URI ,String FACADE_URI ,String path)throws Exception {
+		super(PAIR_URI , NB_OF_THREADS, 10);
 		String[] parts = PAIR_URI.split("Pair");
 		this.id = Integer.parseInt(parts[1]);
 		
 		this.outPortNM =new NodeManagementOutboundPort(this);
 		outPortNM.publishPort() ;
-		this.facadeURI = FACADE_URI;
+		this.facadeNMURI = FACADE_URI;
 		
 		this.adress = new ContentNodeAdress(PAIR_URI, CMInPortPairURI+id, NodeCInPortPairURI+id);
 		this.contents = new ArrayList<ContentDescriptorI>();
 		
 		//add descriptors to ArrayList contents
-		addDescriptor(id);
+		addDescriptor(id ,path);
 		
 		
 		//Create Clock
 		this.csop = new ClocksServerOutboundPort(this);
 		this.csop.publishPort();
 
-		int nbThreadsNM = 1;
+		int nbThreadsNM = 2;
 		int nbThreadsCM = NB_OF_THREADS - nbThreadsNM;
 		
 		this.createNewExecutorService(NM_THREAD_SERVICE_URI+id, nbThreadsNM, true);
@@ -106,19 +107,9 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 	public void start() throws ComponentStartException {
 		super.start();
 		try {
-			//connect with facade in NM
-	        this.addRequiredInterface(ReflectionCI.class);
-	        ReflectionOutboundPort rop = new ReflectionOutboundPort(this);
-			rop.publishPort();
+			//System.out.println("in pair "+ id +",  : " +);
+			doPortConnection( outPortNM.getPortURI(), facadeNMURI , NodeManagementConnector.class.getCanonicalName());
 			
-			this.doConnectFacade(rop);
-			
-			this.doPortDisconnection(rop.getPortURI());
-			rop.unpublishPort();
-			rop.destroyPort();
-			this.removeRequiredInterface(ReflectionCI.class);
-			
-			//System.out.println("pair"+id+" ->"+inPortNMfacadeURI+"[color=red];");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -126,18 +117,19 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 		
 	}
 	
-	
-
 	@Override
 	public void			execute() throws Exception
 	{ 
+		
 		this.doPortConnection(this.csop.getPortURI(),ClocksServer.STANDARD_INBOUNDPORT_URI,ClocksServerConnector.class.getCanonicalName());
 		AcceleratedClock clock = this.csop.getClock(CVM.CLOCK_URI);
 		Instant startInstant = clock.getStartInstant();
 		clock.waitUntilStart();
-		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(10));
-		actionJoin(delayInNanos);
-						
+		
+		long delayInNanos1 =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(10));
+		actionJoin(delayInNanos1);
+		
+		
 		long delayInNanos2 =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(300));
 		actionLeave(delayInNanos2);
 		
@@ -170,10 +162,10 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 	// Services implementation
 	// -------------------------------------------------------------------------
 	
-	private void addDescriptor(int number)
+	private void addDescriptor(int number ,String path)
 			throws Exception{
-		ContentDataManager.DATA_DIR_NAME = "src/data";
-		//ContentDataManager.DATA_DIR_NAME = "src/testsDataCPSAvril";
+		ContentDataManager.DATA_DIR_NAME = path ;
+		//ContentDataManager.DATA_DIR_NAME = "testsDataCPSAvril"; // in folder /deployment
 		ArrayList<HashMap<String, Object>> result = ContentDataManager.readDescriptors(number);
 		for (HashMap<String, Object> hashMap : result) {
 			ContentDescriptorI descriptor = new ContentDescriptor(hashMap);
@@ -182,7 +174,22 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 		System.out.println("pair"+id+"[label=\"Pair "+ id +"\"];");
 	}
 	
-	private void	 actionJoin(long delayInNanos) throws Exception
+	private void	actionConnectFacade(long delayInNanos) throws Exception
+	{
+		this.scheduleTask(
+				o -> {
+					try {
+						doConnectFacade();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				},
+				delayInNanos,
+				TimeUnit.NANOSECONDS);
+		
+	}
+	
+	private void  actionJoin(long delayInNanos) throws Exception
 	{
 		this.scheduleTask(
 				o -> {
@@ -210,11 +217,7 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 				TimeUnit.NANOSECONDS);
 		
 	}
-	/**
-	 * 
-	 * @param delayInNanos
-	 * @author shuhan 
-	 */
+	
 	private void actionDisconnect(long delayInNanos) {
 		this.scheduleTask(
 				o -> {
@@ -229,9 +232,14 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 		
 	}
 	
-	private void doConnectFacade(ReflectionOutboundPort rop) throws Exception {
-		this.doPortConnection(rop.getPortURI(), facadeURI, ReflectionConnector.class.getCanonicalName());
-
+	private void doConnectFacade() throws Exception {
+		//connect with facade in NM
+        this.addRequiredInterface(ReflectionCI.class);
+        ReflectionOutboundPort rop = new ReflectionOutboundPort(this);
+		rop.publishPort();
+		
+		this.doPortConnection(rop.getPortURI(), facadeNMURI, ReflectionConnector.class.getCanonicalName());
+		
 		String[] otherInboundPortUI = rop.findInboundPortURIsFromInterface(NodeManagementCI.class);
 		if (otherInboundPortUI.length == 0 || otherInboundPortUI == null)
 			System.out.println("cannot connet facade in NM");
@@ -239,6 +247,14 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 			this.doPortConnection(outPortNM.getPortURI(), otherInboundPortUI[0],
 					NodeManagementConnector.class.getCanonicalName());
 		}
+		
+		this.doPortDisconnection(rop.getPortURI());
+		rop.unpublishPort();
+		rop.destroyPort();
+		this.removeRequiredInterface(ReflectionCI.class);
+		
+		//System.out.println("pair"+id+" ->"++"[color=red];");
+		
 	}
 	
 	@Override

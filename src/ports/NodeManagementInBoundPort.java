@@ -25,7 +25,7 @@ public class NodeManagementInBoundPort extends AbstractInboundPort implements No
 	public NodeManagementInBoundPort( ComponentI owner,String uri )
 			throws Exception {
 		super(uri ,  NodeManagementCI.class, owner);
-		assert	uri != null && owner instanceof NodeManagementCI ;
+		assert	uri != null ;
 
 	}
 
