@@ -396,12 +396,11 @@ public class PairPlugin extends AbstractPlugin implements MyCMI {
 		}
 
 		public void doDisconnect() throws Exception {
-			for (ContentNodeAddressI neighbor : outPortsNodeC.keySet()) {
-				this.outPortsNodeC.get(neighbor).disconnect(this.adress);
-			}
-			
+		    for (NodeCOutboundPort outPort : outPortsNodeC.values()) {
+		        if (outPort != null && outPort.connected()) {
+		            outPort.disconnect(adress);
+		        }
+		    }
 		}
-
-		
 
 }

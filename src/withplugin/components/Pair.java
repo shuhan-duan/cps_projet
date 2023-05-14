@@ -10,6 +10,7 @@ import com.thaiopensource.validate.Flag;
 import classes.ContentDescriptor;
 import classes.ContentNodeAdress;
 import classes.NodeAdresse;
+import connector.FacadeContentManagementConector;
 import connector.NodeManagementConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.AbstractPort;
@@ -17,9 +18,13 @@ import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
+import fr.sorbonne_u.components.reflection.connectors.ReflectionConnector;
+import fr.sorbonne_u.components.reflection.interfaces.ReflectionCI;
+import fr.sorbonne_u.components.reflection.ports.ReflectionOutboundPort;
 import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import interfaces.ContentDescriptorI;
+import interfaces.FacadeContentManagementCI;
 import interfaces.MyThreadServiceI;
 import interfaces.NodeManagementCI;
 import ports.NodeManagementOutboundPort;
@@ -36,20 +41,21 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 	// -------------------------------------------------------------------------
 	// Component variables and constants
 	// -------------------------------------------------------------------------
+	/** URI of the pair inbound port (simplifies the connection).		*/
+	protected static final String	NodeCInPortPairURI = "inportNodeCpair";
+	protected static final String	CMInPortPairURI = "inportCMpair";
 	
 	protected ClocksServerOutboundPort csop;
 	private PairPlugin plugin;
 	
 	/**	the outbound port used to call the service.							*/
 	private NodeManagementOutboundPort	outPortNM ; // for calling join and leave , connected with facade
-	
-	//the inbound port NMPort of facade
-	private String inPortNMfacadeURI ;
-	
+
 	private ContentNodeAdress adress;
 	private ArrayList<ContentDescriptorI> contents; 
 	
 	private int id;
+	protected String facadeURI; // for connect a facade in NM
 	
 	private static final int NB_OF_THREADS = 10;
 
@@ -60,17 +66,16 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 	// -------------------------------------------------------------------------
 	// Constructors
 	// -------------------------------------------------------------------------
-	protected Pair(int DescriptorID, String NodeCInPortPair ,String CMInPortPair,String inPortNMfacadeURI )throws Exception {
-		super("pair"+DescriptorID , NB_OF_THREADS, 1);
-		
-		this.id = DescriptorID ;
-		
-		this.inPortNMfacadeURI = inPortNMfacadeURI;
+	protected Pair(String PAIR_URI ,String FACADE_URI)throws Exception {
+		super(PAIR_URI , NB_OF_THREADS, 1);
+		String[] parts = PAIR_URI.split("Pair");
+		this.id = Integer.parseInt(parts[1]);
 		
 		this.outPortNM =new NodeManagementOutboundPort(this);
 		outPortNM.publishPort() ;
+		this.facadeURI = FACADE_URI;
 		
-		this.adress = new ContentNodeAdress("pair"+id, CMInPortPair+id, NodeCInPortPair+id);
+		this.adress = new ContentNodeAdress(PAIR_URI, CMInPortPairURI+id, NodeCInPortPairURI+id);
 		this.contents = new ArrayList<ContentDescriptorI>();
 		
 		//add descriptors to ArrayList contents
@@ -101,8 +106,18 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 	public void start() throws ComponentStartException {
 		super.start();
 		try {
-			//System.out.println("in pair "+ id +", inPortNMfacadeURI : " +inPortNMfacadeURI);
-			doPortConnection( outPortNM.getPortURI(),inPortNMfacadeURI, NodeManagementConnector.class.getCanonicalName());
+			//connect with facade in NM
+	        this.addRequiredInterface(ReflectionCI.class);
+	        ReflectionOutboundPort rop = new ReflectionOutboundPort(this);
+			rop.publishPort();
+			
+			this.doConnectFacade(rop);
+			
+			this.doPortDisconnection(rop.getPortURI());
+			rop.unpublishPort();
+			rop.destroyPort();
+			this.removeRequiredInterface(ReflectionCI.class);
+			
 			//System.out.println("pair"+id+" ->"+inPortNMfacadeURI+"[color=red];");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -111,6 +126,8 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 		
 	}
 	
+	
+
 	@Override
 	public void			execute() throws Exception
 	{ 
@@ -128,9 +145,7 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 		actionDisconnect(delayInNanos3);
 				
 			
-	}
-	
-	
+	}	
 
 	@Override
 	public void	finalise() throws Exception
@@ -169,7 +184,6 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 	
 	private void	 actionJoin(long delayInNanos) throws Exception
 	{
-		//do join et connect 
 		this.scheduleTask(
 				o -> {
 					try {
@@ -210,10 +224,21 @@ public class Pair extends AbstractComponent implements MyThreadServiceI{
 				TimeUnit.NANOSECONDS);
 		
 	}
+	
+	private void doConnectFacade(ReflectionOutboundPort rop) throws Exception {
+		this.doPortConnection(rop.getPortURI(), facadeURI, ReflectionConnector.class.getCanonicalName());
 
+		String[] otherInboundPortUI = rop.findInboundPortURIsFromInterface(NodeManagementCI.class);
+		if (otherInboundPortUI.length == 0 || otherInboundPortUI == null)
+			System.out.println("cannot connet facade in NM");
+		else {
+			this.doPortConnection(outPortNM.getPortURI(), otherInboundPortUI[0],
+					NodeManagementConnector.class.getCanonicalName());
+		}
+	}
+	
 	@Override
 	public String get_THREAD_POOL_URI() {
-		// TODO Auto-generated method stub
 		return NM_THREAD_SERVICE_URI+id;
 	}
 	@Override

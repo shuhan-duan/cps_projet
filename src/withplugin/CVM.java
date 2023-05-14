@@ -20,22 +20,16 @@ import withplugin.components.Pair;
  *
  */
 public class CVM extends AbstractCVM{
-	/** URI of the facade inbound component (convenience).						*/
-	protected static final String	NMInboundPortURI = "inportNMfacade"; // 
-	protected static final String	FacadeCMInPortFacadeURI = "inportFCMfacade";
-	
-	/** URI of the consumer inbound port (simplifies the connection).		*/
-	protected static final String	FacadeCMInPortClientURI = "inportFCMclient";
-	
-	/** URI of the pair inbound port (simplifies the connection).		*/
-	protected static final String	NodeCInPortPairURI = "inportNodeCpair";
-	protected static final String	CMInPortPairURI = "inportCMpair";
 	
 	protected final int NB_PEER = 10;  
 	protected final int NB_FACADE = 2 ;
 	
 	protected static final long		DELAY_TO_START_IN_NANOS =	TimeUnit.SECONDS.toNanos(5);
 	public static final String		CLOCK_URI = "my-clock";
+	
+	protected static final String PAIR_URI = "Pair";
+	protected static final String FACADE_URI = "Facade";
+	protected static final String FCMInPortClientURI = "inPortFCMClient";
 
 	/**    
 	* @Function: CVM.java
@@ -71,24 +65,17 @@ public class CVM extends AbstractCVM{
 		for(int i = 0 ; i < NB_FACADE ; i++ ) {
 			AbstractComponent.createComponent(
 					Facade.class.getCanonicalName(),
-					new Object[]{i,
-							NMInboundPortURI,
-							FacadeCMInPortFacadeURI,
-							NB_FACADE,// for the interconnection of facades
-							FacadeCMInPortClientURI // for call accept in client
-					});
+					new Object[]{FACADE_URI+i,
+							FCMInPortClientURI}); // pass the FCMInPortClientURI to facade
 		}				
 				System.out.println("\nCreate Composant Facade OK ");
 				
 		// create the component pairs
-		// for connect pair with facade , should pass the inportNM of facade to pair
 		for (int i = 0; i < NB_PEER  ; i++) {
 			AbstractComponent.createComponent(
 							Pair.class.getCanonicalName(),
-							new Object[]{i,
-									NodeCInPortPairURI,
-									CMInPortPairURI,
-									NMInboundPortURI+ i%NB_FACADE // choose a facade
+							new Object[]{PAIR_URI+i,
+									FACADE_URI+ i % NB_FACADE // choose a facade
 									});
 		}
 		System.out.println("\nCreate Composant pairs OK ");
@@ -97,7 +84,8 @@ public class CVM extends AbstractCVM{
 		// create the component client
 		AbstractComponent.createComponent(
 				Client.class.getCanonicalName(),
-				new Object[]{FacadeCMInPortClientURI,FacadeCMInPortFacadeURI+selectRandomFacadeId()}); // not sure client will connect with only one facade
+				new Object[]{"client",
+						FACADE_URI+selectRandomFacadeId()}); 
 		System.out.println("\nCreate Composant client OK ");
 		
 

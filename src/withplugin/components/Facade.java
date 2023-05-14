@@ -33,6 +33,11 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	// -------------------------------------------------------------------------
 	private static final int MAX_ROOTS = 2; 
 	private static final int MAX_PROBES = 2;
+	private static final int nbFacades = 2;
+	
+	/** URI of the facade inbound component (convenience).						*/
+	protected static final String	NMInboundPortURI = "inportNMfacade"; // 
+	protected static final String	FCMInPortFacadeURI = "inportFCMfacade";
 	
 	//to count the times that facade has received the result of probed
 	private ConcurrentHashMap<String, Integer> cptAcceptProbed = new ConcurrentHashMap<>();
@@ -49,11 +54,9 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
     private ApplicationNodeAdress adress;
     
     private FacadePlugin facade_plugin;
-    
-    private String inportNMFacadeURI;
-
+ 
 	private int id ;
-	private int nbFacades ;
+	
 	private Random random = new Random();
 	
 	private static final int NB_OF_THREADS = 2;
@@ -67,16 +70,16 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 	// Constructors
 	// -------------------------------------------------------------------------
 
-	protected	Facade(	int i, String NMInboundPortURI,String FacadeCMInPortFacadeURI ,int nbFacades,String FacadeCMInPortClientURI ) throws Exception
+	protected	Facade(String FacadeURI ,String FCMInPortClientURI) throws Exception
 	{
 		// the reflection inbound port URI is the URI of the component
-		super("Facade"+i, NB_OF_THREADS, 0) ;
+		super(FacadeURI, NB_OF_THREADS, 0) ;
 		
-		this.id = i;
-		this.nbFacades = nbFacades;
-		this.inportNMFacadeURI = NMInboundPortURI ;
+		String[] parts = FacadeURI.split("Facade");
+		this.id = Integer.parseInt(parts[1]);
+		
 		//public ApplicationNodeAdress(String uriPrefix, String uriFCM ,String  uriNM)
-		this.adress = new ApplicationNodeAdress("facade"+id ,FacadeCMInPortFacadeURI +id ,inportNMFacadeURI +id) ;
+		this.adress = new ApplicationNodeAdress(FacadeURI ,FCMInPortFacadeURI +id ,NMInboundPortURI +id) ;
 		
 		this.inPortNM = new NodeManagementInBoundPort(this, adress.getNodeManagementUri());
 		this.inPortNM.publishPort();
@@ -88,8 +91,8 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 		this.createNewExecutorService(NM_THREAD_SERVICE_URI+id, nbThreadsNM, false);
 		this.createNewExecutorService(FCM_THREAD_SERVICE_URI+id, nbThreadsFCM, false);
 		
-		//FacadeCMInPortFacadeURI is used for plugin
-		this.facade_plugin = new FacadePlugin(adress,FacadeCMInPortClientURI);
+		//FCMInPortFacadeURI is used for plugin
+		this.facade_plugin = new FacadePlugin(adress,FCMInPortClientURI);
 		this.installPlugin(facade_plugin);
 		System.out.println("facade"+id+"[label=\"Facade "+ id +"\"];");
 		
@@ -111,7 +114,7 @@ public class Facade  extends AbstractComponent implements MyThreadServiceI{
 					NodeManagementOutboundPort outPortNM = new NodeManagementOutboundPort(this);
 					outPortNM.publishPort();
 					outPortsNM.put(i, outPortNM);
-					doPortConnection(outPortNM.getPortURI(), inportNMFacadeURI+i, NodeManagementConnector.class.getCanonicalName());
+					doPortConnection(outPortNM.getPortURI(), NMInboundPortURI+i, NodeManagementConnector.class.getCanonicalName());
 					System.out.println("facade"+id +" -> facade"+ i);
 				}
 			}

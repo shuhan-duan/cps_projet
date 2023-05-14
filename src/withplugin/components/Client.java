@@ -1,6 +1,7 @@
 package withplugin.components;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,9 +21,13 @@ import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import classes.ContentTemplate;
 import connector.FacadeContentManagementConector;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
+import fr.sorbonne_u.components.reflection.connectors.ReflectionConnector;
+import fr.sorbonne_u.components.reflection.interfaces.ReflectionCI;
+import fr.sorbonne_u.components.reflection.ports.ReflectionOutboundPort;
 import fr.sorbonne_u.cps.p2Pcm.dataread.ContentDataManager;
 import interfaces.ContentDescriptorI;
 import interfaces.ContentTemplateI;
+import interfaces.FacadeContentManagementCI;
 import interfaces.MyClientI;
 import ports.FacadeContentManagementCOutbound;
 import ports.MyClientCInbound;
@@ -35,29 +40,33 @@ import withplugin.CVM;
  */
 
 public class Client extends AbstractComponent{
+	
+		/** URI of the consumer inbound port (simplifies the connection).		*/
+		protected static final String	FCMInPortClientURI = "inPortFCMClient";
 		
 		protected MyClientCInbound inportFCM_client;
 	    private FacadeContentManagementCOutbound outportFCM_client;
 		protected ClocksServerOutboundPort csop; 
 	
-	    protected String inportCM_facadeURI;
+	    protected String facadeURI; // for connect the facade in FCM
 	    protected final int ID_TEMP = 0;
 	    
-    
+	    private Instant startTime;
     
     // -------------------------------------------------------------------------
  	// Constructors
  	// -------------------------------------------------------------------------
     
-    protected Client(String FacadeCMInPortClientURI ,String inportFCMfacadeURI) throws Exception {
-        super(2,1);
-        inportFCM_client = new MyClientCInbound(FacadeCMInPortClientURI, this);
+    protected Client(String clientURI , String facadeURI) throws Exception {
+        super(clientURI,2,1);
+        
+        inportFCM_client = new MyClientCInbound(FCMInPortClientURI, this);
         inportFCM_client.publishPort();
         
         outportFCM_client = new FacadeContentManagementCOutbound(this);
         outportFCM_client.publishPort();
         
-        this.inportCM_facadeURI = inportFCMfacadeURI;
+        this.facadeURI = facadeURI; 
 		//Create Clock
 		this.csop = new ClocksServerOutboundPort(this);  
 		this.csop.publishPort();
@@ -73,8 +82,17 @@ public class Client extends AbstractComponent{
     public void start() throws ComponentStartException {
       try {
         super.start();
-        //connect with facade in FCM       
-        this.doPortConnection(outportFCM_client.getPortURI(), inportCM_facadeURI, FacadeContentManagementConector.class.getCanonicalName());	
+        //connect with facade in FCM
+        this.addRequiredInterface(ReflectionCI.class);
+        ReflectionOutboundPort rop = new ReflectionOutboundPort(this);
+		rop.publishPort();
+		
+		this.doConnectFacade(rop);
+		
+		this.doPortDisconnection(rop.getPortURI());
+		rop.unpublishPort();
+		rop.destroyPort();
+		this.removeRequiredInterface(ReflectionCI.class);
         
       } catch (Exception e) {
         throw new ComponentStartException(e);
@@ -92,7 +110,9 @@ public class Client extends AbstractComponent{
 		Instant startInstant = clock.getStartInstant();
 		clock.waitUntilStart();
 		
-		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(150));
+		long delayInNanos =clock.nanoDelayUntilAcceleratedInstant(startInstant.plusSeconds(60));
+		
+		startTime = Instant.now();
 		
 		this.scheduleTask(
 				o -> {
@@ -117,7 +137,13 @@ public class Client extends AbstractComponent{
 		if (found != null) {
 			System.out.println("has returned the result to client,"
 					+ " in "+requsetURI +" we found : "+ found.toString());
-		}		
+		}
+		
+		Instant endTime = Instant.now();
+		Duration duration = Duration.between(startTime, endTime);
+		long responseTimeInMillis = duration.toMillis();
+		System.out.println("responseTimeInMillis of find : "+ responseTimeInMillis+ "\n");
+
 	}
 	
 	public void acceptMatched(Set<ContentDescriptorI> matched ,String requsetURI) throws Exception {
@@ -126,16 +152,27 @@ public class Client extends AbstractComponent{
 			System.out.println(contentDescriptorI.toString());
 		}
 	}
-	
+	private void doConnectFacade(ReflectionOutboundPort rop) throws Exception {
+		this.doPortConnection(rop.getPortURI(), facadeURI, ReflectionConnector.class.getCanonicalName());
+
+		String[] otherInboundPortUI = rop.findInboundPortURIsFromInterface(FacadeContentManagementCI.class);
+		if (otherInboundPortUI.length == 0 || otherInboundPortUI == null)
+			System.out.println("cannot connet facade in FCM");
+		else {
+			this.doPortConnection(outportFCM_client.getPortURI(), otherInboundPortUI[0],
+					FacadeContentManagementConector.class.getCanonicalName());
+		}			
+
+	}
     
 	private void action() throws Exception
 	{
     	 //choose template
         ContentTemplateI temp = createTemplate(ID_TEMP);
         //find
-        //doFind(temp);
+        doFind(temp);
         //match
-        doMatch(temp);
+        //doMatch(temp);
 	}
     
     private ContentTemplate createTemplate(int numbre) throws ClassNotFoundException, IOException{
@@ -167,7 +204,7 @@ public class Client extends AbstractComponent{
     
     private void doFind(ContentTemplateI temp) throws Exception {
     	//call find in the facade connected
-    	this.outportFCM_client.find(temp, 5, null, null);
+    	this.outportFCM_client.find(temp, 4, null, null);
         System.out.println("\nplease find the template:\n "+ temp.toString()+"\n");
        
 	}

@@ -1,0 +1,31 @@
+<deployment>
+   <hosts>
+    <host name="localhost"
+          dir="/Users/shuhan/Sorbonne/S2/CPS/cps_projet/deployment/"/>
+  </hosts>
+  <cyclicBarrier   hostname="localhost" port="55253"/>
+  <globalRegistry  hostname="localhost" port="55252"/>
+  <rmiRegistryPort no="55999"/>
+  <jvms2hostnames>
+    <jvm2hostname jvmuri="Facade1"
+        rmiRegistryCreator="true"
+        hostname="localhost"
+        mainclass="withplugin.DistributedCVM"/>
+    <jvm2hostname jvmuri="Facade2"
+        rmiRegistryCreator="false"
+        hostname="localhost"
+        mainclass="withplugin.DistributedCVM"/>
+    <jvm2hostname jvmuri="Facade3"
+        rmiRegistryCreator="false"
+        hostname="localhost"
+        mainclass="withplugin.DistributedCVM"/>
+    <jvm2hostname jvmuri="Facade4"
+        rmiRegistryCreator="false"
+        hostname="localhost"
+        mainclass="withplugin.DistributedCVM"/>
+    <jvm2hostname jvmuri="Facade5"
+        rmiRegistryCreator="false"
+        hostname="localhost"
+        mainclass="withplugin.DistributedCVM"/>
+  </jvms2hostnames>
+</deployment>
