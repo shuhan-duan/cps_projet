@@ -1,0 +1,63 @@
+1684098082133|DCVM Cyclic Barrier up and running!
+1684098082942|DCVM Cyclic Barrier accepts: Facade0 localhost 63023
+1684098082943|DCVM Cyclic Barrier has received 1 out of 5 expected.
+1684098082990|DCVM Cyclic Barrier accepts: Facade1 localhost 63024
+1684098082990|DCVM Cyclic Barrier has received 2 out of 5 expected.
+1684098083175|DCVM Cyclic Barrier accepts: Facade2 localhost 63025
+1684098083175|DCVM Cyclic Barrier has received 3 out of 5 expected.
+1684098083394|DCVM Cyclic Barrier accepts: Facade3 localhost 63026
+1684098083395|DCVM Cyclic Barrier has received 4 out of 5 expected.
+1684098083774|All connected!
+1684098083777|DCVM Cyclic Barrier accepts: Facade4 localhost 63030
+1684098083778|DCVM Cyclic Barrier has received 5 out of 5 expected.
+1684098083778|DCVM Cyclic Barrier releases 5 sites.
+1684098083783|DCVM Cyclic Barrier accepts: Facade0 localhost 63023
+1684098083784|DCVM Cyclic Barrier has received 1 out of 5 expected.
+1684098083835|DCVM Cyclic Barrier accepts: Facade2 localhost 63025
+1684098083835|DCVM Cyclic Barrier accepts: Facade4 localhost 63030
+1684098083835|DCVM Cyclic Barrier accepts: Facade1 localhost 63024
+1684098083836|DCVM Cyclic Barrier has received 2 out of 5 expected.
+1684098083837|DCVM Cyclic Barrier has received 3 out of 5 expected.
+1684098083837|DCVM Cyclic Barrier accepts: Facade3 localhost 63026
+1684098083838|DCVM Cyclic Barrier has received 4 out of 5 expected.
+1684098083839|DCVM Cyclic Barrier has received 5 out of 5 expected.
+1684098083839|DCVM Cyclic Barrier releases 5 sites.
+1684098084962|DCVM Cyclic Barrier accepts: Facade0 localhost 63023
+1684098084963|DCVM Cyclic Barrier has received 1 out of 5 expected.
+1684098085233|DCVM Cyclic Barrier accepts: Facade3 localhost 63026
+1684098085234|DCVM Cyclic Barrier has received 2 out of 5 expected.
+1684098085262|DCVM Cyclic Barrier accepts: Facade1 localhost 63024
+1684098085262|DCVM Cyclic Barrier accepts: Facade4 localhost 63030
+1684098085263|DCVM Cyclic Barrier has received 3 out of 5 expected.
+1684098085264|DCVM Cyclic Barrier accepts: Facade2 localhost 63025
+1684098085264|DCVM Cyclic Barrier has received 4 out of 5 expected.
+1684098085265|DCVM Cyclic Barrier has received 5 out of 5 expected.
+1684098085265|DCVM Cyclic Barrier releases 5 sites.
+1684098085267|DCVM Cyclic Barrier accepts: Facade0 localhost 63023
+1684098085267|DCVM Cyclic Barrier accepts: Facade4 localhost 63030
+1684098085268|DCVM Cyclic Barrier has received 1 out of 5 expected.
+1684098085268|DCVM Cyclic Barrier accepts: Facade3 localhost 63026
+1684098085269|DCVM Cyclic Barrier accepts: Facade2 localhost 63025
+1684098085269|DCVM Cyclic Barrier accepts: Facade1 localhost 63024
+1684098085269|DCVM Cyclic Barrier has received 2 out of 5 expected.
+1684098085270|DCVM Cyclic Barrier has received 3 out of 5 expected.
+1684098085270|DCVM Cyclic Barrier has received 4 out of 5 expected.
+1684098085271|DCVM Cyclic Barrier has received 5 out of 5 expected.
+1684098085271|DCVM Cyclic Barrier releases 5 sites.
+1684098085317|DCVM Cyclic Barrier accepts: Facade0 localhost 63023
+1684098085318|DCVM Cyclic Barrier has received 1 out of 5 expected.
+1684098085354|DCVM Cyclic Barrier accepts: Facade1 localhost 63024
+1684098085355|DCVM Cyclic Barrier has received 2 out of 5 expected.
+1684098085372|DCVM Cyclic Barrier accepts: Facade3 localhost 63026
+1684098085372|DCVM Cyclic Barrier accepts: Facade4 localhost 63030
+1684098085373|DCVM Cyclic Barrier has received 3 out of 5 expected.
+1684098085373|DCVM Cyclic Barrier has received 4 out of 5 expected.
+1684098085383|DCVM Cyclic Barrier accepts: Facade2 localhost 63025
+1684098085383|DCVM Cyclic Barrier has received 5 out of 5 expected.
+1684098085384|DCVM Cyclic Barrier releases 5 sites.
+1684098123689|DCVMCyclicBarrier.run() finished.
+1684098126612|DCVMCyclicBarrier.run() finished.
+1684098128828|DCVMCyclicBarrier.run() finished.
+1684098130929|DCVMCyclicBarrier.run() finished.
+1684098132972|DCVMCyclicBarrier.run() finished.
+1684098132972|DCVM Cyclic Barrier shuts down!

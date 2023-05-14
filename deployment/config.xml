@@ -7,10 +7,14 @@
   <globalRegistry  hostname="localhost" port="55252"/>
   <rmiRegistryPort no="55999"/>
   <jvms2hostnames>
-    <jvm2hostname jvmuri="Facade1"
+	<jvm2hostname jvmuri="Facade0"
         rmiRegistryCreator="true"
         hostname="localhost"
         mainclass="withplugin.DistributedCVM"/>
+	 <jvm2hostname jvmuri="Facade1"
+	    rmiRegistryCreator="false"
+	    hostname="localhost"
+	    mainclass="withplugin.DistributedCVM"/>
     <jvm2hostname jvmuri="Facade2"
         rmiRegistryCreator="false"
         hostname="localhost"
@@ -23,9 +27,6 @@
         rmiRegistryCreator="false"
         hostname="localhost"
         mainclass="withplugin.DistributedCVM"/>
-    <jvm2hostname jvmuri="Facade5"
-        rmiRegistryCreator="false"
-        hostname="localhost"
-        mainclass="withplugin.DistributedCVM"/>
+   
   </jvms2hostnames>
 </deployment>
