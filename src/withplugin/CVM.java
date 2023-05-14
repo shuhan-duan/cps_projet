@@ -32,7 +32,7 @@ public class CVM extends AbstractCVM{
 	
 	protected static final String FCMInPortClientURI = "inPortFCMClient";
 	protected static final String	NMInboundFacadePortURI = "inportNMfacade";
-	
+	protected static final String	FacadeCMInPortFacadeURI = "inportFCMfacade";
 	
 	/**    
 	* @Function: CVM.java
@@ -90,7 +90,7 @@ public class CVM extends AbstractCVM{
 		AbstractComponent.createComponent(
 				Client.class.getCanonicalName(),
 				new Object[]{"client",
-						FACADE_URI+selectRandomFacadeId(),
+						FacadeCMInPortFacadeURI+selectRandomFacadeId(),
 						"src/data"}); 
 		System.out.println("\nCreate Composant client OK ");
 		
