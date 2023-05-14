@@ -12,7 +12,7 @@ Cvm.java
 ```
 
 ```
-Distributed.java 
+DistributedCVM.java 
 ```
 
 
